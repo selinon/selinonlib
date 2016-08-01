@@ -1,0 +1,176 @@
+---
+    # Run following to plot graphs of flows:
+    #   ./parsley-cli.py -tasks-definition examples/example.yml -flow-definition examples/example.yml -graph ./ -v -v -v
+    # you should have following files in your directory
+    #   flow1.svg, flow2.svg, flow3.svg
+    # In order to generate Python code for Celeriac to example.py, run:
+    #   ./parsley-cli.py -tasks-definition examples/example.yml -flow-definition examples/example.yml -dump example.py -v -v -v
+    #
+    # Definition of tasks. For each task you have to provide name and the import that should be used in order to
+    # instantiate a task. You can place tasks definition in a separate file.
+    tasks:
+        - name: "Task1"
+          import: "worker.task1"
+        - name: "Task2"
+          import: "worker.task2"
+        - name: "Task3"
+          import: "worker.task3"
+          # Optionally you can specify task class name in import, 'name' is used as a task name by default.
+          classname: 'Task3Class'
+        - name: "Task4"
+          import: "worker.task4"
+        - name: "Task5"
+          import: "worker.task5"
+
+    # 'flow' and 'flow-definition' can be in a separate file if you want to have task defininition and
+    # flow definition separated.
+    # Since we can use cyclic dependencies, we have to provide listing of all flows that our system has.
+    flows:
+        - "flow1"
+        - "flow2"
+        - "flow3"
+
+    # Now we have to define each flow:
+    flow-definitions:
+        - name: "flow1"
+            # The following describes following simple flow (from Task1 to Task2):
+            #    Task1
+            #      |
+            #      |
+            #    Task2
+            #
+            # Each flow consists of edges.
+          edges:
+              # We have to specify a source, a destination node and a condition for the edge. Fields
+              # 'from' and 'to' can refer to tasks or flows. The condition consists of an
+              # predicate - if True, desired task 'Task2' is run.
+              - from: "Task1"
+                to: "Task2"
+                condition:
+                    name: "alwaysTrue"
+              - to: "Task1"
+                # If we do not specify 'from', edge is treated as a starting edge of the flow. Each flow has to
+                # provide at least one starting edge.
+                from:
+                condition:
+                    name: "alwaysTrue"
+            # Note that if we do not provides 'args' argument in Celeriac, the result of Task1 will be propagated as
+            # an argument to Task2.
+
+        - name: "flow2"
+          edges:
+              # The following describes nested flow:
+              #      Task3
+              #        | if for the result of Task3 applies: result['foo']['bar'] == 'baz'
+              #       /\
+              #      /  \
+              #     /    \
+              #  Task4   flow1
+              #    \      /
+              #     \    /
+              #      \  /
+              #       \/
+              #        |
+              #        | if for the result of Task4 applies: (not result['foo'] is True) and result['bar'] > 5
+              #        |
+              #      Task5
+              # First, let's define the starting edge:
+              - from:
+                to: "Task3"
+                condition:
+                    # The starting edge cannot inspect any result, since there are no previous tasks in from.
+                    name: "alwaysTrue"
+              # After the Task3 is done, start Task4 and flow1:
+              - from: "Task3"
+                to:
+                    # we provide a list of tasks that should be run if condition is satisfied:
+                    - "Task4"
+                    - "flow1"
+                condition:
+                    name: "fieldEqual"
+                    # We provide a list of keys in order to access nested values in dicts:
+                    args:
+                        key:
+                            - "foo"
+                            - "bar"
+                        value: "baz"
+              # Similarly we can wait for both tasks to finish. If we do not depend on flow1, we could simply
+              # omit "flow1" from 'from' and we would not wait for 'flow1' to be finished as shown in flow3.
+              - from:
+                  - "Task4"
+                  - "flow1"
+                to: "Task5"
+                condition:
+                    # You can use n-ary 'and' and 'or' logical operators as you would expect. Similarly you can use
+                    # unary 'not' operator (you could simple change value to 'false', but we want to demonstrate 'not')
+                    and:
+                        - not:
+                            name: "fieldEqual"
+                            # Since we have multiple dependencies in 'from', we have to explictly refer to node that
+                            # condition should apply to.
+                            node: "Task4"
+                            args:
+                                key: "foo"
+                                value: true
+                        - name: "fieldGreater"
+                          node: "Task4"
+                          args:
+                              key: "bar"
+                              value: 5
+        - name: "flow3"
+          edges:
+              # The following describes:
+              #
+              #                              |-------> Task3
+              #                              |           | if for the result of Task3 applies: result['foo']['bar'] == 'baz'
+              #                              |          /\
+              #                              |         /  \
+              #                              |        /    \
+              #                              |     Task4   flow1
+              #   result['foo'] is not None  |       |
+              #                              |       |
+              #                              |       | if for the result of Task4 applies: (not result['foo'] is True) and result['bar'] > 5
+              #                              |----- Task5
+              #
+              # This example is same as for flow2, but we are not waiting for flow1 to be finished and we start
+              # Task3 again if the result['foo'] of Task5 is not None
+              - from:
+                to: "Task3"
+                condition:
+                    name: "alwaysTrue"
+              - from: "Task3"
+                to:
+                    - "Task4"
+                    - "flow1"
+                condition:
+                    name: "fieldEqual"
+                    node: "Task3"
+                    args:
+                        key:
+                            - "foo"
+                            - "bar"
+                        value: "baz"
+              - from: "Task4"
+                to: "Task5"
+                condition:
+                    and:
+                        - not:
+                            name: "fieldEqual"
+                            node: "Task4"
+                            args:
+                                key: "foo"
+                                value: true
+                        - name: "fieldGreater"
+                          node: "Task4"
+                          args:
+                              key: "bar"
+                              value: 5
+              # Cyclic dependencies are intuitive and can be applied for any node - for a flow or a task.
+              - from: "Task5"
+                to: "Task3"
+                condition:
+                    not:
+                        name: "fieldNone"
+                        args:
+                            key: 'foo'
+
