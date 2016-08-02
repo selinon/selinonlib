@@ -19,7 +19,8 @@
 # ####################################################################
 
 import abc
-from .helpers import check_node_name, ABC
+import re
+from .helpers import ABC
 
 
 class Node(ABC):
@@ -27,7 +28,7 @@ class Node(ABC):
     An abstract class for node representation
     """
     def __init__(self, name):
-        if not check_node_name(name):
+        if not self.check_name(name):
             raise ValueError("Invalid node name '%s'" % name)
         self._name = name
 
@@ -61,3 +62,13 @@ class Node(ABC):
         from .task import Task
         return isinstance(self, Task)
 
+    @staticmethod
+    def check_name(name):
+        """
+        Check whether name is a correct node (flow/task) name
+        :param name: node name
+        :return: True if name is a correct node name
+        :rtype: bool
+        """
+        r = re.compile(r"^[_a-zA-Z][_a-zA-Z0-9]*$")
+        return r.match(name)

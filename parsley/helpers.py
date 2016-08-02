@@ -65,15 +65,5 @@ def dict2json(o, pretty=True):
         return json.dumps(o)
 
 
-def check_node_name(name):
-    """
-    Check whether name is a correct node (flow/task) name
-    :param name: node name
-    :return: True if name is a correct node name
-    :rtype: bool
-    """
-    r = re.compile(r"^[_a-zA-Z][_a-zA-Z0-9]*$")
-    return r.match(name)
-
 # To define abstract class that can be used in Python2 and Python3
 ABC = abc.ABCMeta('ABC', (object,), {})
