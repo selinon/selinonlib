@@ -22,13 +22,14 @@
         - name: "Task5"
           import: "worker.task5"
 
-    # 'flow' and 'flow-definition' can be in a separate file if you want to have task defininition and
-    # flow definition separated.
-    # Since we can use cyclic dependencies, we have to provide listing of all flows that our system has.
+    # Since we can use cyclic dependencies, we have to provide listing of all flows and tasks that our system has.
     flows:
         - "flow1"
         - "flow2"
         - "flow3"
+
+    # 'flow-definition' can be in a separate file (or split across multiple files) if you want to have task
+    # defininition and flow definition separated.
 
     # Now we have to define each flow:
     flow-definitions:

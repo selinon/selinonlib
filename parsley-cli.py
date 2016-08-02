@@ -1,48 +1,9 @@
 #!/usr/bin/env python
 
 import argparse
-import yaml
-from parsley import Logger, Task, Flow, System, Edge
+from parsley import Logger, System
 from parsley import parsley_version as version
 from parsley import Config
-
-
-def _system_from_args(args):
-    logger = Logger.get_logger(__name__)
-    system = System()
-
-    with open(args.tasks, 'r') as f:
-        logger.debug("Parsing '{}'".format(args.tasks))
-        try:
-            content = yaml.load(f)
-        except:
-            logger.error("Bad YAML file, unable to load tasks from {}".format(args.tasks))
-            raise
-
-    for task_dict in content['tasks']:
-        task = Task.from_dict(task_dict)
-        system.add_task(task)
-
-    with open(args.flow, 'r') as f:
-        logger.debug("Parsing '{}'".format(args.flow))
-        try:
-            content = yaml.load(f)
-        except:
-            logger.error("Bad YAML file, unable to load flow from {}".format(args.flow))
-            raise
-
-    for flow_name in content['flows']:
-        flow = Flow(flow_name)
-        system.add_flow(flow)
-
-    for flow_def in content['flow-definitions']:
-        flow = system.flow_by_name(flow_def['name'])
-        for edge_def in flow_def['edges']:
-            edge = Edge.from_dict(edge_def, system)
-            flow.add_edge(edge)
-
-    system.post_parse_check()
-    return system
 
 
 def main():
@@ -50,10 +11,10 @@ def main():
                                      description='YAML configuration file parser for Celeriac; v%s' % version)
     parser.add_argument('-config', dest='config', action='store', metavar='CONFIG.yml',
                         help='path to configuration file')
-    parser.add_argument('-tasks-definition', dest='tasks', action='store', metavar='TASKS.yml',
+    parser.add_argument('-nodes-definition', dest='nodes', action='store', metavar='NODES.yml',
                         help='path to tasks definition file', required=True)
-    parser.add_argument('-flow-definition', dest='flow', action='store', metavar='FLOW.yml',
-                        help='path to flow definition file', required=True)
+    parser.add_argument('-flow-definition', dest='flows', action='store', metavar='FLOW.yml',
+                        help='path to flow definition file', required=True, nargs='+')
     parser.add_argument('-verbose', dest='verbose', action='count')
 
     parser.add_argument('-dump', dest='dump', action='store', metavar='DUMP.py',
@@ -67,10 +28,10 @@ def main():
 
     args = parser.parse_args()
 
-    Config.set_config(args.config)
     Logger.set_verbosity(args.verbose)
+    Config.set_config(args.config)
 
-    system = _system_from_args(args)
+    system = System.from_files(args.nodes, args.flows)
 
     some_work = False
 

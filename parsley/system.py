@@ -21,6 +21,10 @@
 import codegen
 import graphviz
 import os
+import yaml
+from .task import Task
+from .flow import Flow
+from .edge import Edge
 from .version import parsley_version
 from .config import Config
 from .logger import Logger
@@ -329,3 +333,51 @@ class System(object):
             except:
                 _logger.error("Check of flow '%s' failed" % flow.name)
                 raise
+
+    @staticmethod
+    def from_files(nodes_definition_file, flow_definition_files):
+        """
+        Construct System from files
+        :param nodes_definition_file: path to nodes definition file
+        :param flow_definition_files: path to files that describe flows
+        :return: System instance
+        :rtype: System
+        """
+        system = System()
+
+        with open(nodes_definition_file, 'r') as f:
+            _logger.debug("Parsing '{}'".format(nodes_definition_file))
+            try:
+                content = yaml.load(f)
+            except:
+                _logger.error("Bad YAML file, unable to load tasks from {}".format(nodes_definition_file))
+                raise
+
+        for task_dict in content['tasks']:
+            task = Task.from_dict(task_dict)
+            system.add_task(task)
+
+        for flow_name in content['flows']:
+            flow = Flow(flow_name)
+            system.add_flow(flow)
+
+        if not isinstance(flow_definition_files, list):
+            flow_definition_files = [flow_definition_files]
+
+        for flow_file in flow_definition_files:
+            with open(flow_file, 'r') as f:
+                _logger.debug("Parsing '{}'".format(flow_file))
+                try:
+                    content = yaml.load(f)
+                except:
+                    _logger.error("Bad YAML file, unable to load flow from {}".format(flow_file))
+                    raise
+
+            for flow_def in content['flow-definitions']:
+                flow = system.flow_by_name(flow_def['name'])
+                for edge_def in flow_def['edges']:
+                    edge = Edge.from_dict(edge_def, system)
+                    flow.add_edge(edge)
+
+        system.post_parse_check()
+        return system
