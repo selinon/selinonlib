@@ -139,9 +139,15 @@ class System(object):
         Dump used imports of tasks to a stream
         :param output: a stream to write to
         """
-        output.write('from parsley.predicates import *\n')
+        predicates = set([])
+        for flow in self._flows:
+            for edge in flow.edges:
+                predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
+        output.write('from parsley.predicates import %s\n' % ", ".join(predicates))
+
         for task in self._tasks:
             output.write("from {} import {}\n".format(task.import_path, task.class_name))
+
         output.write('\n\n')
 
     def _dump_is_flow(self, output):
