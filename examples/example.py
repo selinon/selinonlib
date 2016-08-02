@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # auto-generated using Parsley v0.1.0a1
 
-from parsley.predicates import *
+from parsley.predicates import fieldEqual, fieldNone, fieldGreater, alwaysTrue
 from worker.task1 import Task1
 from worker.task2 import Task2
 from worker.task3 import Task3Class
