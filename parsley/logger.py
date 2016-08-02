@@ -25,16 +25,15 @@ class _LoggerWrapper(object):
     """
     Logger wrapper to be sure that logger is called with a correct logging level in the whole library after imports
     """
-    def __init__(self, name, level):
+    def __init__(self, name):
         self._instance = None
         self._name = name
-        self._level = level
 
     def __getattr__(self, item):
         if item in ['_name', '_level', '_instance']:
             return super(_LoggerWrapper, self).__getattribute__(item)
         if not self._instance:
-            logging.basicConfig(level=self._level)
+            logging.basicConfig(level=Logger.get_level())
             self._instance = logging.getLogger(self._name)
         return getattr(self._instance, item)
 
@@ -54,7 +53,7 @@ class Logger(object):
         cls._verbosity = verbosity
 
     @classmethod
-    def _get_level(cls):
+    def get_level(cls):
         """
         :return: logging level for logging module
         """
@@ -67,8 +66,6 @@ class Logger(object):
             return logging.INFO
         elif cls._verbosity > 1:
             return logging.DEBUG
-        elif not cls._verbosity:
-            return logging.WARNING
 
     @classmethod
     def get_logger(cls, name):
@@ -77,4 +74,4 @@ class Logger(object):
         :param name: logging logger name
         :rtype: _LoggerWrapper
         """
-        return _LoggerWrapper(name, cls._get_level())
+        return _LoggerWrapper(name)
