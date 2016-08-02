@@ -71,6 +71,18 @@ class Config(_ConfigParent):
         ret = self._raw_config['style'].get('task', {})
         return ret if ret is not None else {}
 
+    def style_flow(self):
+        """
+        Return style for a flow node in the graph, see graphviz styling options
+        :return: style definition
+        :rtype: dict
+        """
+        default = {'style': 'filled', 'fillcolor': '#CCCCCC'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default
+        ret = self._raw_config['style'].get('flow', default)
+        return ret if ret is not None else default
+
     def style_condition(self):
         """
         Return style for conditions in the graph, see graphviz styling options

@@ -253,10 +253,16 @@ class System(object):
                 graph.node(name=condition_node, label=str(edge.predicate), _attributes=Config().style_condition())
 
                 for node in edge.nodes_to:
-                    graph.node(name=node.name)
+                    if node.is_flow():
+                        graph.node(name=node.name, _attributes=Config().style_flow())
+                    else:
+                        graph.node(name=node.name)
                     graph.edge(condition_node, node.name)
                 for node in edge.nodes_from:
-                    graph.node(name=node.name)
+                    if node.is_flow():
+                        graph.node(name=node.name, _attributes=Config().style_flow())
+                    else:
+                        graph.node(name=node.name)
                     graph.edge(node.name, condition_node)
 
             file = os.path.join(output_dir, "%s" % flow.name)
