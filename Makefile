@@ -15,5 +15,5 @@ venv:
 	@echo "Run 'source venv/bin/activate' to enter virtual environment and 'deactivate' to return from it"
 
 clean:
-	find . -name '*.pyc' -delete
+	find . -name '*.pyc' -or -name '__pycache__' -delete
 	rm -rf venv
