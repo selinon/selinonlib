@@ -203,15 +203,15 @@ class System(object):
                 output.write("    '%s': '%s'\n" % (task.name, task.output_schema))
         output.write('}\n\n')
 
-    def _dump_get_task_class(self, output):
+    def _dump_get_task_instance(self, output):
         """
-        Dump get_task_class() function to a stream
+        Dump get_task_instance() function to a stream
         :param output: a stream to write to
         """
         output.write('def get_task_class(name):\n')
         for task in self._tasks:
             output.write("    if name == '{}':\n".format(task.name))
-            output.write("        return {}\n\n".format(task.class_name))
+            output.write("        return {}()\n\n".format(task.class_name))
         output.write("    raise ValueError(\"Unknown task with name '%s'\" % name)\n\n")
 
     def _dump_get_storage(self, output):
@@ -325,7 +325,7 @@ class System(object):
         f.write('#!/usr/bin/env python\n')
         f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
         self._dump_imports(f)
-        self._dump_get_task_class(f)
+        self._dump_get_task_instance(f)
         self._dump_get_storage(f)
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
