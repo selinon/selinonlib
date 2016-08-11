@@ -197,7 +197,7 @@ class System(object):
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
     def _dump_max_retry_init(self, output):
-        output.write('def max_retry_init(name):\n')
+        output.write('def max_retry_init():\n')
         for task in self._tasks:
             output.write('    %s.max_retry = %s\n' % (task.name, task.max_retry))
         output.write('\n')
