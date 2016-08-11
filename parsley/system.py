@@ -197,11 +197,14 @@ class System(object):
         Dump output schema mapping to a stream
         :param output: a stream to write to
         """
-        output.write('output_schemas = {\n')
-        for task in self._tasks:
+        output.write('output_schemas = {')
+        for i, task in enumerate(self._tasks):
             if task.output_schema:
-                output.write("    '%s': '%s'\n" % (task.name, task.output_schema))
-        output.write('}\n\n')
+                if i > 0:
+                    output.write(",\n    '%s': '%s'" % (task.name, task.output_schema))
+                else:
+                    output.write("\n    '%s': '%s'" % (task.name, task.output_schema))
+        output.write('\n}\n\n')
 
     def _dump_get_task_instance(self, output):
         """
@@ -215,6 +218,10 @@ class System(object):
         output.write("    raise ValueError(\"Unknown task with name '%s'\" % name)\n\n")
 
     def _dump_get_storage(self, output):
+        """
+        Dump get_storage to a stream
+        :param output: a stream to write to
+        """
         output.write('def get_storage(name):\n')
         for storage in self._storages:
             if len(storage.tasks) > 0:
@@ -266,7 +273,27 @@ class System(object):
             output.write('    %s.max_retry = %s\n' % (task.class_name, task.max_retry))
         output.write('\n')
 
+    def _dump_init_time_limit(self, output):
+        """
+        Dump time limit initialization to a stream
+        :param output: a stream to write to
+        """
+        output.write('def init_time_limit():\n')
+        seen_classes = {}
+        for task in self._tasks:
+            if task.class_name in seen_classes:
+                if task.time_limit != seen_classes[task.class_name][1]:
+                    raise ValueError("Unable to set different time_limit to a same task class: %s and %s for class '%s'"
+                                     % ((task.name, task.time_limit), seen_classes[task.class_name], task.class_name))
+            seen_classes[task.class_name] = (task.name, task.time_limit)
+            output.write('    %s.time_limit = %s\n' % (task.class_name, task.time_limit))
+        output.write('\n')
+
     def _dump_init_get_storages(self, output):
+        """
+        Dump get_storages() to output stream
+        :param output: a stream to write to
+        """
         output.write('def init_get_storages():\n')
         seen_classes = {}
         for task in self._tasks:
@@ -276,6 +303,10 @@ class System(object):
         output.write('\n')
 
     def _dump_init_output_schemas(self, output):
+        """
+        Dump init_output_schemas() to output stream
+        :param output: a stream to write to
+        """
         output.write('def init_output_schemas():\n')
         seen_classes = {}
         for task in self._tasks:
@@ -305,6 +336,7 @@ class System(object):
         """
         output.write('def init():\n')
         output.write('    init_max_retry()\n')
+        output.write('    init_time_limit()\n')
         output.write('    init_get_storages()\n')
         output.write('    init_output_schemas()\n')
         output.write('\n')
@@ -347,6 +379,8 @@ class System(object):
         self._dump_condition_functions(f)
         f.write('#'*80+'\n\n')
         self._dump_init_max_retry(f)
+        f.write('#'*80+'\n\n')
+        self._dump_init_time_limit(f)
         f.write('#'*80+'\n\n')
         self._dump_init_get_storages(f)
         f.write('#'*80+'\n\n')

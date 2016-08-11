@@ -24,43 +24,48 @@ from .logger import Logger
 _logger = Logger.get_logger(__name__)
 
 _DEFAULT_MAX_RETRY = 1
+_DEFAULT_TIME_LIMIT = 3600
 
 
 class Task(Node):
     """
     A task representation within the system
     """
-    def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None, output_schema=None):
+    def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None, time_limit=None,
+                 output_schema=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
         :param class_name: tasks's class name, if None, 'name' is used
         :param storage: storage that should be used
         :param max_retry: configured maximum retry count
+        :param time_limit: configured time limit for task run
+        :param output_schema: task result output schema
         """
         if not isinstance(import_path, str):
-            _logger.error("Bad task definition for '%s'" % name)
             raise ValueError("Error in task '%s' definition - import path should be string; got '%s'"
                              % (name, import_path))
 
         if class_name is not None and not isinstance(class_name, str):
-            _logger.error("Bad task definition for '%s'" % name)
             raise ValueError("Error in task '%s' definition - class instance should be string; got '%s'"
                              % (name, class_name))
 
         if output_schema is not None and not isinstance(output_schema, str):
-            _logger.error("Bad task definition for '%s'" % name)
             raise ValueError("Error in task '%s' definition - output schema should be string; got '%s'"
                              % (name, output_schema))
 
         if max_retry is not None and (not isinstance(max_retry, int) or max_retry <= 0):
-            _logger.error("Bad task definition for '%s'" % name)
-            raise ValueError("Error in task '%s' definition - class instance should be None or positive integer;"
+            raise ValueError("Error in task '%s' definition - max_retry should be None or positive integer;"
                              " got '%s'" % (name, max_retry))
+
+        if max_retry is not None and (not isinstance(time_limit, int) or time_limit <= 0):
+            raise ValueError("Error in task '%s' definition - time_limit should be None or positive integer;"
+                             " got '%s'" % (name, time_limit))
 
         super(Task, self).__init__(name)
         self._import_path = import_path
         self._max_retry = max_retry
+        self._time_limit = time_limit
         self._class_name = class_name if class_name else name
         self._storage = storage
         self._output_schema = output_schema
@@ -96,6 +101,13 @@ class Task(Node):
         return self._max_retry
 
     @property
+    def time_limit(self):
+        """
+        :return: task time_limit (see Celery time_limit)
+        """
+        return self._time_limit
+
+    @property
     def output_schema(self):
         """
         :return: path to task output schema or None if not defined
@@ -121,4 +133,4 @@ class Task(Node):
         else:
             storage = None
         return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY),
-                    d.get('output_schema'))
+                    d.get('time_limit', _DEFAULT_TIME_LIMIT), d.get('output_schema'))
