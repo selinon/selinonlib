@@ -294,6 +294,7 @@ class System(object):
         Dump get_storages() to output stream
         :param output: a stream to write to
         """
+        # NOTE: we could assign to CeleriacTask since all Tasks inherit from it, but be explicit here for now
         output.write('def init_get_storages():\n')
         seen_classes = {}
         for task in self._tasks:
@@ -410,6 +411,7 @@ class System(object):
         """
         _logger.debug("Rendering system flows to '%s'" % output_dir)
         ret = []
+        storage_connections = []
         image_format = image_format if image_format else 'svg'
 
         for flow in self._flows:
@@ -423,16 +425,27 @@ class System(object):
                 graph.node(name=condition_node, label=str(edge.predicate), _attributes=Config().style_condition())
 
                 for node in edge.nodes_to:
+                    # Plot storage connection
                     if node.is_flow():
                         graph.node(name=node.name, _attributes=Config().style_flow())
                     else:
                         graph.node(name=node.name)
+                        if node.storage:
+                            graph.node(name=node.storage.name, _attributes=Config().style_storage())
+                            if (node.name, node.storage.name) not in storage_connections:
+                                graph.edge(node.name, node.storage.name)
+                                storage_connections.append((node.name, node.storage.name,))
                     graph.edge(condition_node, node.name)
                 for node in edge.nodes_from:
                     if node.is_flow():
                         graph.node(name=node.name, _attributes=Config().style_flow())
                     else:
                         graph.node(name=node.name)
+                        if node.storage:
+                            graph.node(name=node.storage.name, _attributes=Config().style_storage())
+                            if (node.name, node.storage.name) not in storage_connections:
+                                graph.edge(node.name, node.storage.name)
+                                storage_connections.append((node.name, node.storage.name,))
                     graph.edge(node.name, condition_node)
 
             file = os.path.join(output_dir, "%s" % flow.name)
@@ -476,6 +489,8 @@ class System(object):
                 for edge in flow.edges:
                     if len(edge.nodes_from) == 0:
                         starting_nodes_count += 1
+
+                    # TODO: there shouldn't be a node of a same type more than once
 
                     if isinstance(edge.predicate, LeafPredicate):
                         edge.predicate.check()

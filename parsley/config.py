@@ -95,6 +95,18 @@ class Config(_ConfigParent):
         ret = self._raw_config['style'].get('condition', default_style)
         return ret if ret is not None else {}
 
+    def style_storage(self):
+        """
+        Return style for storage in the graph, see graphviz styling options
+        :return: style definition
+        :rtype: dict
+        """
+        default_style = {'shape': 'folder'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default_style
+        ret = self._raw_config['style'].get('condition', default_style)
+        return ret if ret is not None else {}
+
     def style_edge(self):
         """
         Return style for edges in the graph, see graphviz styling options
