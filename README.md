@@ -85,7 +85,7 @@ make venv && source venv/bin/activate
 
 Plot graphs of flows:
 ```
-$ ./parsley-cli -tasks-definition exampes/example.yml -flow-definition examples/example.yml -verbose -graph ${PWD} && xdg-open flow{1,2}.svg
+$ ./parsley-cli -tasks-definition exampes/example.yml -flow-definition examples/example.yml -verbose -graph ${PWD} && xdg-open flow1.svg
 ```
 
 Generate Python code configuration for Celeriac:
@@ -95,5 +95,5 @@ $ ./parsley-cli -tasks example/example.yaml -flow examples/examples.yaml -v -dum
 
 Plot graphs of flows with a custom style (you can use shortcuts of arguments as shown bellow):
 ```
-$ ./parsley-cli -config examples/example.config.yml -tasks exampes/example.yml -flow examples/example.yml -v -graph . && xdg-open flow{1,2}.svg
+$ ./parsley-cli -config examples/example.config.yml -tasks exampes/example.yml -flow examples/example.yml -v -graph . && xdg-open flow1.svg
 ```
