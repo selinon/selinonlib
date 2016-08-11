@@ -23,19 +23,37 @@ from .logger import Logger
 
 _logger = Logger.get_logger(__name__)
 
+_DEFAULT_MAX_RETRY = 1
+
 
 class Task(Node):
     """
     A task representation within the system
     """
-    def __init__(self, name, import_path, class_name=None):
+    def __init__(self, name, import_path, class_name=None, max_retry=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
         :param class_name: tasks's class name, if None, 'name' is used
         """
+        if not isinstance(import_path, str):
+            _logger.error("Bad task definition for '%s'" % name)
+            raise ValueError("Error in task '%s' definition - import path should be string; got '%s'"
+                             % (name, import_path))
+
+        if class_name is not None and not isinstance(class_name, str):
+            _logger.error("Bad task definition for '%s'" % name)
+            raise ValueError("Error in task '%s' definition - class instance should be string; got '%s'"
+                             % (name, class_name))
+
+        if max_retry is not None and (not isinstance(max_retry, int) or max_retry <= 0):
+            _logger.error("Bad task definition for '%s'" % name)
+            raise ValueError("Error in task '%s' definition - class instance should be None or positive integer;"
+                             " got '%s'" % (name, max_retry))
+
         super(Task, self).__init__(name)
         self._import_path = import_path
+        self._max_retry = max_retry
         self._class_name = class_name if class_name else name
         _logger.debug("Creating task with name '%s' import path '%s', class name '%s'"
                       % (self.name, self.import_path, self.class_name))
@@ -54,6 +72,13 @@ class Task(Node):
         """
         return self._class_name
 
+    @property
+    def max_retry(self):
+        """
+        :return: task max_retry count (see Celery max_retry)
+        """
+        return self._max_retry
+
     @staticmethod
     def from_dict(d):
         """
@@ -66,4 +91,4 @@ class Task(Node):
             raise KeyError('Task name definition is mandatory')
         if 'import' not in d or not d['import']:
             raise KeyError('Task import definition is mandatory')
-        return Task(d['name'], d['import'], d.get('classname'))
+        return Task(d['name'], d['import'], d.get('classname'), d.get('max_retry', _DEFAULT_MAX_RETRY))

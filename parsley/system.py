@@ -196,6 +196,12 @@ class System(object):
                 output.write('def {}(db):\n'.format(self._dump_condition_name(flow.name, idx)))
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
+    def _dump_max_retry_init(self, output):
+        output.write('def max_retry_init(name):\n')
+        for task in self._tasks:
+            output.write('    %s.max_retry = %s\n' % (task.name, task.max_retry))
+        output.write('\n')
+
     def _dump_edge_table(self, output):
         """
         Dump edge definition table to a stream
@@ -229,6 +235,8 @@ class System(object):
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
         self._dump_condition_functions(f)
+        f.write('#'*80+'\n\n')
+        self._dump_max_retry_init(f)
         f.write('#'*80+'\n\n')
         self._dump_edge_table(f)
         f.write('#'*80+'\n\n')
