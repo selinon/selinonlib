@@ -104,7 +104,7 @@ class Config(_ConfigParent):
         default_style = {'shape': 'folder'}
         if self._raw_config is None or 'style' not in self._raw_config:
             return default_style
-        ret = self._raw_config['style'].get('condition', default_style)
+        ret = self._raw_config['style'].get('storage', default_style)
         return ret if ret is not None else {}
 
     def style_edge(self):
