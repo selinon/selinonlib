@@ -266,14 +266,34 @@ class System(object):
             output.write('    %s.max_retry = %s\n' % (task.class_name, task.max_retry))
         output.write('\n')
 
+    def _dump_init_get_storages(self, output):
+        output.write('def init_get_storages():\n')
+        seen_classes = {}
+        for task in self._tasks:
+            if not seen_classes.get(task.class_name, False):
+                seen_classes[task.class_name] = True
+                output.write('    %s.get_storage = get_storage\n' % task.class_name)
+        output.write('\n')
+
     def _dump_init_output_schemas(self, output):
         output.write('def init_output_schemas():\n')
+        seen_classes = {}
         for task in self._tasks:
-            if task.output_schema:
-                output.write('    %s.output_schema_path = "%s"\n' % (task.class_name, task.output_schema))
+            if not seen_classes.get(task.class_name, False):
+                seen_classes[task.class_name] = (task.name, task.output_schema)
+
+                if task.output_schema:
+                    output.write('    %s.output_schema_path = "%s"\n' % (task.class_name, task.output_schema))
+                else:
+                    output.write('    %s.output_schema_path = None\n' % task.class_name)
+                output.write('    %s.output_schema = None\n' % task.class_name)
             else:
-                output.write('    %s.output_schema_path = None\n' % task.class_name)
-            output.write('    %s.output_schema = None\n' % task.class_name)
+                # we could handle this case to create a list of schemas and access it using task_name that is passed
+                # to CeleriacTask
+                if seen_classes[task.class_name][1] != task.output_schema:
+                    raise ValueError("Unable to set different output schemas to a same task class: %s and %s "
+                                     "for class '%s'"
+                                     % ((task.name, task.output_schema), seen_classes[task.class_name], task.class_name))
         output.write('\n')
 
     def _dump_edge_table(self, output):
@@ -314,6 +334,8 @@ class System(object):
         self._dump_condition_functions(f)
         f.write('#'*80+'\n\n')
         self._dump_init_max_retry(f)
+        f.write('#'*80+'\n\n')
+        self._dump_init_get_storages(f)
         f.write('#'*80+'\n\n')
         self._dump_init_output_schemas(f)
         f.write('#'*80+'\n\n')
