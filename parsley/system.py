@@ -490,7 +490,13 @@ class System(object):
                     if len(edge.nodes_from) == 0:
                         starting_nodes_count += 1
 
-                    # TODO: there shouldn't be a node of a same type more than once
+                    node_seen = {}
+                    for node_from in edge.nodes_from:
+                        if not node_seen.get(node_from.name, False):
+                            node_seen[node_from.name] = True
+                        else:
+                            raise ValueError("Nodes cannot be dependent on a node of a same type mode than once; "
+                                             "node from '%s' more than once in flow '%s'" % (node_from.name, flow.name))
 
                     if isinstance(edge.predicate, LeafPredicate):
                         edge.predicate.check()
