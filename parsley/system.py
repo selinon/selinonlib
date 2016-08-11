@@ -252,10 +252,24 @@ class System(object):
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
     def _dump_max_retry_init(self, output):
+        """
+        Dump max_retry initialization to a stream
+        :param output: a stream to write to
+        """
         output.write('def max_retry_init():\n')
         for task in self._tasks:
             output.write('    %s.max_retry = %s\n' % (task.name, task.max_retry))
         output.write('\n')
+
+    def _dump_schemas_init(self, output):
+        output.write('def output_schemas_init():\n')
+        for task in self._tasks:
+            if task.output_schema:
+                output.write('    %s.output_schema = "%s"\n' % (task.name, task.output_schema))
+            else:
+                output.write('    %s.output_schema = None\n' % task.name)
+        output.write('\n')
+
 
     def _dump_edge_table(self, output):
         """
@@ -295,6 +309,8 @@ class System(object):
         self._dump_condition_functions(f)
         f.write('#'*80+'\n\n')
         self._dump_max_retry_init(f)
+        f.write('#'*80+'\n\n')
+        self._dump_schemas_init(f)
         f.write('#'*80+'\n\n')
         self._dump_edge_table(f)
         f.write('#'*80+'\n\n')
