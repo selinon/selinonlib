@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import subprocess
 from parsley import parsley_version
 from setuptools import setup, find_packages
 
@@ -12,14 +11,11 @@ def get_requirements():
         return fd.read().splitlines()
 
 
-subprocess.call("sh ./bump-version.sh")
-
-
 setup(
     name='parsley',
     version=parsley_version,
     packages=find_packages(),
-    scripts=['parsley-cli'],
+    scripts=['parsley-cli.py'],
     install_requires=get_requirements(),
     author='Fridolin Pokorny',
     author_email='fpokorny@redhat.com',
