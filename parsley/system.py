@@ -192,6 +192,18 @@ class System(object):
         output.write('def is_flow(name):\n')
         output.write('    return name in %s\n\n' % str([flow.name for flow in self._flows]))
 
+    def _dump_output_schemas(self, output):
+        """
+        Dump output schema mapping to a stream
+        :param output: a stream to write to
+        """
+        output.write('output_schemas = {\n')
+        for task in self._tasks:
+            if task.output_schema:
+                output.write("    '%s': '%s'\n" % (task.name, task.output_schema))
+        output.write('}\n\n')
+
+
     def _dump_get_task_class(self, output):
         """
         Dump get_task_class() function to a stream
@@ -277,6 +289,8 @@ class System(object):
         self._dump_get_task_class(f)
         self._dump_get_storage(f)
         self._dump_is_flow(f)
+        f.write('#'*80+'\n\n')
+        self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')
         self._dump_condition_functions(f)
         f.write('#'*80+'\n\n')

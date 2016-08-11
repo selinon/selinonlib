@@ -30,7 +30,7 @@ class Task(Node):
     """
     A task representation within the system
     """
-    def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None):
+    def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None, output_schema=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
@@ -48,6 +48,11 @@ class Task(Node):
             raise ValueError("Error in task '%s' definition - class instance should be string; got '%s'"
                              % (name, class_name))
 
+        if output_schema is not None and not isinstance(output_schema, str):
+            _logger.error("Bad task definition for '%s'" % name)
+            raise ValueError("Error in task '%s' definition - output schema should be string; got '%s'"
+                             % (name, output_schema))
+
         if max_retry is not None and (not isinstance(max_retry, int) or max_retry <= 0):
             _logger.error("Bad task definition for '%s'" % name)
             raise ValueError("Error in task '%s' definition - class instance should be None or positive integer;"
@@ -58,6 +63,7 @@ class Task(Node):
         self._max_retry = max_retry
         self._class_name = class_name if class_name else name
         self._storage = storage
+        self._output_schema = output_schema
         # register task usage
         if storage:
             storage.register_task(self)
@@ -89,6 +95,13 @@ class Task(Node):
         """
         return self._max_retry
 
+    @property
+    def output_schema(self):
+        """
+        :return: path to task output schema or None if not defined
+        """
+        return self._output_schema
+
     @staticmethod
     def from_dict(d, system):
         """
@@ -107,4 +120,5 @@ class Task(Node):
             storage = system.storage_by_name(d['storage'])
         else:
             storage = None
-        return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY))
+        return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY),
+                    d.get('output_schema'))
