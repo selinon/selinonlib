@@ -36,11 +36,13 @@ class Predicate(ABC):
         pass
 
     @abc.abstractmethod
-    def create(tree, nodes_from):
+    def create(tree, nodes_from, flow):
         """
         Create the predicate
         :param nodes_from: nodes which are used within edge definition
         :type nodes_from: List[Nodes]
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
         :return: Predicate instance
         """
         # This is actually @abc.abstractstaticmethod, but this does not work in Python2
@@ -62,12 +64,14 @@ class Predicate(ABC):
         pass
 
     @staticmethod
-    def construct(tree, nodes_from):
+    def construct(tree, nodes_from, flow):
         """
         Top-down creation of predicates - recursively called to construct predicates
         :param tree: a dictionary describing nodes
         :type tree: dict
         :param nodes_from: nodes which are used within edge
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
         :rtype: Predicate
         """
         from .leafPredicate import LeafPredicate
@@ -95,12 +99,12 @@ class Predicate(ABC):
                     # e.g. starting edge has no nodes_from
                     node = None
 
-            return LeafPredicate.create(tree['name'], node, tree.get('args'))
+            return LeafPredicate.create(tree['name'], node, flow, tree.get('args'))
         elif 'or' in tree:
-            return OrPredicate.create(tree['or'], nodes_from)
+            return OrPredicate.create(tree['or'], nodes_from, flow)
         elif 'not' in tree:
-            return NotPredicate.create(tree['not'], nodes_from)
+            return NotPredicate.create(tree['not'], nodes_from, flow)
         elif 'and' in tree:
-            return AndPredicate.create(tree['and'], nodes_from)
+            return AndPredicate.create(tree['and'], nodes_from, flow)
         else:
             raise ValueError("Unknown predicate:\n%s" % dict2json(tree))

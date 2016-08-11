@@ -55,20 +55,22 @@ class NaryPredicate(BuildinPredicate):
         return ret
 
     @staticmethod
-    def _create(tree, cls, nodes_from):
+    def _create(tree, cls, nodes_from, flow):
         """
         Instantiate N-ary predicate cls
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param cls: class of type NaryPredicate
         :param nodes_from: nodes that are used in described edge
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
         :return: instance of cls
         """
         if not isinstance(tree, list):
             raise ValueError("Nary logical operators expect list of children")
         children = []
         for child in tree:
-            children.append(Predicate.construct(child, nodes_from))
+            children.append(Predicate.construct(child, nodes_from, flow))
         return cls(children)
 
     def predicates_used(self):
@@ -86,18 +88,19 @@ class UnaryPredicate(BuildinPredicate):
         self._child = child
 
     @staticmethod
-    def _create(tree, cls, nodes_from):
+    def _create(tree, cls, nodes_from, flow):
         """
         Instantiate N-ary predicate cls
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param cls: class of type NaryPredicate
         :param nodes_from: nodes that are used in described edge
+        :param flow: flow to which predicate belongs to
         :return: instance of cls
         """
         if isinstance(tree, list):
             raise ValueError("Unary logical operators expect one child")
-        return cls(Predicate.construct(tree, nodes_from))
+        return cls(Predicate.construct(tree, nodes_from, flow))
 
     def predicates_used(self):
         """
@@ -120,15 +123,17 @@ class AndPredicate(NaryPredicate):
         return ast.BoolOp(ast.And(), [ast.Expr(value=x.ast()) for x in self._children])
 
     @staticmethod
-    def create(tree, nodes_from):
+    def create(tree, nodes_from, flow):
         """
         Create And predicate
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param nodes_from: nodes that are used in described edge
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
         :return: instance of cls
         """
-        return NaryPredicate._create(tree, AndPredicate, nodes_from)
+        return NaryPredicate._create(tree, AndPredicate, nodes_from, flow)
 
 
 class OrPredicate(NaryPredicate):
@@ -145,12 +150,14 @@ class OrPredicate(NaryPredicate):
         return ast.BoolOp(ast.Or(), [ast.Expr(value=x.ast()) for x in self._children])
 
     @staticmethod
-    def create(tree, nodes_from):
+    def create(tree, nodes_from, flow):
         """
         Create Or predicate
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param nodes_from: nodes that are used in described edge
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
         :return: instance of cls
         """
         return NaryPredicate._create(tree, OrPredicate, nodes_from)
@@ -170,12 +177,14 @@ class NotPredicate(UnaryPredicate):
         return ast.UnaryOp(ast.Not(), ast.Expr(value=self._child.ast()))
 
     @staticmethod
-    def create(tree, nodes_from):
+    def create(tree, nodes_from, flow):
         """
         Create Or predicate
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param nodes_from: nodes that are used in described edge
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
         :return: instance of cls
         """
-        return UnaryPredicate._create(tree, NotPredicate, nodes_from)
+        return UnaryPredicate._create(tree, NotPredicate, nodes_from, flow)

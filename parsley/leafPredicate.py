@@ -32,15 +32,17 @@ class LeafPredicate(Predicate):
     """
     Leaf predicate representation
     """
-    def __init__(self, predicate_func, node, args=None):
+    def __init__(self, predicate_func, node, flow, args=None):
         """
         :param predicate_func: predicate function
         :param node: node that predicate conforms to
+        :param flow: flow to which predicate belongs to
         :param args: predicate arguments that should be used
         """
         self._func = predicate_func
         self._node = node
         self._args = args if args is not None else {}
+        self._flow = flow
 
     def _args2str(self):
         """
@@ -135,7 +137,8 @@ class LeafPredicate(Predicate):
 
     def __str__(self):
         if self.requires_message():
-            return "%s(db['%s'], %s)" % (self._func.__name__, self._task_str_name(), self._args2str())
+            return "%s(db.get('%s', '%s'), %s)"\
+                   % (self._func.__name__, self._flow.name, self._task_str_name(), self._args2str())
         else:
             return "%s(%s)" % (self._func.__name__, self._args2str())
 
@@ -147,12 +150,20 @@ class LeafPredicate(Predicate):
         """
         return self._node
 
+    @property
+    def flow(self):
+        """
+        :return: flow to which predicate belongs to
+        :rtype: Flow
+        """
+        return self._flow
+
     def _task_str_name(self):
         # task_name can be None if we have starting edge
         if self.node is None:
             return 'None'
         else:
-            return "'%s'" % self.node.name
+            return "%s" % self.node.name
 
     def ast(self):
         """
@@ -163,8 +174,9 @@ class LeafPredicate(Predicate):
 
         # we want to avoid querying to database if possible, if a predicate does not require message, do not ask for it
         if self.requires_message():
-            args = [ast.Subscript(ctx=ast.Load(), value=ast.Name(id='db', ctx=ast.Load()),
-                                  slice=ast.Index(ast.Name(id=self._task_str_name(), ctx=ast.Load())))]
+            args = [ast.Call(func=ast.Attribute(value=ast.Name(id='db', ctx=ast.Load()), attr='get', ctx=ast.Load()),
+                             args = [ast.Str(s=self._flow.name), ast.Str(s=self._task_str_name())], keywords=[],
+                             starargs = None, kwargs = None)]
         else:
             args = []
 
@@ -180,13 +192,15 @@ class LeafPredicate(Predicate):
         return [self._func]
 
     @staticmethod
-    def create(name, node, args=None):
+    def create(name, node, flow, args=None):
         """
         Create predicate
         :param name: predicate name
         :type name: str
         :param node: node to which predicate belongs
         :type node: Node
+        :param flow: flow to which predicate belongs
+        :type flow: Flow
         :param args: predicate arguments
         :return: an instantiated predicate
         :raises: ImportError
@@ -197,4 +211,4 @@ class LeafPredicate(Predicate):
         except ImportError:
             _logger.error("Cannot import predicate '{}'".format(name))
             raise
-        return LeafPredicate(getattr(module, name), node, args)
+        return LeafPredicate(getattr(module, name), node, flow, args)

@@ -25,7 +25,7 @@ class Edge(object):
     """
     Edge representation
     """
-    def __init__(self, nodes_from, nodes_to, predicate):
+    def __init__(self, nodes_from, nodes_to, predicate, flow):
         """
         :param nodes_from: nodes from where edge starts
         :type nodes_from: List[Node]
@@ -33,10 +33,13 @@ class Edge(object):
         :type nodes_to: List[Node]
         :param predicate: predicate condition
         :type predicate: Predicate
+        :param flow: flow to which edge belongs to
+        :type flow: Flow
         """
         self._nodes_from = nodes_from
         self._nodes_to = nodes_to
         self._predicate = predicate
+        self._flow = flow
 
     @property
     def nodes_from(self):
@@ -50,14 +53,20 @@ class Edge(object):
     def predicate(self):
         return self._predicate
 
+    @property
+    def flow(self):
+        return self._flow
+
     @staticmethod
-    def from_dict(d, system):
+    def from_dict(d, system, flow):
         """
         Construct edge from a dict
         :param d: a dictionary from which the system should be created
         :type d: dict
         :param system:
         :type system: System
+        :param flow: flow to which edge belongs to
+        :type flow: Flow
         :return:
         """
         if 'from' not in d:
@@ -76,6 +85,6 @@ class Edge(object):
         to_names = d['to'] if isinstance(d['to'], list) else [d['to']]
         nodes_to = [system.node_by_name(n) for n in to_names]
 
-        predicate = Predicate.construct(d.get('condition'), nodes_from)
+        predicate = Predicate.construct(d.get('condition'), nodes_from, flow)
 
-        return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate)
+        return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate, flow=flow)

@@ -40,7 +40,7 @@ def main():
         some_work = True
 
     if args.dump:
-        system.dump(args.dump)
+        system.dump2file(args.dump)
         some_work = True
     elif args.graph:
         system.plot_graph(args.graph, args.graph_format)

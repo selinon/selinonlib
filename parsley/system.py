@@ -207,8 +207,8 @@ class System(object):
                 if idx_edge > 0:
                     output.write(',\n')
                     output.write(' '*(len(flow.name) + 4 + 5)) # align to previous line
-                output.write("{'nodes_from': %s" % str([node.name for node in edge.nodes_from]))
-                output.write(", 'nodes_to': %s" % str([node.name for node in edge.nodes_to]))
+                output.write("{'from': %s" % str([node.name for node in edge.nodes_from]))
+                output.write(", 'to': %s" % str([node.name for node in edge.nodes_to]))
                 output.write(", 'condition': %s}" % self._dump_condition_name(flow.name, idx_edge))
             if idx + 1 < len(self._flows):
                 output.write('],\n')
@@ -216,23 +216,30 @@ class System(object):
                 output.write(']\n')
         output.write('}\n\n')
 
-    def dump(self, output_file):
+    def dump2stream(self, f):
         """
-        Perform system dymp to a Python source code
-        :param output_file: output file to write to
+        Perform system dump to a Python source code to an output stream
+        :param f: an output stream to write to
+        """
+        f.write('#!/usr/bin/env python\n')
+        f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
+        self._dump_imports(f)
+        self._dump_get_task_instance(f)
+        self._dump_is_flow(f)
+        f.write('#'*80+'\n\n')
+        self._dump_condition_functions(f)
+        f.write('#'*80+'\n\n')
+        self._dump_edge_table(f)
+        f.write('#'*80+'\n\n')
+
+    def dump2file(self, output_file):
+        """
+        Perform system dump to a Python source code
+        :param output_file: an output file to write to
         """
         _logger.debug("Performing system dump to '%s'" % output_file)
         with open(output_file, 'w') as f:
-            f.write('#!/usr/bin/env python\n')
-            f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
-            self._dump_imports(f)
-            self._dump_get_task_instance(f)
-            self._dump_is_flow(f)
-            f.write('#'*80+'\n\n')
-            self._dump_condition_functions(f)
-            f.write('#'*80+'\n\n')
-            self._dump_edge_table(f)
-            f.write('#'*80+'\n\n')
+            self.dump2stream(f)
 
     def plot_graph(self, output_dir, image_format=None):
         """
@@ -376,7 +383,7 @@ class System(object):
             for flow_def in content['flow-definitions']:
                 flow = system.flow_by_name(flow_def['name'])
                 for edge_def in flow_def['edges']:
-                    edge = Edge.from_dict(edge_def, system)
+                    edge = Edge.from_dict(edge_def, system, flow)
                     flow.add_edge(edge)
 
         system.post_parse_check()
