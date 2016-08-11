@@ -162,15 +162,16 @@ class System(object):
         output.write('def is_flow(name):\n')
         output.write('    return name in %s\n\n' % str([flow.name for flow in self._flows]))
 
-    def _dump_get_task_instance(self, output):
+    def _dump_get_task_class(self, output):
         """
-        Dump get_task_instance() function to a stream
+        Dump get_task_class() function to a stream
         :param output: a stream to write to
         """
-        output.write('def get_task_instance(name):\n')
+        output.write('def get_task_class(name):\n')
         for task in self._tasks:
             output.write("    if name == '{}':\n".format(task.name))
-            output.write("        return {}()\n\n".format(task.class_name))
+            output.write("        return {}\n\n".format(task.class_name))
+        output.write("    raise ValueError(\"Unknown task with name '%s'\" % name)\n\n")
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
@@ -224,7 +225,7 @@ class System(object):
         f.write('#!/usr/bin/env python\n')
         f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
         self._dump_imports(f)
-        self._dump_get_task_instance(f)
+        self._dump_get_task_class(f)
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
         self._dump_condition_functions(f)
