@@ -296,6 +296,19 @@ class System(object):
                                      % ((task.name, task.output_schema), seen_classes[task.class_name], task.class_name))
         output.write('\n')
 
+    @staticmethod
+    def _dump_init(output):
+        """
+        Dump init function to a stream
+        :param output: a stream to write to
+        :return:
+        """
+        output.write('def init():\n')
+        output.write('    init_max_retry()\n')
+        output.write('    init_get_storages()\n')
+        output.write('    init_output_schemas()\n')
+        output.write('\n')
+
     def _dump_edge_table(self, output):
         """
         Dump edge definition table to a stream
@@ -338,6 +351,8 @@ class System(object):
         self._dump_init_get_storages(f)
         f.write('#'*80+'\n\n')
         self._dump_init_output_schemas(f)
+        f.write('#'*80+'\n\n')
+        self._dump_init(f)
         f.write('#'*80+'\n\n')
         self._dump_edge_table(f)
         f.write('#'*80+'\n\n')
