@@ -123,7 +123,7 @@ class LeafPredicate(Predicate):
     def __str__(self):
         if self.requires_message():
             return "%s(db.get('%s', '%s', '%s'), %s)"\
-                   % (self.node.storage.name, self._func.__name__,
+                   % (self._func.__name__, self.node.storage.name,
                       self._flow.name, self._task_str_name(), dict2strkwargs(self._args))
         else:
             return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
