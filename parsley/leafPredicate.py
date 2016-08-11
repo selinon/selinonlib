@@ -23,6 +23,7 @@ import sys
 import importlib
 from dill.source import getsource
 from .predicate import Predicate
+from .helpers import dict2strkwargs
 from .logger import Logger
 
 _logger = Logger.get_logger(__name__)
@@ -43,24 +44,6 @@ class LeafPredicate(Predicate):
         self._node = node
         self._args = args if args is not None else {}
         self._flow = flow
-
-    def _args2str(self):
-        """
-        Convert predicate arguments to a string representation
-        """
-        ret = ""
-        for k, v in self._args.items():
-            if len(ret) > 0:
-                ret += ", "
-            if isinstance(v, list):
-                # s/'['foo']['bar']'/['foo']['bar']/ (get rid of leading ')
-                ret += "%s=%s" % (k, str(v))
-            elif isinstance(v, str):
-                ret += "%s='%s'" % (k, v)
-            else:
-                # some build in type such as bool/int/...
-                ret += "%s=%s" % (k, str(v))
-        return ret
 
     def requires_message(self):
         """
@@ -126,6 +109,8 @@ class LeafPredicate(Predicate):
             raise ValueError("Results of sub-flows cannot be used in predicates")
         if self.requires_message() and not self.node:
             raise ValueError("Cannot inspect results in starting edge in predicate '%s'" % self._func.__name__)
+        if self.requires_message() and not self.node.storage:
+            raise ValueError("Cannot use predicate that requires a message without storage '%s'" % self._func.__name__)
 
     def check(self):
         """
@@ -137,10 +122,11 @@ class LeafPredicate(Predicate):
 
     def __str__(self):
         if self.requires_message():
-            return "%s(db.get('%s', '%s'), %s)"\
-                   % (self._func.__name__, self._flow.name, self._task_str_name(), self._args2str())
+            return "%s(db.get('%s', '%s', '%s'), %s)"\
+                   % (self.node.storage.name, self._func.__name__,
+                      self._flow.name, self._task_str_name(), dict2strkwargs(self._args))
         else:
-            return "%s(%s)" % (self._func.__name__, self._args2str())
+            return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
 
     @property
     def node(self):
@@ -174,8 +160,10 @@ class LeafPredicate(Predicate):
 
         # we want to avoid querying to database if possible, if a predicate does not require message, do not ask for it
         if self.requires_message():
+            # this can raise an exception if check was not run, since we are accessing storage that can be None
             args = [ast.Call(func=ast.Attribute(value=ast.Name(id='db', ctx=ast.Load()), attr='get', ctx=ast.Load()),
-                             args = [ast.Str(s=self._flow.name), ast.Str(s=self._task_str_name())], keywords=[],
+                             args = [ast.Str(s=self.node.storage.name), ast.Str(s=self._flow.name),
+                                     ast.Str(s=self._task_str_name())], keywords=[],
                              starargs = None, kwargs = None)]
         else:
             args = []

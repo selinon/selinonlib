@@ -11,4 +11,5 @@ from .node import Node
 from .predicate import Predicate
 from .system import System
 from .task import Task
+from .storage import Storage
 from .version import parsley_version

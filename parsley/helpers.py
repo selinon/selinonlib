@@ -24,6 +24,24 @@ import abc
 from contextlib import contextmanager
 
 
+def dict2strkwargs(d):
+    """
+    Convert a dictionary into arguments to a string representation that can be used as arguments to a function
+    """
+    ret = ""
+    for k, v in d.items():
+        if len(ret) > 0:
+            ret += ", "
+        if isinstance(v, list):
+            # s/'['foo']['bar']'/['foo']['bar']/ (get rid of leading ')
+            ret += "%s=%s" % (k, str(v))
+        elif isinstance(v, str):
+            ret += "%s='%s'" % (k, v)
+        else:
+            # some build in type such as bool/int/...
+            ret += "%s=%s" % (k, str(v))
+    return ret
+
 def keylist2str(keylist):
     """
     Convert keylist to a string representation

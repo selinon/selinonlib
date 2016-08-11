@@ -30,11 +30,13 @@ class Task(Node):
     """
     A task representation within the system
     """
-    def __init__(self, name, import_path, class_name=None, max_retry=None):
+    def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
         :param class_name: tasks's class name, if None, 'name' is used
+        :param storage: storage that should be used
+        :param max_retry: configured maximum retry count
         """
         if not isinstance(import_path, str):
             _logger.error("Bad task definition for '%s'" % name)
@@ -55,6 +57,10 @@ class Task(Node):
         self._import_path = import_path
         self._max_retry = max_retry
         self._class_name = class_name if class_name else name
+        self._storage = storage
+        # register task usage
+        if storage:
+            storage.register_task(self)
         _logger.debug("Creating task with name '%s' import path '%s', class name '%s'"
                       % (self.name, self.import_path, self.class_name))
 
@@ -73,6 +79,10 @@ class Task(Node):
         return self._class_name
 
     @property
+    def storage(self):
+        return self._storage
+
+    @property
     def max_retry(self):
         """
         :return: task max_retry count (see Celery max_retry)
@@ -80,15 +90,21 @@ class Task(Node):
         return self._max_retry
 
     @staticmethod
-    def from_dict(d):
+    def from_dict(d, system):
         """
         Construct task from a dict
         :param d: dictionary to be used to construct the task
         :return: Task instance
+        :param system: system that should be used to for lookup a storage
+        :type system: System
         :rtype: Task
         """
         if 'name' not in d or not d['name']:
             raise KeyError('Task name definition is mandatory')
         if 'import' not in d or not d['import']:
             raise KeyError('Task import definition is mandatory')
-        return Task(d['name'], d['import'], d.get('classname'), d.get('max_retry', _DEFAULT_MAX_RETRY))
+        if 'storage' in d:
+            storage = system.storage_by_name(d['storage'])
+        else:
+            storage = None
+        return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY))

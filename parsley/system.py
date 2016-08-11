@@ -23,11 +23,13 @@ import graphviz
 import os
 import yaml
 from .task import Task
+from .storage import Storage
 from .flow import Flow
 from .edge import Edge
 from .version import parsley_version
 from .config import Config
 from .logger import Logger
+from .helpers import dict2strkwargs
 from .leafPredicate import LeafPredicate
 
 
@@ -38,9 +40,10 @@ class System(object):
     """
     The representation of the whole system
     """
-    def __init__(self, tasks=None, flows=None):
+    def __init__(self, tasks=None, flows=None, storages=None):
         self._flows = flows if flows else []
         self._tasks = tasks if tasks else []
+        self._storages = storages if storages else []
 
     @property
     def tasks(self):
@@ -86,6 +89,25 @@ class System(object):
         """
         self._check_name_collision(flow.name)
         self._flows.append(flow)
+
+    def add_storage(self, storage):
+        # We need to check for name collision with tasks as well since we import them by name
+        for task in self._tasks:
+            if task.name == storage.name:
+                raise ValueError("Storage has same name as task '%s'" % storage.name)
+
+        for stored_storage in self._storages:
+            if stored_storage.name == storage:
+                raise ValueError("Multiple storages of the same name '{}'".format(storage.name))
+        self._storages.append(storage)
+
+    def storage_by_name(self, name, graceful=False):
+        for storage in self._storages:
+            if storage.name == name:
+                return storage
+        if not graceful:
+            raise KeyError("Storage with name {} not found in the system".format(name))
+        return None
 
     def task_by_name(self, name, graceful=False):
         """
@@ -149,8 +171,16 @@ class System(object):
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
         output.write('from parsley.predicates import %s\n' % ", ".join(predicates))
 
+        output.write("\n# Tasks\n")
+
         for task in self._tasks:
             output.write("from {} import {}\n".format(task.import_path, task.class_name))
+
+        output.write("\n# Storages\n")
+
+        for storage in self._storages:
+            if len(storage.tasks) > 0:
+                output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
 
         output.write('\n\n')
 
@@ -172,6 +202,19 @@ class System(object):
             output.write("    if name == '{}':\n".format(task.name))
             output.write("        return {}\n\n".format(task.class_name))
         output.write("    raise ValueError(\"Unknown task with name '%s'\" % name)\n\n")
+
+    def _dump_get_storage(self, output):
+        output.write('def get_storage(name):\n')
+        for storage in self._storages:
+            if len(storage.tasks) > 0:
+                output.write("    if name == '{}':\n".format(storage.name))
+                if storage.configuration:
+                    output.write("        return {}({})\n\n".format(storage.class_name,
+                                                                    dict2strkwargs(storage.configuration)))
+                else:
+                    output.write("        return {}()\n\n".format(storage.class_name))
+        output.write("    raise ValueError(\"Unknown storage with name '%s'\" % name)\n\n")
+        pass
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
@@ -232,6 +275,7 @@ class System(object):
         f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
         self._dump_imports(f)
         self._dump_get_task_class(f)
+        self._dump_get_storage(f)
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
         self._dump_condition_functions(f)
@@ -310,6 +354,11 @@ class System(object):
         :raises: ValueError
         """
         _logger.info("Checking system for consistency")
+
+        for storage in self._storages:
+            if len(storage.tasks) == 0:
+                _logger.warning("Storage '{}' not used in any flow".format(storage.name))
+
         # We want to check that if we depend on a node, that node is being started at least once in the flow
         # This also covers check for starting node definition
         for flow in self._flows:
@@ -369,8 +418,12 @@ class System(object):
                 _logger.error("Bad YAML file, unable to load tasks from {}".format(nodes_definition_file))
                 raise
 
+        for storage_dict in content.get('storages', []):
+            storage = Storage.from_dict(storage_dict)
+            system.add_storage(storage)
+
         for task_dict in content['tasks']:
-            task = Task.from_dict(task_dict)
+            task = Task.from_dict(task_dict, system)
             system.add_task(task)
 
         for flow_name in content['flows']:
