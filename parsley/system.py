@@ -265,9 +265,10 @@ class System(object):
         output.write('def output_schemas_init():\n')
         for task in self._tasks:
             if task.output_schema:
-                output.write('    %s.output_schema = "%s"\n' % (task.name, task.output_schema))
+                output.write('    %s.output_schema_path = "%s"\n' % (task.name, task.output_schema))
             else:
-                output.write('    %s.output_schema = None\n' % task.name)
+                output.write('    %s.output_schema_path = None\n' % task.name)
+            output.write('    %s.output_schema = None\n' % task.name)
         output.write('\n')
 
 
