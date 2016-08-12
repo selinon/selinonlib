@@ -17,10 +17,35 @@
           import: "worker.task3"
           # Optionally you can specify task class name in import, 'name' is used as a task name by default.
           classname: 'Task3Class'
+          # If you want to store results and schedule new tasks based on task result, you have to provide
+          # a storage, see bellow.
+          storage: "storage1"
         - name: "Task4"
-          import: "worker.task4"
+          # You can reuse same task implementation and name it differently in order to use a different storage for
+          # results (or not to store computed results if you do not provide 'storage'). Keep in mind that output_schema,
+          # time_limit and max_retry have to be shared across tasks based on same class, see bellow.
+          import: "worker.task1"
+          classname: "Task1"
+          storage: "storage1"
         - name: "Task5"
           import: "worker.task5"
+          storage: "storage2"
+          # You can specify a path to a JSON schema if you want to verify task results. If the task result does not
+          # conform to this schema an exception is raised and the worker fails once max_retry is reached.
+          output_schema: "path/to/output/schema.json"
+          # You can specify Celery's time_limit that will be set by Celeriac for the task. Keep in mind that
+          # this limit is applicable on task class level - so if you create multiple tasks of the same type, they must
+          # obey same time_limit. If not set, it defaults to 3600.
+          time_limit: 3600
+          # no limit would be:
+          #   time_limit:
+          # You can also specify how many times could be a task retried if it fails. The configuration is also
+          # applicable on task class level as in time_limit case. If not set, it defaults to 1. Failures are
+          # propagated, so if a task fails in a subflow, the whole flow fails as well.
+          max_retry: 2
+          # no limited retry would be:
+          #   max_retry:
+
 
     # Since we can use cyclic dependencies, we have to provide listing of all flows and tasks that our system has.
     flows:
@@ -28,8 +53,48 @@
         - "flow2"
         - "flow3"
 
+
+    # If you want to make decisions on when to run which task based on its results and store computed results, you have
+    # to provide a definition of a storage that should be used with all the details how to connect to it. Each storage
+    # is named and you can use this name to refer to the particular storage in tasks definition. Fields 'import' and
+    # 'classname' have similar meaning as in case of tasks definition - Python's import path and class name (which
+    # defaults to name field if not provided explicitly). The implementation of storage has to conform to Celeriac's
+    # DataStorage, so configuration is specific to your implementation of Celeriac's DataStorage (see Celeriac for
+    # more info).
+    storages:
+        - name: "storage1"
+          import: "storage.storage1"
+          classname: "Storage1"
+          # The configuration to Storage1 will be passed as:
+          #   ds = Storage1()
+          #   ds.connect(username="scams", password="shadowedentity",
+          #              connection=[{"port": 5432, "host": "os1.socuc.lan"}, {"port": 5432, "host": "os2.socuc.lan"},]
+          # The configuration is highly specific to your DataStorage implementation and can consist of anything you
+          # choose. For example, there are listed multiple connections in case of os1.socuc.lan will not be available
+          # your implementation will fallback to os2.socuc.lan.
+          configuration:
+            username: "scams"
+            password: "shadowedentity"
+            connection:
+                - port: 5432
+                  host: "os1.socuc.lan"
+                - port: 5432
+                  host: "os2.socuc.lan"
+
+        - name: "storage2"
+          import: "storage.storage2"
+          # if classname if omitted, 'name' will be used:
+          #classname: "storage2"
+          configuration:
+            username: "bae"
+            password: "imissmybae"
+            connection:
+              port: 5432
+              host: "socuc.lan"
+
+
     # 'flow-definition' can be in a separate file (or split across multiple files) if you want to have task
-    # defininition and flow definition separated.
+    # definition and flow definition separated.
 
     # Now we have to define each flow:
     flow-definitions:
@@ -107,7 +172,7 @@
                     and:
                         - not:
                             name: "fieldEqual"
-                            # Since we have multiple dependencies in 'from', we have to explictly refer to node that
+                            # Since we have multiple dependencies in 'from', we have to explicitly refer to node that
                             # condition should apply to.
                             node: "Task4"
                             args:
