@@ -93,7 +93,7 @@ class Config(_ConfigParent):
         if self._raw_config is None or 'style' not in self._raw_config:
             return default_style
         ret = self._raw_config['style'].get('condition', default_style)
-        return ret if ret is not None else {}
+        return ret if ret is not None else default_style
 
     def style_storage(self):
         """
