@@ -101,7 +101,7 @@ class Config(_ConfigParent):
         :return: style definition
         :rtype: dict
         """
-        default_style = {'shape': 'folder'}
+        default_style = {'shape': 'folder', 'color': '#AAAAAA'}
         if self._raw_config is None or 'style' not in self._raw_config:
             return default_style
         ret = self._raw_config['style'].get('storage', default_style)
