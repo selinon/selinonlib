@@ -498,8 +498,7 @@ class System(object):
                             raise ValueError("Nodes cannot be dependent on a node of a same type mode than once; "
                                              "node from '%s' more than once in flow '%s'" % (node_from.name, flow.name))
 
-                    if isinstance(edge.predicate, LeafPredicate):
-                        edge.predicate.check()
+                    edge.predicate.check()
 
                 if starting_nodes_count > 1:
                     _logger.warning("Multiple starting nodes defined in flow '%s'" % flow.name)

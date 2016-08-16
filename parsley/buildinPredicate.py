@@ -79,6 +79,13 @@ class NaryPredicate(BuildinPredicate):
         """
         return reduce(lambda x, y: x + y.predicates_used(), self._children, [])
 
+    def check(self):
+        """
+        Check predicate for consistency
+        """
+        for child in self._children:
+            child.check()
+
 
 class UnaryPredicate(BuildinPredicate):
     """
@@ -107,6 +114,12 @@ class UnaryPredicate(BuildinPredicate):
         :return: used predicates by children
         """
         return self._child.predicates_used()
+
+    def check(self):
+        """
+        Check predicate for consistency
+        """
+        self._child.check()
 
 
 class AndPredicate(NaryPredicate):

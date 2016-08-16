@@ -108,3 +108,8 @@ class Predicate(ABC):
             return AndPredicate.create(tree['and'], nodes_from, flow)
         else:
             raise ValueError("Unknown predicate:\n%s" % dict2json(tree))
+
+    @abc.abstractmethod
+    def check(self):
+        pass
+
