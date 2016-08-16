@@ -118,6 +118,18 @@ class Config(_ConfigParent):
         ret = self._raw_config['style'].get('edge', {})
         return ret if ret is not None else {}
 
+    def style_store_edge(self):
+        """
+        Return style for edges that lead to a storage in the graph, see graphviz styling options
+        :return: style definition
+        :rtype: dict
+        """
+        default_style = {'color': '#AAAAAA', 'style': 'dashed'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default_style
+        ret = self._raw_config['style'].get('store-edge', default_style)
+        return ret if ret is not None else default_style
+
     def style_graph(self):
         """
         Return style for the whole graph, see graphviz styling options
