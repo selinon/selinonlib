@@ -411,10 +411,10 @@ class System(object):
         """
         _logger.debug("Rendering system flows to '%s'" % output_dir)
         ret = []
-        storage_connections = []
         image_format = image_format if image_format else 'svg'
 
         for flow in self._flows:
+            storage_connections = []
             graph = graphviz.Digraph(format=image_format)
             graph.graph_attr.update(Config().style_graph())
             graph.node_attr.update(Config().style_task())
@@ -433,7 +433,7 @@ class System(object):
                         if node.storage:
                             graph.node(name=node.storage.name, _attributes=Config().style_storage())
                             if (node.name, node.storage.name) not in storage_connections:
-                                graph.edge(node.name, node.storage.name)
+                                graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
                                 storage_connections.append((node.name, node.storage.name,))
                     graph.edge(condition_node, node.name)
                 for node in edge.nodes_from:
@@ -444,7 +444,7 @@ class System(object):
                         if node.storage:
                             graph.node(name=node.storage.name, _attributes=Config().style_storage())
                             if (node.name, node.storage.name) not in storage_connections:
-                                graph.edge(node.name, node.storage.name)
+                                graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
                                 storage_connections.append((node.name, node.storage.name,))
                     graph.edge(node.name, condition_node)
 
