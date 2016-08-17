@@ -28,7 +28,7 @@ class Flow(Node):
     """
     Flow representation
     """
-    def __init__(self, name, edges=None):
+    def __init__(self, name, edges=None, failures=None):
         """
         :param name: flow name
         :type name: str
@@ -38,6 +38,7 @@ class Flow(Node):
         super(Flow, self).__init__(name)
         _logger.debug("Creating flow '{}'".format(name))
         self._edges = edges if edges else []
+        self._failures = failures if failures else []
 
     @staticmethod
     def from_dict(d):
@@ -49,6 +50,14 @@ class Flow(Node):
         :return: edges presented in the flow
         """
         return self._edges
+
+    @property
+    def failures(self):
+        return self._failures
+
+    @failures.setter
+    def failures(self, failures):
+        self._failures = failures
 
     def add_edge(self, edge):
         """

@@ -29,8 +29,8 @@ from .edge import Edge
 from .version import parsley_version
 from .config import Config
 from .logger import Logger
-from .helpers import dict2strkwargs
-from .leafPredicate import LeafPredicate
+from .helpers import expr2str
+from .failures import Failures
 
 
 _logger = Logger.get_logger(__name__)
@@ -228,7 +228,7 @@ class System(object):
                 output.write("    if name == '{}':\n".format(storage.name))
                 if storage.configuration:
                     output.write("        return {}({})\n\n".format(storage.class_name,
-                                                                    dict2strkwargs(storage.configuration)))
+                                                                    expr2str(storage.configuration)))
                 else:
                     output.write("        return {}()\n\n".format(storage.class_name))
         output.write("    raise ValueError(\"Unknown storage with name '%s'\" % name)\n\n")
@@ -263,6 +263,7 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def init_max_retry():\n')
+        # TODO: seen_classes should distinguish import
         seen_classes = {}
         for task in self._tasks:
             if task.class_name in seen_classes:
@@ -279,6 +280,7 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def init_time_limit():\n')
+        # TODO: seen_classes should distinguish import
         seen_classes = {}
         for task in self._tasks:
             if task.class_name in seen_classes:
@@ -296,6 +298,7 @@ class System(object):
         """
         # NOTE: we could assign to CeleriacTask since all Tasks inherit from it, but be explicit here for now
         output.write('def init_get_storages():\n')
+        # TODO: seen_classes should distinguish import
         seen_classes = {}
         for task in self._tasks:
             if not seen_classes.get(task.class_name, False):
@@ -309,6 +312,7 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def init_output_schemas():\n')
+        # TODO: seen_classes should distinguish import
         seen_classes = {}
         for task in self._tasks:
             if not seen_classes.get(task.class_name, False):
@@ -382,6 +386,20 @@ class System(object):
         self._dump_init_time_limit(f)
         f.write('#'*80+'\n\n')
         self._dump_init_get_storages(f)
+        f.write('#'*80+'\n\n')
+
+        for flow in self._flows:
+            if flow.failures:
+                flow.failures.dump2stream(f, flow.name)
+
+        f.write('failures = {')
+        for i, flow in enumerate(self._flows):
+            if flow.failures:
+                if i > 0:
+                    f.write(",")
+                f.write("\n    '%s': %s" % (flow.name, flow.failures.starting_nodes_name(flow.name)))
+        f.write('\n}\n\n')
+
         f.write('#'*80+'\n\n')
         self._dump_init_output_schemas(f)
         f.write('#'*80+'\n\n')
@@ -570,9 +588,17 @@ class System(object):
 
             for flow_def in content['flow-definitions']:
                 flow = system.flow_by_name(flow_def['name'])
+
+                if len(flow.edges) > 0:
+                    raise ValueError("Multiple definitions of flow '%s'" % flow.name)
+
                 for edge_def in flow_def['edges']:
                     edge = Edge.from_dict(edge_def, system, flow)
                     flow.add_edge(edge)
+
+                if 'failures' in flow_def:
+                    failures = Failures.construct(flow_def['failures'])
+                    flow.failures = failures
 
         system.post_parse_check()
         return system
