@@ -126,19 +126,30 @@ class FailureNode(object):
         self._next[node_name] = failure
 
     @staticmethod
-    def construct(flow, failures):
+    def _add_fallback(failure_node, fallback):
+        if len(failure_node.fallback) > 0:
+            raise ValueError("Multiple definitions of a failure in flow '%s' with failure of %s"
+                             % (failure_node.flow.name, failure_node.traversed))
+
+        # additional checks are done by System
+        failure_node.fallback = fallback
+
+    @classmethod
+    def construct(cls, flow, failures):
         """
         Construct failures from failures dictionary
         :param failures: failures dictionary
         :param flow: flow to which failures conform to
         :return: a link for linked list of failures and a dict of starting failures
         """
-        # TODO: check for multiple definitions of a same failure
         last_allocated = None
         starting_failures = {}
 
         for failure in failures:
             used_starting_failures = {}
+
+            if 'nodes' not in failure:
+                raise ValueError("Definition of a failure expects 'nodes' to be defined in flow '%s'" % flow.name)
 
             for node in failure['nodes']:
                 if node not in starting_failures:
@@ -181,8 +192,10 @@ class FailureNode(object):
                 current_nodes = next_nodes
                 next_nodes = []
 
-        f = reduce(lambda x, y: x.to(y), failure['nodes'][1:], used_starting_failures[failure['nodes'][0]])
-        f.fallback = failure['fallback']
+            f = reduce(lambda x, y: x.to(y), failure['nodes'][1:], used_starting_failures[failure['nodes'][0]])
+            if 'fallback' not in failure:
+                raise ValueError("Fallback in flow '%s' for failure of %s not defined" % (flow.name, failure['nodes']))
+            cls._add_fallback(f, failure['fallback'])
 
         # we could make enumerable and avoid last_allocated (it would be cleaner), but let's stick with
         # this one for now
