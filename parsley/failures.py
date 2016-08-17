@@ -57,7 +57,6 @@ class Failures(object):
         """
         return "%s_fail_%s" % (flow_name, "_".join(failure_node.traversed))
 
-    # TODO: extend flow checks with this one
     def started_nodes_names(self):
         """
         :return: names of nodes that are started by fallbacks in all failures
@@ -67,20 +66,15 @@ class Failures(object):
         failure_node = self._last_allocated
         while failure_node:
             ret.extend(failure_node.fallback)
+            failure_node = failure_node.failure_link
 
         return ret
 
-    # TODO: extend flow checks with this one
     def waiting_nodes_names(self):
         """
-        :return: names of all nodes that we are expecting to fail for faillbacks
+        :return: names of all nodes that we are expecting to fail for fallbacks
         """
-        ret = []
-
-        for node in self._starting_nodes:
-            ret.extend(node.traversed)
-
-        return ret
+        return list(self._starting_nodes.keys())
 
     def dump2stream(self, f, flow_name):
         """

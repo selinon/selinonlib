@@ -528,6 +528,29 @@ class System(object):
                     all_nodes_from = all_nodes_from | set(edge.nodes_from)
                     all_nodes_to = all_nodes_to | set(edge.nodes_to)
 
+                if flow.failures:
+                    waiting_nodes_names = flow.failures.waiting_nodes_names()
+                    waiting_nodes = []
+
+                    for node_name in waiting_nodes_names:
+                        node = self.node_by_name(node_name, graceful=True)
+                        if not node:
+                            raise KeyError("No such node with name '%s' in failure, flow '%s'" % (node_name, flow.name))
+                        waiting_nodes.append(node)
+
+                    started_nodes_names = flow.failures.started_nodes_names()
+                    started_nodes = []
+
+                    for node_name in started_nodes_names:
+                        node = self.node_by_name(node_name, graceful=True)
+                        if not node:
+                            raise KeyError("No such node with name '%s' in failure fallback, flow '%s'"
+                                           % (node_name, flow.name))
+                        started_nodes.append(node)
+
+                    all_nodes_from = all_nodes_from | set(waiting_nodes)
+                    all_nodes_to = all_nodes_to | set(started_nodes)
+
                 not_started = all_nodes_from - all_nodes_to
 
                 error = False
