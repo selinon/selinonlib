@@ -211,7 +211,7 @@ class System(object):
         Dump get_task_instance() function to a stream
         :param output: a stream to write to
         """
-        output.write('def get_task_class(name):\n')
+        output.write('def get_task_instance(name):\n')
         for task in self._tasks:
             output.write("    if name == '{}':\n".format(task.name))
             output.write("        return {}()\n\n".format(task.class_name))
