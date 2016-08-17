@@ -217,22 +217,38 @@ class System(object):
             output.write("        return {}()\n\n".format(task.class_name))
         output.write("    raise ValueError(\"Unknown task with name '%s'\" % name)\n\n")
 
-    def _dump_get_storage(self, output):
+    def _dump_storage2instance_mapping(self, output):
         """
-        Dump get_storage to a stream
+        Dump storage name to instance mapping to a stream
         :param output: a stream to write to
         """
-        output.write('def get_storage(name):\n')
-        for storage in self._storages:
+        output.write('storage2instance_mapping = {\n')
+        for i, storage in enumerate(self._storages):
             if len(storage.tasks) > 0:
-                output.write("    if name == '{}':\n".format(storage.name))
+                if i > 0:
+                    output.write(",\n")
+                output.write("    '%s': %s" % (storage.name, storage.class_name))
+
                 if storage.configuration:
-                    output.write("        return {}({})\n\n".format(storage.class_name,
-                                                                    expr2str(storage.configuration)))
+                    output.write("(%s)" % expr2str(storage.configuration))
                 else:
-                    output.write("        return {}()\n\n".format(storage.class_name))
-        output.write("    raise ValueError(\"Unknown storage with name '%s'\" % name)\n\n")
-        pass
+                    output.write("()")
+        output.write("\n}\n\n")
+
+    def _dump_task2storage_mapping(self, output):
+        """
+        Dump task name to storage name mapping to a stream
+        :param output: a stream to write to
+        """
+        output.write('task2storage_mapping = {\n')
+        printed = False
+        for storage in self._storages:
+            for task in storage.tasks:
+                if printed:
+                    output.write(",\n")
+                output.write("    '%s': '%s'" % (task.name, storage.name))
+                printed = True
+        output.write("\n}\n\n")
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
@@ -376,7 +392,10 @@ class System(object):
         f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
         self._dump_imports(f)
         self._dump_get_task_instance(f)
-        self._dump_get_storage(f)
+        f.write('#'*80+'\n\n')
+        self._dump_task2storage_mapping(f)
+        self._dump_storage2instance_mapping(f)
+        f.write('#'*80+'\n\n')
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
