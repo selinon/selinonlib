@@ -61,12 +61,14 @@ class FailureNode(object):
     """
     A representation of a failure node permutation
     """
-    def __init__(self, traversed, failure_link):
+    def __init__(self, flow, traversed, failure_link):
         """
+        :param flow: flow to which the failure node conforms to
         :param traversed: traversed nodes - also permutation of nodes
         :param failure_link: link to next failure node in failures
         """
         self._next = {}
+        self._flow = flow
         self._fallback = []
         self._traversed = traversed
         self._failure_link = failure_link
@@ -90,6 +92,10 @@ class FailureNode(object):
     @property
     def failure_link(self):
         return self._failure_link
+
+    @property
+    def flow(self):
+        return self._flow
 
     @failure_link.setter
     def failure_link(self, failure_link):
@@ -120,10 +126,11 @@ class FailureNode(object):
         self._next[node_name] = failure
 
     @staticmethod
-    def construct(failures):
+    def construct(flow, failures):
         """
         Construct failures from failures dictionary
         :param failures: failures dictionary
+        :param flow: flow to which failures conform to
         :return: a link for linked list of failures and a dict of starting failures
         """
         # TODO: check for multiple definitions of a same failure
@@ -135,7 +142,7 @@ class FailureNode(object):
 
             for node in failure['nodes']:
                 if node not in starting_failures:
-                    f = FailureNode([node], last_allocated)
+                    f = FailureNode(flow, [node], last_allocated)
                     last_allocated = f
                     starting_failures[node] = f
                     used_starting_failures[node] = f
@@ -155,7 +162,7 @@ class FailureNode(object):
 
                             if not current_node.has_to(edge_node):
                                 next_node = current_node.traversed + [edge_node]
-                                f = FailureNode(next_node, last_allocated)
+                                f = FailureNode(flow, next_node, last_allocated)
                                 last_allocated = f
                                 current_node.add_to(edge_node, f)
 

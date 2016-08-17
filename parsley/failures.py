@@ -34,12 +34,13 @@ class Failures(object):
         self._starting_nodes = starting_nodes
 
     @staticmethod
-    def construct(failures_dict):
+    def construct(flow, failures_dict):
         """
+        :param flow: a flow to which failures conform
         :param failures_dict: construct failures from failures dict
         :rtype: Failures
         """
-        last_allocated, starting_nodes = FailureNode.construct(failures_dict)
+        last_allocated, starting_nodes = FailureNode.construct(flow, failures_dict)
         return Failures(last_allocated, starting_nodes)
 
     @staticmethod
@@ -47,7 +48,7 @@ class Failures(object):
         """
         A starting node name representation for generated Python config
         """
-        return "%s_failure_starting_nodes" %  flow_name
+        return "%s_failure_starting_nodes" % flow_name
 
     @staticmethod
     def failure_node_name(flow_name, failure_node):

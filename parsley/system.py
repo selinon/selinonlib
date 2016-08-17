@@ -597,7 +597,7 @@ class System(object):
                     flow.add_edge(edge)
 
                 if 'failures' in flow_def:
-                    failures = Failures.construct(flow_def['failures'])
+                    failures = Failures.construct(flow, flow_def['failures'])
                     flow.failures = failures
 
         system.post_parse_check()
