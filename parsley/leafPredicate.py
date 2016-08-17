@@ -122,9 +122,8 @@ class LeafPredicate(Predicate):
 
     def __str__(self):
         if self.requires_message():
-            return "%s(db.get('%s', '%s', '%s'), %s)"\
-                   % (self._func.__name__, self.node.storage.name,
-                      self._flow.name, self._task_str_name(), dict2strkwargs(self._args))
+            return "%s(db.get('%s', '%s'), %s)"\
+                   % (self._func.__name__, self._flow.name, self._task_str_name(), dict2strkwargs(self._args))
         else:
             return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
 
@@ -162,9 +161,8 @@ class LeafPredicate(Predicate):
         if self.requires_message():
             # this can raise an exception if check was not run, since we are accessing storage that can be None
             args = [ast.Call(func=ast.Attribute(value=ast.Name(id='db', ctx=ast.Load()), attr='get', ctx=ast.Load()),
-                             args = [ast.Str(s=self.node.storage.name), ast.Str(s=self._flow.name),
-                                     ast.Str(s=self._task_str_name())], keywords=[],
-                             starargs = None, kwargs = None)]
+                             args = [ast.Str(s=self._flow.name), ast.Str(s=self._task_str_name())],
+                             keywords=[], starargs = None, kwargs = None)]
         else:
             args = []
 
