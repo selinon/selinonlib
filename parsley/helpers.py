@@ -32,15 +32,25 @@ def dict2strkwargs(d):
     for k, v in d.items():
         if len(ret) > 0:
             ret += ", "
-        if isinstance(v, list):
-            # s/'['foo']['bar']'/['foo']['bar']/ (get rid of leading ')
-            ret += "%s=%s" % (k, str(v))
-        elif isinstance(v, str):
-            ret += "%s='%s'" % (k, v)
-        else:
-            # some build in type such as bool/int/...
-            ret += "%s=%s" % (k, str(v))
+        ret += "%s=%s" % (k, expr2str(v))
     return ret
+
+
+def expr2str(e):
+    """
+    Convert a Python expression into a Python code
+    """
+    if isinstance(e, dict):
+        return dict2strkwargs(e)
+    elif isinstance(e, list):
+        # s/'['foo']['bar']'/['foo']['bar']/ (get rid of leading ')
+        return "%s" % e
+    elif isinstance(e, str):
+        return "'%s'" % e
+    else:
+        # some build in type such as bool/int/...
+        return "%s" % str(e)
+
 
 def keylist2str(keylist):
     """
