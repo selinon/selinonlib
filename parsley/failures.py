@@ -25,11 +25,13 @@ class Failures(object):
     """
     Node failures and fallback handling
     """
-    def __init__(self, last_allocated=None, starting_nodes=None):
+    def __init__(self, raw_definition, last_allocated=None, starting_nodes=None):
         """
+        :param raw_definition: raw definition of failures
         :param last_allocated: last allocated starting node for linked list
         :param starting_nodes: starting nodes for failures
         """
+        self._raw_definition = raw_definition
         self._last_allocated = last_allocated
         self._starting_nodes = starting_nodes
 
@@ -40,8 +42,28 @@ class Failures(object):
         :param failures_dict: construct failures from failures dict
         :rtype: Failures
         """
+
+        for failure in failures_dict:
+            if 'nodes' not in failure or failure['nodes'] is None:
+                raise ValueError("Failure should state nodes for state 'nodes' to fallback from in flow '%s'"
+                                 % flow.name)
+
+            if 'fallback' not in failure:
+                raise ValueError("No fallback stated in failure in flow '%s'" % flow.name)
+
+            if not isinstance(failure['nodes'], list):
+                failure['nodes'] = [failure['nodes']]
+
+            if not isinstance(failure['fallback'], list) and failure['fallback'] is not None:
+                failure['fallback'] = [failure['fallback']]
+
+            if len(failure['fallback']) == 1 and len(failure['nodes']) == 1 \
+                    and failure['fallback'][0] == failure['nodes'][0]:
+                raise ValueError("Detect cyclic fallback dependency in flow %s, failure on %s"
+                                 % (flow.name, failure['nodes'][0]))
+
         last_allocated, starting_nodes = FailureNode.construct(flow, failures_dict)
-        return Failures(last_allocated, starting_nodes)
+        return Failures(failures_dict, last_allocated, starting_nodes)
 
     @staticmethod
     def starting_nodes_name(flow_name):
@@ -56,6 +78,13 @@ class Failures(object):
         A failure node name representation for generated Python config
         """
         return "%s_fail_%s" % (flow_name, "_".join(failure_node.traversed))
+
+    @property
+    def raw_definition(self):
+        """
+        :return: raw definition as in config YAML
+        """
+        return self._raw_definition
 
     def started_nodes_names(self):
         """

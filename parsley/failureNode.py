@@ -131,6 +131,9 @@ class FailureNode(object):
             raise ValueError("Multiple definitions of a failure in flow '%s' with failure of %s"
                              % (failure_node.flow.name, failure_node.traversed))
 
+        if not isinstance(fallback, list):
+            fallback = list(fallback)
+
         # additional checks are done by System
         failure_node.fallback = fallback
 
@@ -147,9 +150,6 @@ class FailureNode(object):
 
         for failure in failures:
             used_starting_failures = {}
-
-            if 'nodes' not in failure:
-                raise ValueError("Definition of a failure expects 'nodes' to be defined in flow '%s'" % flow.name)
 
             for node in failure['nodes']:
                 if node not in starting_failures:
@@ -193,8 +193,6 @@ class FailureNode(object):
                 next_nodes = []
 
             f = reduce(lambda x, y: x.to(y), failure['nodes'][1:], used_starting_failures[failure['nodes'][0]])
-            if 'fallback' not in failure:
-                raise ValueError("Fallback in flow '%s' for failure of %s not defined" % (flow.name, failure['nodes']))
             cls._add_fallback(f, failure['fallback'])
 
         # we could make enumerable and avoid last_allocated (it would be cleaner), but let's stick with
