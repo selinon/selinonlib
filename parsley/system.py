@@ -29,8 +29,9 @@ from .edge import Edge
 from .version import parsley_version
 from .config import Config
 from .logger import Logger
-from .helpers import expr2str
+from .helpers import dict2strkwargs
 from .failures import Failures
+from .taskClass import TaskClass
 
 
 _logger = Logger.get_logger(__name__)
@@ -40,10 +41,11 @@ class System(object):
     """
     The representation of the whole system
     """
-    def __init__(self, tasks=None, flows=None, storages=None):
+    def __init__(self, tasks=None, flows=None, storages=None, task_classes=None):
         self._flows = flows if flows else []
         self._tasks = tasks if tasks else []
         self._storages = storages if storages else []
+        self._task_classes = task_classes if task_classes else []
 
     @property
     def tasks(self):
@@ -160,6 +162,17 @@ class System(object):
 
         return node
 
+    def class_of_task(self, task):
+        """
+        Return task class of a task
+        :param task: task to look task class for
+        :return: TaskClass or None if a task class for task is not available
+        """
+        for task_class in self._task_classes:
+            if task_class.task_of_class(task):
+                return task_class
+        return None
+
     def _dump_imports(self, output):
         """
         Dump used imports of tasks to a stream
@@ -198,12 +211,13 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('output_schemas = {')
-        for i, task in enumerate(self._tasks):
+        printed = False
+        for task in self._tasks:
             if task.output_schema:
-                if i > 0:
-                    output.write(",\n    '%s': '%s'" % (task.name, task.output_schema))
-                else:
-                    output.write("\n    '%s': '%s'" % (task.name, task.output_schema))
+                if printed:
+                    output.write(",")
+                output.write("\n    '%s': '%s'" % (task.name, task.output_schema))
+                printed = True
         output.write('\n}\n\n')
 
     def _dump_get_task_instance(self, output):
@@ -222,17 +236,26 @@ class System(object):
         Dump storage name to instance mapping to a stream
         :param output: a stream to write to
         """
-        output.write('storage2instance_mapping = {\n')
-        for i, storage in enumerate(self._storages):
+        storage_var_names = []
+        for storage in self._storages:
             if len(storage.tasks) > 0:
-                if i > 0:
-                    output.write(",\n")
-                output.write("    '%s': %s" % (storage.name, storage.class_name))
-
+                storage_var_name = "_storage_%s" % storage.name
+                output.write("%s = %s" % (storage_var_name, storage.class_name))
                 if storage.configuration:
-                    output.write("(%s)" % expr2str(storage.configuration))
+                    output.write("(%s)\n" % dict2strkwargs(storage.configuration))
                 else:
-                    output.write("()")
+                    output.write("()\n")
+
+                storage_var_names.append((storage.name, storage_var_name,))
+
+        output.write('storage2instance_mapping = {\n')
+        printed = False
+        for storage_var_name in storage_var_names:
+                if printed:
+                    output.write(",\n")
+                output.write("    '%s': %s" % (storage_var_name[0], storage_var_name[1]))
+                printed = True
+
         output.write("\n}\n\n")
 
     def _dump_task2storage_mapping(self, output):
@@ -279,15 +302,8 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def init_max_retry():\n')
-        # TODO: seen_classes should distinguish import
-        seen_classes = {}
-        for task in self._tasks:
-            if task.class_name in seen_classes:
-                if task.max_retry != seen_classes[task.class_name][1]:
-                    raise ValueError("Unable to set different max_retry to a same task class: %s and %s for class '%s'"
-                                     % ((task.name, task.max_retry), seen_classes[task.class_name], task.class_name))
-            seen_classes[task.class_name] = (task.name, task.max_retry)
-            output.write('    %s.max_retry = %s\n' % (task.class_name, task.max_retry))
+        for task_class in self._task_classes:
+            output.write('    %s.max_retry = %s\n' % (task_class.class_name, task_class.tasks[0].max_retry))
         output.write('\n')
 
     def _dump_init_time_limit(self, output):
@@ -296,30 +312,8 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def init_time_limit():\n')
-        # TODO: seen_classes should distinguish import
-        seen_classes = {}
-        for task in self._tasks:
-            if task.class_name in seen_classes:
-                if task.time_limit != seen_classes[task.class_name][1]:
-                    raise ValueError("Unable to set different time_limit to a same task class: %s and %s for class '%s'"
-                                     % ((task.name, task.time_limit), seen_classes[task.class_name], task.class_name))
-            seen_classes[task.class_name] = (task.name, task.time_limit)
-            output.write('    %s.time_limit = %s\n' % (task.class_name, task.time_limit))
-        output.write('\n')
-
-    def _dump_init_get_storages(self, output):
-        """
-        Dump get_storages() to output stream
-        :param output: a stream to write to
-        """
-        # NOTE: we could assign to CeleriacTask since all Tasks inherit from it, but be explicit here for now
-        output.write('def init_get_storages():\n')
-        # TODO: seen_classes should distinguish import
-        seen_classes = {}
-        for task in self._tasks:
-            if not seen_classes.get(task.class_name, False):
-                seen_classes[task.class_name] = True
-                output.write('    %s.get_storage = get_storage\n' % task.class_name)
+        for task_class in self._task_classes:
+            output.write('    %s.time_limit = %s\n' % (task_class.class_name, task_class.tasks[0].time_limit))
         output.write('\n')
 
     def _dump_init_output_schemas(self, output):
@@ -328,24 +322,14 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def init_output_schemas():\n')
-        # TODO: seen_classes should distinguish import
-        seen_classes = {}
-        for task in self._tasks:
-            if not seen_classes.get(task.class_name, False):
-                seen_classes[task.class_name] = (task.name, task.output_schema)
-
-                if task.output_schema:
-                    output.write('    %s.output_schema_path = "%s"\n' % (task.class_name, task.output_schema))
-                else:
-                    output.write('    %s.output_schema_path = None\n' % task.class_name)
-                output.write('    %s.output_schema = None\n' % task.class_name)
+        # we could make it not Celery specific by having map of output schemas
+        for task_class in self._task_classes:
+            if task_class.tasks[0].output_schema:
+                output.write('    %s.output_schema_path = "%s"\n'
+                             % (task_class.class_name, task_class.tasks[0].output_schema))
             else:
-                # we could handle this case to create a list of schemas and access it using task_name that is passed
-                # to CeleriacTask
-                if seen_classes[task.class_name][1] != task.output_schema:
-                    raise ValueError("Unable to set different output schemas to a same task class: %s and %s "
-                                     "for class '%s'"
-                                     % ((task.name, task.output_schema), seen_classes[task.class_name], task.class_name))
+                output.write('    %s.output_schema_path = None\n' % task_class.class_name)
+            output.write('    %s.output_schema = None\n' % task_class.class_name)
         output.write('\n')
 
     @staticmethod
@@ -358,7 +342,6 @@ class System(object):
         output.write('def init():\n')
         output.write('    init_max_retry()\n')
         output.write('    init_time_limit()\n')
-        output.write('    init_get_storages()\n')
         output.write('    init_output_schemas()\n')
         output.write('\n')
 
@@ -404,18 +387,18 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_init_time_limit(f)
         f.write('#'*80+'\n\n')
-        self._dump_init_get_storages(f)
-        f.write('#'*80+'\n\n')
 
         for flow in self._flows:
             if flow.failures:
                 flow.failures.dump2stream(f, flow.name)
 
         f.write('failures = {')
+        printed = False
         for i, flow in enumerate(self._flows):
             if flow.failures:
-                if i > 0:
+                if printed:
                     f.write(",")
+                printed = True
                 f.write("\n    '%s': %s" % (flow.name, flow.failures.starting_nodes_name(flow.name)))
         f.write('\n}\n\n')
 
@@ -492,7 +475,7 @@ class System(object):
 
         return ret
 
-    def post_parse_check(self):
+    def _post_parse_check(self):
         """
         Called once parse was done to ensure that system was correctly defined in config file
         :raises: ValueError
@@ -504,12 +487,31 @@ class System(object):
             if len(flow.edges) == 0:
                 raise ValueError("Empty flow: %s" % flow.name)
 
-    def check(self):
+    def _check(self):
         """
         Check system for consistency
         :raises: ValueError
         """
         _logger.info("Checking system for consistency")
+
+        for task_class in self._task_classes:
+            task_ref = task_class.tasks[0]
+            for task in task_class.tasks[1:]:
+                if task_ref.output_schema != task.output_schema:
+                    raise ValueError("Unable to set different output schemas to a same task class: %s and %s "
+                                     "for class '%s', schemas: '%s' and '%s' might differ"
+                                     % (task_ref.name, task.name, task_class.class_name,
+                                        task_ref.output_schema, task.output_schema))
+
+                if task.max_retry != task_ref.max_retry:
+                    raise ValueError("Unable to set different max_retry to a same task class: %s and %s for class '%s'"
+                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
+                                        task_class.class_name))
+
+                if task.time_limit != task_ref.time_limit:
+                    raise ValueError("Unable to set different time_limit to a same task class: %s and %s for class '%s'"
+                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
+                                        task_class.class_name))
 
         for storage in self._storages:
             if len(storage.tasks) == 0:
@@ -521,6 +523,7 @@ class System(object):
             try:
                 all_nodes_from = set()
                 all_nodes_to = set()
+
                 starting_nodes_count = 0
 
                 for edge in flow.edges:
@@ -586,11 +589,12 @@ class System(object):
                 raise
 
     @staticmethod
-    def from_files(nodes_definition_file, flow_definition_files):
+    def from_files(nodes_definition_file, flow_definition_files, no_check=False):
         """
         Construct System from files
         :param nodes_definition_file: path to nodes definition file
         :param flow_definition_files: path to files that describe flows
+        :param no_check: True if system shouldn't be checked for consistency (recommended to check)
         :return: System instance
         :rtype: System
         """
@@ -610,6 +614,12 @@ class System(object):
 
         for task_dict in content['tasks']:
             task = Task.from_dict(task_dict, system)
+            task_class = system.class_of_task(task)
+            if not task_class:
+                task_class = TaskClass(task.class_name, task.import_path)
+                system._task_classes.append(task_class)
+            task_class.add_task(task)
+            task.task_class = task_class
             system.add_task(task)
 
         for flow_name in content['flows']:
@@ -642,5 +652,8 @@ class System(object):
                     failures = Failures.construct(flow, flow_def['failures'])
                     flow.failures = failures
 
-        system.post_parse_check()
+        system._post_parse_check()
+        if not no_check:
+            system._check()
+
         return system

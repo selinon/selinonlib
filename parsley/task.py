@@ -32,7 +32,7 @@ class Task(Node):
     A task representation within the system
     """
     def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None, time_limit=None,
-                 output_schema=None):
+                 output_schema=None, task_class=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
@@ -41,6 +41,7 @@ class Task(Node):
         :param max_retry: configured maximum retry count
         :param time_limit: configured time limit for task run
         :param output_schema: task result output schema
+        :param task_class: class of the task
         """
         if not isinstance(import_path, str):
             raise ValueError("Error in task '%s' definition - import path should be string; got '%s'"
@@ -69,6 +70,7 @@ class Task(Node):
         self._class_name = class_name if class_name else name
         self._storage = storage
         self._output_schema = output_schema
+        self._task_class = task_class
         # register task usage
         if storage:
             storage.register_task(self)
@@ -113,6 +115,22 @@ class Task(Node):
         :return: path to task output schema or None if not defined
         """
         return self._output_schema
+
+    @property
+    def task_class(self):
+        """
+        :return: class of the task
+        :rtype: TaskClass
+        """
+        return self._task_class
+
+    @task_class.setter
+    def task_class(self, task_class):
+        """
+        :param task_class: set task_class for task
+        :type task_class: TaskClass
+        """
+        self._task_class = task_class
 
     @staticmethod
     def from_dict(d, system):

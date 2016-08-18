@@ -31,14 +31,9 @@ def main():
     Logger.set_verbosity(args.verbose)
     Config.set_config(args.config)
 
-    system = System.from_files(args.nodes, args.flows)
+    system = System.from_files(args.nodes, args.flows, args.no_check)
 
     some_work = False
-
-    if not args.no_check:
-        system.check()
-        some_work = True
-
     if args.dump:
         system.dump2file(args.dump)
         some_work = True
