@@ -41,7 +41,7 @@ def expr2str(e):
     Convert a Python expression into a Python code
     """
     if isinstance(e, dict):
-        return dict2strkwargs(e)
+        return str(e)
     elif isinstance(e, list):
         # s/'['foo']['bar']'/['foo']['bar']/ (get rid of leading ')
         return "%s" % e
