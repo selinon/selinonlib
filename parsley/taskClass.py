@@ -26,20 +26,37 @@ class TaskClass(object):
 
     @property
     def class_name(self):
+        """
+        :return: name of the class
+        """
         return self._class_name
 
     @property
     def import_path(self):
+        """
+        :return: import of the task
+        """
         return self._import_path
 
     @property
     def tasks(self):
+        """
+        :return: tasks that are instantiated from this task
+        """
         return self._tasks
 
     def task_of_class(self, task):
+        """
+        :param task: task to be checked
+        :return: True if task is of this class
+        """
         return self._class_name == task.class_name and self._import_path == task.import_path
 
     def add_task(self, task):
+        """
+        Register a task to this class
+        :param task: task to be added
+        """
         assert(self.task_of_class(task))
         self._tasks.append(task)
 
