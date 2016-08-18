@@ -468,6 +468,24 @@ class System(object):
                                 storage_connections.append((node.name, node.storage.name,))
                     graph.edge(node.name, condition_node)
 
+            # Plot failures as well
+            if flow.failures:
+                for i, failure in enumerate(flow.failures.raw_definition):
+                    if len(failure['nodes']) == 1 and \
+                             isinstance(failure['fallback'], list) and len(failure['fallback']) == 1:
+                        graph.node(name=failure['nodes'][0])
+                        graph.node(name=failure['fallback'][0])
+                        graph.edge(failure['nodes'][0], failure['fallback'][0],
+                                   _attributes=Config().style_fallback_edge())
+                    else:
+                        graph.node(name=str(i), _attributes=Config().style_fallback_node())
+                        for node_name in failure['nodes']:
+                            graph.node(name=node_name)
+                            graph.edge(node_name, str(i), _attributes=Config().style_fallback_edge())
+                        for node_name in failure['fallback']:
+                            graph.node(name=node_name)
+                            graph.edge(str(i), node_name, _attributes=Config().style_fallback_edge())
+
             file = os.path.join(output_dir, "%s" % flow.name)
             graph.render(filename=file, cleanup=True)
             ret.append(file)

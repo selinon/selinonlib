@@ -140,3 +140,27 @@ class Config(_ConfigParent):
             return {}
         ret = self._raw_config['style'].get('graph', {})
         return ret if ret is not None else {}
+
+    def style_fallback_edge(self):
+        """
+        Return style for fallback edges
+        :return: style definition
+        :rtype: dict
+        """
+        default_style = {'color': '#FF0000', 'style': 'dashed'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default_style
+        ret = self._raw_config['style'].get('fallback-edge', default_style)
+        return ret if ret is not None else default_style
+
+    def style_fallback_node(self):
+        """
+        Return style for fallback node
+        :return: style definition
+        :rtype: dict
+        """
+        default_style = {'color': '#FF0000', 'shape': 'point'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default_style
+        ret = self._raw_config['style'].get('fallback-edge', default_style)
+        return ret if ret is not None else default_style
