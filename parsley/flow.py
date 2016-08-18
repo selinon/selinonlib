@@ -38,7 +38,7 @@ class Flow(Node):
         super(Flow, self).__init__(name)
         _logger.debug("Creating flow '{}'".format(name))
         self._edges = edges if edges else []
-        self._failures = failures if failures else []
+        self._failures = failures if failures else None
 
     @staticmethod
     def from_dict(d):
