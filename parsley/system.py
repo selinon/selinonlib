@@ -470,21 +470,41 @@ class System(object):
 
             # Plot failures as well
             if flow.failures:
-                for i, failure in enumerate(flow.failures.raw_definition):
+                for failure in flow.failures.raw_definition:
                     if len(failure['nodes']) == 1 and \
-                             isinstance(failure['fallback'], list) and len(failure['fallback']) == 1:
+                            (isinstance(failure['fallback'], bool) or len(failure['fallback']) == 1):
                         graph.node(name=failure['nodes'][0])
-                        graph.node(name=failure['fallback'][0])
-                        graph.edge(failure['nodes'][0], failure['fallback'][0],
+
+                        if isinstance(failure['fallback'], list):
+                            fallback_node_name = failure['fallback'][0]
+                        else:
+                            fallback_node_name = str(failure['fallback'])
+
+                        graph.node(name=fallback_node_name)
+                        graph.edge(failure['nodes'][0], fallback_node_name,
                                    _attributes=Config().style_fallback_edge())
                     else:
-                        graph.node(name=str(i), _attributes=Config().style_fallback_node())
+                        graph.node(name=str(id(failure)), _attributes=Config().style_fallback_node())
+
                         for node_name in failure['nodes']:
-                            graph.node(name=node_name)
-                            graph.edge(node_name, str(i), _attributes=Config().style_fallback_edge())
-                        for node_name in failure['fallback']:
-                            graph.node(name=node_name)
-                            graph.edge(str(i), node_name, _attributes=Config().style_fallback_edge())
+                            if self.node_by_name(node_name).is_flow():
+                                graph.node(name=node_name, _attributes=Config().style_flow())
+                            else:
+                                graph.node(name=node_name)
+                            graph.edge(node_name, str(id(failure)), _attributes=Config().style_fallback_edge())
+
+                        if failure['fallback'] is True:
+                            graph.node(name=str(id(failure['fallback'])), label="True",
+                                       _attributes=Config().style_fallback_true())
+                            graph.edge(str(id(failure)), str(id(failure['fallback'])),
+                                       _attributes=Config().style_fallback_edge())
+                        else:
+                            for node_name in failure['fallback']:
+                                if self.node_by_name(node_name).is_flow():
+                                    graph.node(name=node_name, _attributes=Config().style_flow())
+                                else:
+                                    graph.node(name=node_name)
+                                graph.edge(str(id(failure)), node_name, _attributes=Config().style_fallback_edge())
 
             file = os.path.join(output_dir, "%s" % flow.name)
             graph.render(filename=file, cleanup=True)

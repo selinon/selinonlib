@@ -164,3 +164,15 @@ class Config(_ConfigParent):
             return default_style
         ret = self._raw_config['style'].get('fallback-edge', default_style)
         return ret if ret is not None else default_style
+
+    def style_fallback_true(self):
+        """
+        Return style for fallback true node
+        :return: style definition
+        :rtype: dict
+        """
+        default_style = {'color': '#222222', 'shape': 'doubleoctagon'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default_style
+        ret = self._raw_config['style'].get('fallback-edge', default_style)
+        return ret if ret is not None else default_style
