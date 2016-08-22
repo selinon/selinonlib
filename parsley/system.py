@@ -636,6 +636,7 @@ class System(object):
                     all_nodes_from = all_nodes_from | set(waiting_nodes)
                     all_nodes_to = all_nodes_to | set(started_nodes)
 
+                # this should be refactored and keep directly nodes in failures
                 for nowait_node in flow.nowait_nodes:
                     if nowait_node in all_nodes_from:
                         raise ValueError("Node '%s' marked as 'nowait' but dependency on failure condition found"
