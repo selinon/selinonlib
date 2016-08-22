@@ -29,7 +29,7 @@ from .edge import Edge
 from .version import parsley_version
 from .config import Config
 from .logger import Logger
-from .helpers import dict2strkwargs
+from .helpers import dict2strkwargs, expr2str
 from .failures import Failures
 from .taskClass import TaskClass
 
@@ -241,8 +241,10 @@ class System(object):
             if len(storage.tasks) > 0:
                 storage_var_name = "_storage_%s" % storage.name
                 output.write("%s = %s" % (storage_var_name, storage.class_name))
-                if storage.configuration:
+                if storage.configuration and isinstance(storage.configuration, dict):
                     output.write("(%s)\n" % dict2strkwargs(storage.configuration))
+                elif storage.configuration:
+                    output.write("(%s)\n" % expr2str(storage.configuration))
                 else:
                     output.write("()\n")
 
