@@ -318,6 +318,22 @@ class System(object):
             output.write('    %s.time_limit = %s\n' % (task_class.class_name, task_class.tasks[0].time_limit))
         output.write('\n')
 
+    def _dump_nowait_nodes(self, output):
+        """
+        Dump nowait nodes to a stream
+        :param output: a stream to write to
+        """
+
+        output.write('nowait_nodes = {\n')
+        printed = False
+        for flow in self._flows:
+            if printed:
+                    output.write(',\n')
+            output.write("    '%s': %s" % (flow.name, [node.name for node in flow.nowait_nodes]))
+            printed = True
+
+        output.write('\n}\n\n')
+
     def _dump_init_output_schemas(self, output):
         """
         Dump init_output_schemas() to output stream
@@ -404,6 +420,8 @@ class System(object):
                 f.write("\n    '%s': %s" % (flow.name, flow.failures.starting_nodes_name(flow.name)))
         f.write('\n}\n\n')
 
+        f.write('#'*80+'\n\n')
+        self._dump_nowait_nodes(f)
         f.write('#'*80+'\n\n')
         self._dump_init_output_schemas(f)
         f.write('#'*80+'\n\n')
@@ -590,6 +608,11 @@ class System(object):
                     all_nodes_from = all_nodes_from | set(edge.nodes_from)
                     all_nodes_to = all_nodes_to | set(edge.nodes_to)
 
+                for nowait_node in flow.nowait_nodes:
+                    if nowait_node in all_nodes_from:
+                        raise ValueError("Node '%s' marked as 'nowait' but dependency in the flow found"
+                                         % nowait_node.name)
+
                 if flow.failures:
                     waiting_nodes_names = flow.failures.waiting_nodes_names()
                     waiting_nodes = []
@@ -612,6 +635,11 @@ class System(object):
 
                     all_nodes_from = all_nodes_from | set(waiting_nodes)
                     all_nodes_to = all_nodes_to | set(started_nodes)
+
+                for nowait_node in flow.nowait_nodes:
+                    if nowait_node in all_nodes_from:
+                        raise ValueError("Node '%s' marked as 'nowait' but dependency on failure condition found"
+                                         % nowait_node.name)
 
                 not_started = all_nodes_from - all_nodes_to
 
@@ -691,6 +719,14 @@ class System(object):
                 if 'failures' in flow_def:
                     failures = Failures.construct(flow, flow_def['failures'])
                     flow.failures = failures
+
+                if 'nowait' in flow_def:
+                    if not isinstance(flow_def['nowait'], list):
+                        flow_def['nowait'] = [flow_def['nowait']]
+
+                    for node_name in flow_def['nowait']:
+                        node = system.node_by_name(node_name)
+                        flow.add_nowait_node(node)
 
         system._post_parse_check()
         if not no_check:

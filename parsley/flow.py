@@ -28,17 +28,20 @@ class Flow(Node):
     """
     Flow representation
     """
-    def __init__(self, name, edges=None, failures=None):
+    def __init__(self, name, edges=None, failures=None, nowait_nodes=None):
         """
         :param name: flow name
         :type name: str
         :param edges: edges in the flow
         :type edges: List[Edge]
+        :param nowait_nodes: nodes that should not be waited for
+        :type nowait_nodes: List[Node]
         """
         super(Flow, self).__init__(name)
         _logger.debug("Creating flow '{}'".format(name))
         self._edges = edges if edges else []
         self._failures = failures if failures else None
+        self._nowait_nodes = nowait_nodes if nowait_nodes else []
 
     @staticmethod
     def from_dict(d):
@@ -59,9 +62,16 @@ class Flow(Node):
     def failures(self, failures):
         self._failures = failures
 
+    @property
+    def nowait_nodes(self):
+        return self._nowait_nodes
+
     def add_edge(self, edge):
         """
         :param edge: edge to be added
         :type edge: List[Edge]
         """
         self._edges.append(edge)
+
+    def add_nowait_node(self, node):
+        self._nowait_nodes.append(node)
