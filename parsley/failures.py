@@ -70,14 +70,14 @@ class Failures(object):
         """
         A starting node name representation for generated Python config
         """
-        return "%s_failure_starting_nodes" % flow_name
+        return "_%s_failure_starting_nodes" % flow_name
 
     @staticmethod
     def failure_node_name(flow_name, failure_node):
         """
         A failure node name representation for generated Python config
         """
-        return "%s_fail_%s" % (flow_name, "_".join(failure_node.traversed))
+        return "_%s_fail_%s" % (flow_name, "_".join(failure_node.traversed))
 
     @property
     def raw_definition(self):
