@@ -131,8 +131,8 @@ class FailureNode(object):
             raise ValueError("Multiple definitions of a failure in flow '%s' with failure of %s"
                              % (failure_node.flow.name, failure_node.traversed))
 
-        if not isinstance(fallback, list):
-            fallback = list(fallback)
+        if not isinstance(fallback, list) and fallback is not True:
+            fallback = [fallback]
 
         # additional checks are done by System
         failure_node.fallback = fallback

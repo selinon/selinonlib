@@ -54,10 +54,10 @@ class Failures(object):
             if not isinstance(failure['nodes'], list):
                 failure['nodes'] = [failure['nodes']]
 
-            if not isinstance(failure['fallback'], list) and failure['fallback'] is not None:
+            if not isinstance(failure['fallback'], list) and failure['fallback'] is not True:
                 failure['fallback'] = [failure['fallback']]
 
-            if len(failure['fallback']) == 1 and len(failure['nodes']) == 1 \
+            if failure['fallback'] is not True and len(failure['fallback']) == 1 and len(failure['nodes']) == 1 \
                     and failure['fallback'][0] == failure['nodes'][0]:
                 raise ValueError("Detect cyclic fallback dependency in flow %s, failure on %s"
                                  % (flow.name, failure['nodes'][0]))
@@ -94,7 +94,8 @@ class Failures(object):
 
         failure_node = self._last_allocated
         while failure_node:
-            ret.extend(failure_node.fallback)
+            if isinstance(failure_node.fallback, list):
+                ret.extend(failure_node.fallback)
             failure_node = failure_node.failure_link
 
         return ret
