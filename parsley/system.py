@@ -220,6 +220,34 @@ class System(object):
                 printed = True
         output.write('\n}\n\n')
 
+    def _dump_propagate_finished(self, output):
+        """
+        Dump propagate_finished flag configuration to a stream
+        :param output: a stream to write to
+        """
+        output.write('propagate_finished = {')
+        printed = False
+        for flow in self._flows:
+            if printed:
+                output.write(",")
+            output.write("\n    '%s': %s" % (flow.name, flow.propagate_finished))
+            printed = True
+        output.write('\n}\n\n')
+
+    def _dump_propagate_parent(self, output):
+        """
+        Dump propagate_parent flag configuration to a stream
+        :param output: a stream to write to
+        """
+        output.write('propagate_parent = {')
+        printed = False
+        for flow in self._flows:
+            if printed:
+                output.write(",")
+            output.write("\n    '%s': %s" % (flow.name, flow.propagate_parent))
+            printed = True
+        output.write('\n}\n\n')
+
     def _dump_get_task_instance(self, output):
         """
         Dump get_task_instance() function to a stream
@@ -400,6 +428,9 @@ class System(object):
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
+        f.write('#'*80+'\n\n')
+        self._dump_propagate_finished(f)
+        self._dump_propagate_parent(f)
         f.write('#'*80+'\n\n')
         self._dump_init_max_retry(f)
         f.write('#'*80+'\n\n')
@@ -728,6 +759,9 @@ class System(object):
                     for node_name in flow_def['nowait']:
                         node = system.node_by_name(node_name)
                         flow.add_nowait_node(node)
+
+                flow.propagate_parent = flow_def.get('propagate_parent', True)
+                flow.propagate_finished = flow_def.get('propagate_finished', True)
 
         system._post_parse_check()
         if not no_check:
