@@ -752,7 +752,7 @@ class System(object):
                     failures = Failures.construct(flow, flow_def['failures'])
                     flow.failures = failures
 
-                if 'nowait' in flow_def:
+                if 'nowait' in flow_def and flow_def['nowait'] is not None:
                     if not isinstance(flow_def['nowait'], list):
                         flow_def['nowait'] = [flow_def['nowait']]
 
