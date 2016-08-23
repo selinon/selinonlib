@@ -43,8 +43,8 @@ class Flow(Node):
         self._failures = failures if failures else None
         self._nowait_nodes = nowait_nodes if nowait_nodes else []
 
-        self._propagate_parent = True
-        self._propagate_finished = True
+        self._propagate_parent = False
+        self._propagate_finished = False
 
     @staticmethod
     def from_dict(d):
@@ -66,26 +66,6 @@ class Flow(Node):
         self._failures = failures
 
     @property
-    def propagate_parent(self):
-        return self._propagate_parent
-
-    @propagate_parent.setter
-    def propagate_parent(self, propagate_parent):
-        if not isinstance(propagate_parent, bool):
-            raise ValueError("Flag 'propagate_parent' expects boolean value in flow '%s'" % self.name)
-        self._propagate_parent = propagate_parent
-
-    @property
-    def propagate_finished(self):
-        return self._propagate_finished
-
-    @propagate_finished.setter
-    def propagate_finished(self, propagate_finished):
-        if not isinstance(propagate_finished, bool):
-            raise ValueError("Flag 'propagate_finished' expects boolean value in flow '%s'" % self.name)
-        self._propagate_finished = propagate_finished
-
-    @property
     def nowait_nodes(self):
         return self._nowait_nodes
 
@@ -98,3 +78,20 @@ class Flow(Node):
 
     def add_nowait_node(self, node):
         self._nowait_nodes.append(node)
+
+    @property
+    def propagate_parent(self):
+        return self._propagate_parent
+
+    @propagate_parent.setter
+    def propagate_parent(self, nodes):
+        self._propagate_parent = nodes
+
+    @property
+    def propagate_finished(self):
+        return self._propagate_finished
+
+    @propagate_finished.setter
+    def propagate_finished(self, propagate_finished):
+        self._propagate_finished = propagate_finished
+
