@@ -231,7 +231,7 @@ class System(object):
             if printed:
                 output.write(",")
             if isinstance(flow.propagate_finished, list):
-                string = [flow.name for flow in flow.propagate_finished]
+                string = [f.name for f in flow.propagate_finished]
             else:
                 string = str(flow.propagate_finished)
             output.write("\n    '%s': %s" % (flow.name, string))
@@ -249,7 +249,7 @@ class System(object):
             if printed:
                 output.write(",")
             if isinstance(flow.propagate_finished, list):
-                string = [flow.name for flow in flow.propagate_finished]
+                string = [f.name for f in flow.propagate_finished]
             else:
                 string = str(flow.propagate_finished)
             output.write("\n    '%s': %s" % (flow.name, string))
