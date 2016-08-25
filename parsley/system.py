@@ -394,22 +394,6 @@ class System(object):
 
         output.write('\n}\n\n')
 
-    def _dump_init_output_schemas(self, output):
-        """
-        Dump init_output_schemas() to output stream
-        :param output: a stream to write to
-        """
-        output.write('def init_output_schemas():\n')
-        # we could make it not Celery specific by having map of output schemas
-        for task_class in self._task_classes:
-            if task_class.tasks[0].output_schema:
-                output.write('    %s.output_schema_path = "%s"\n'
-                             % (task_class.class_name, task_class.tasks[0].output_schema))
-            else:
-                output.write('    %s.output_schema_path = None\n' % task_class.class_name)
-            output.write('    %s.output_schema = None\n' % task_class.class_name)
-        output.write('\n')
-
     @staticmethod
     def _dump_init(output):
         """
@@ -484,8 +468,6 @@ class System(object):
 
         f.write('#'*80+'\n\n')
         self._dump_nowait_nodes(f)
-        f.write('#'*80+'\n\n')
-        self._dump_init_output_schemas(f)
         f.write('#'*80+'\n\n')
         self._dump_init(f)
         f.write('#'*80+'\n\n')
