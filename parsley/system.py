@@ -256,16 +256,32 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
+    def _dump_task_classes(self, output):
+        """
+        Dump mapping from task name to task class
+        :param output: a stream to write to
+        """
+        output.write('task_classes = {')
+        printed = False
+        for task in self._tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': %s" % (task.name, task.class_name))
+            printed = True
+        output.write('\n}\n\n')
+
+        pass
+
     def _dump_get_task_instance(self, output):
         """
         Dump get_task_instance() function to a stream
         :param output: a stream to write to
         """
-        output.write('def get_task_instance(name):\n')
-        for task in self._tasks:
-            output.write("    if name == '{}':\n".format(task.name))
-            output.write("        return {}()\n\n".format(task.class_name))
-        output.write("    raise ValueError(\"Unknown task with name '%s'\" % name)\n\n")
+        output.write('def get_task_instance(task_name, flow_name, parent):\n')
+        output.write("    cls = task_classes.get(task_name):\n")
+        output.write("    if not cls:\n")
+        output.write("        raise ValueError(\"Unknown task with name '%s'\" % name)\n")
+        output.write("    return cls(task_name=task_name, flow_name=flow_name, parent=parent)\n\n")
 
     def _dump_storage2instance_mapping(self, output):
         """
@@ -334,25 +350,33 @@ class System(object):
                 output.write('def {}(db):\n'.format(self._dump_condition_name(flow.name, idx)))
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
-    def _dump_init_max_retry(self, output):
+    def _dump_max_retry(self, output):
         """
-        Dump max_retry initialization to a stream
+        Dump max_retry configuration to a stream
         :param output: a stream to write to
         """
-        output.write('def init_max_retry():\n')
-        for task_class in self._task_classes:
-            output.write('    %s.max_retry = %s\n' % (task_class.class_name, task_class.tasks[0].max_retry))
-        output.write('\n')
+        output.write('max_retry = {')
+        printed = False
+        for task in self._tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': %d" % (task.name, task.max_retry))
+            printed = True
+        output.write('\n}\n\n')
 
-    def _dump_init_time_limit(self, output):
+    def _dump_time_limit(self, output):
         """
-        Dump time limit initialization to a stream
+        Dump max_retry configuration to a stream
         :param output: a stream to write to
         """
-        output.write('def init_time_limit():\n')
-        for task_class in self._task_classes:
-            output.write('    %s.time_limit = %s\n' % (task_class.class_name, task_class.tasks[0].time_limit))
-        output.write('\n')
+        output.write('time_limit = {')
+        printed = False
+        for task in self._tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': %d" % (task.name, task.time_limit))
+            printed = True
+        output.write('\n}\n\n')
 
     def _dump_nowait_nodes(self, output):
         """
@@ -394,9 +418,7 @@ class System(object):
         :return:
         """
         output.write('def init():\n')
-        output.write('    init_max_retry()\n')
-        output.write('    init_time_limit()\n')
-        output.write('    init_output_schemas()\n')
+        output.write('    pass\n')
         output.write('\n')
 
     def _dump_edge_table(self, output):
@@ -428,6 +450,7 @@ class System(object):
         f.write('#!/usr/bin/env python\n')
         f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
         self._dump_imports(f)
+        self._dump_task_classes(f)
         self._dump_get_task_instance(f)
         f.write('#'*80+'\n\n')
         self._dump_task2storage_mapping(f)
@@ -440,9 +463,9 @@ class System(object):
         self._dump_propagate_finished(f)
         self._dump_propagate_parent(f)
         f.write('#'*80+'\n\n')
-        self._dump_init_max_retry(f)
+        self._dump_max_retry(f)
         f.write('#'*80+'\n\n')
-        self._dump_init_time_limit(f)
+        self._dump_time_limit(f)
         f.write('#'*80+'\n\n')
 
         for flow in self._flows:
@@ -771,6 +794,9 @@ class System(object):
         for storage_dict in content.get('storages', []):
             storage = Storage.from_dict(storage_dict)
             system.add_storage(storage)
+
+        if 'tasks' not in content or content['tasks'] is None:
+            raise ValueError("No tasks defined in the system")
 
         for task_dict in content['tasks']:
             task = Task.from_dict(task_dict, system)
