@@ -278,7 +278,7 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def get_task_instance(task_name, flow_name, parent):\n')
-        output.write("    cls = task_classes.get(task_name):\n")
+        output.write("    cls = task_classes.get(task_name)\n")
         output.write("    if not cls:\n")
         output.write("        raise ValueError(\"Unknown task with name '%s'\" % name)\n")
         output.write("    return cls(task_name=task_name, flow_name=flow_name, parent=parent)\n\n")
