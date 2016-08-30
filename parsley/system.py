@@ -633,20 +633,20 @@ class System(object):
             task_ref = task_class.tasks[0]
             for task in task_class.tasks[1:]:
                 if task_ref.output_schema != task.output_schema:
-                    raise ValueError("Unable to set different output schemas to a same task class: %s and %s "
-                                     "for class '%s', schemas: '%s' and '%s' might differ"
-                                     % (task_ref.name, task.name, task_class.class_name,
-                                        task_ref.output_schema, task.output_schema))
+                    _logger.warning("Different output schemas to a same task class: %s and %s for class '%s', "
+                                    "schemas: '%s' and '%s' might differ"
+                                    % (task_ref.name, task.name, task_class.class_name,
+                                       task_ref.output_schema, task.output_schema))
 
                 if task.max_retry != task_ref.max_retry:
-                    raise ValueError("Unable to set different max_retry to a same task class: %s and %s for class '%s'"
-                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
-                                        task_class.class_name))
+                    _logger.warning("Different max_retry to a same task class: %s and %s for class '%s'"
+                                    % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
+                                       task_class.class_name))
 
                 if task.time_limit != task_ref.time_limit:
-                    raise ValueError("Unable to set different time_limit to a same task class: %s and %s for class '%s'"
-                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
-                                        task_class.class_name))
+                    _logger.warning("Different time_limit to a same task class: %s and %s for class '%s'"
+                                    % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
+                                       task_class.class_name))
 
         for storage in self._storages:
             if len(storage.tasks) == 0:
