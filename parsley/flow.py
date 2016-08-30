@@ -43,8 +43,8 @@ class Flow(Node):
         self._failures = failures if failures else None
         self._nowait_nodes = nowait_nodes if nowait_nodes else []
 
-        self._propagate_parent = False
-        self._propagate_finished = False
+        self._propagate_finished = None
+        self._propagate_node_args = None
 
     @staticmethod
     def from_dict(d):
@@ -80,18 +80,17 @@ class Flow(Node):
         self._nowait_nodes.append(node)
 
     @property
-    def propagate_parent(self):
-        return self._propagate_parent
-
-    @propagate_parent.setter
-    def propagate_parent(self, nodes):
-        self._propagate_parent = nodes
-
-    @property
     def propagate_finished(self):
         return self._propagate_finished
 
     @propagate_finished.setter
-    def propagate_finished(self, propagate_finished):
-        self._propagate_finished = propagate_finished
+    def propagate_finished(self, nodes):
+        self._propagate_finished = nodes
 
+    @property
+    def propagate_node_args(self):
+        return self._propagate_node_args
+
+    @propagate_node_args.setter
+    def propagate_node_args(self, nodes):
+        self._propagate_node_args = nodes
