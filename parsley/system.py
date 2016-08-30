@@ -288,7 +288,8 @@ class System(object):
 
         pass
 
-    def _dump_get_task_instance(self, output):
+    @staticmethod
+    def _dump_get_task_instance(output):
         """
         Dump get_task_instance() function to a stream
         :param output: a stream to write to
@@ -380,6 +381,20 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
+    def _dump_retry_countdown(self, output):
+        """
+        Dump retry_countdown configuration to a stream
+        :param output: a stream to write to
+        """
+        output.write('retry_countdown = {')
+        printed = False
+        for task in self._tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': %d" % (task.name, task.retry_countdown))
+            printed = True
+        output.write('\n}\n\n')
+
     def _dump_time_limit(self, output):
         """
         Dump max_retry configuration to a stream
@@ -465,6 +480,7 @@ class System(object):
         self._dump_propagate_parent(f)
         f.write('#'*80+'\n\n')
         self._dump_max_retry(f)
+        self._dump_retry_countdown(f)
         f.write('#'*80+'\n\n')
         self._dump_time_limit(f)
         f.write('#'*80+'\n\n')
