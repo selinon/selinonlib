@@ -254,6 +254,24 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
+    def _dump_propagate_parent(self, output):
+        """
+        Dump propagate_parent flag configuration to a stream
+        :param output: a stream to write to
+        """
+        output.write('propagate_parent = {')
+        printed = False
+        for flow in self._flows:
+            if printed:
+                output.write(",")
+            if isinstance(flow.propagate_parent, list):
+                string = [f.name for f in flow.propagate_parent]
+            else:
+                string = str(flow.propagate_parent)
+            output.write("\n    '%s': %s" % (flow.name, string))
+            printed = True
+        output.write('\n}\n\n')
+
     def _dump_task_classes(self, output):
         """
         Dump mapping from task name to task class
@@ -444,6 +462,7 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_propagate_finished(f)
         self._dump_propagate_node_args(f)
+        self._dump_propagate_parent(f)
         f.write('#'*80+'\n\n')
         self._dump_max_retry(f)
         f.write('#'*80+'\n\n')
@@ -745,6 +764,25 @@ class System(object):
             flow.propagate_node_args = False
 
     @staticmethod
+    def _set_propagate_parent(system, flow, flow_def):
+        if 'propagate_parent' in flow_def and flow_def['propagate_parent'] is not None:
+            if not isinstance(flow_def['propagate_parent'], list) and \
+                    not isinstance(flow_def['propagate_parent'], bool):
+                flow_def['propagate_parent'] = [flow_def['propagate_parent']]
+
+            if isinstance(flow_def['propagate_parent'], list):
+                flow.propagate_parent = []
+                for node_name in flow_def['propagate_parent']:
+                    node = system.flow_by_name(node_name)
+                    flow.propagate_parent.append(node)
+            elif isinstance(flow_def['propagate_parent'], bool):
+                flow.propagate_parent = flow_def['propagate_parent']
+            else:
+                raise ValueError("Unknown value in 'propagate_parent' in flow %s" % flow.name)
+        else:
+            flow.propagate_parent = False
+
+    @staticmethod
     def from_files(nodes_definition_file, flow_definition_files, no_check=False):
         """
         Construct System from files
@@ -821,6 +859,7 @@ class System(object):
 
                 System._set_propagate_finished(system, flow, flow_def)
                 System._set_propagate_node_args(system, flow, flow_def)
+                System._set_propagate_parent(system, flow, flow_def)
 
         system._post_parse_check()
         if not no_check:

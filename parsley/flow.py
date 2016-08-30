@@ -45,6 +45,7 @@ class Flow(Node):
 
         self._propagate_finished = None
         self._propagate_node_args = None
+        self._propagate_parent = None
 
     @staticmethod
     def from_dict(d):
@@ -94,3 +95,11 @@ class Flow(Node):
     @propagate_node_args.setter
     def propagate_node_args(self, nodes):
         self._propagate_node_args = nodes
+
+    @property
+    def propagate_parent(self):
+        return self._propagate_parent
+
+    @propagate_parent.setter
+    def propagate_parent(self, nodes):
+        self._propagate_parent = nodes
