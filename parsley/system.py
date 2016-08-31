@@ -691,27 +691,10 @@ class System(object):
                                          % nowait_node.name)
 
                 if flow.failures:
-                    waiting_nodes_names = flow.failures.waiting_nodes_names()
-                    waiting_nodes = []
-
-                    for node_name in waiting_nodes_names:
-                        node = self.node_by_name(node_name, graceful=True)
-                        if not node:
-                            raise KeyError("No such node with name '%s' in failure, flow '%s'" % (node_name, flow.name))
-                        waiting_nodes.append(node)
-
-                    started_nodes_names = flow.failures.started_nodes_names()
-                    started_nodes = []
-
-                    for node_name in started_nodes_names:
-                        node = self.node_by_name(node_name, graceful=True)
-                        if not node:
-                            raise KeyError("No such node with name '%s' in failure fallback, flow '%s'"
-                                           % (node_name, flow.name))
-                        started_nodes.append(node)
-
+                    waiting_nodes = flow.failures.all_waiting_nodes()
+                    fallback_nodes = flow.failures.all_fallback_nodes()
                     all_nodes_from = all_nodes_from | set(waiting_nodes)
-                    all_nodes_to = all_nodes_to | set(started_nodes)
+                    all_nodes_to = all_nodes_to | set(fallback_nodes)
 
                 # this should be refactored and keep directly nodes in failures
                 for nowait_node in flow.nowait_nodes:
@@ -862,7 +845,7 @@ class System(object):
                     flow.add_edge(edge)
 
                 if 'failures' in flow_def:
-                    failures = Failures.construct(flow, flow_def['failures'])
+                    failures = Failures.construct(system, flow, flow_def['failures'])
                     flow.failures = failures
 
                 if 'nowait' in flow_def and flow_def['nowait'] is not None:
