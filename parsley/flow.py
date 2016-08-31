@@ -103,3 +103,31 @@ class Flow(Node):
     @propagate_parent.setter
     def propagate_parent(self, nodes):
         self._propagate_parent = nodes
+
+    def all_nodes_from(self):
+        all_nodes_from = set()
+
+        for edge in self._edges:
+            all_nodes_from = all_nodes_from | set(edge.nodes_from)
+
+        return list(all_nodes_from)
+
+    def all_nodes_to(self):
+        all_nodes_to = set()
+
+        for edge in self._edges:
+            all_nodes_to = all_nodes_to | set(edge.nodes_to)
+
+        return list(all_nodes_to)
+
+    def all_source_nodes(self):
+        if self.failures:
+            return list(set(self.all_nodes_from()) | set(self.failures.all_waiting_nodes()))
+        else:
+            return self.all_nodes_from()
+
+    def all_destination_nodes(self):
+        if self.failures:
+            return list(set(self.all_nodes_to()) | set(self.failures.all_fallback_nodes()))
+        else:
+            return self.all_nodes_to()

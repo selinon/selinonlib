@@ -656,8 +656,8 @@ class System(object):
         # This also covers check for starting node definition
         for flow in self._flows:
             try:
-                all_nodes_from = set()
-                all_nodes_to = set()
+                all_source_nodes = flow.all_source_nodes()
+                all_destination_nodes = flow.all_destination_nodes()
 
                 starting_nodes_count = 0
 
@@ -681,35 +681,19 @@ class System(object):
                 if starting_nodes_count == 0:
                     raise ValueError("No starting node found in flow '%s'" % flow.name)
 
-                for edge in flow.edges:
-                    all_nodes_from = all_nodes_from | set(edge.nodes_from)
-                    all_nodes_to = all_nodes_to | set(edge.nodes_to)
-
                 for nowait_node in flow.nowait_nodes:
-                    if nowait_node in all_nodes_from:
+                    if nowait_node in all_source_nodes:
                         raise ValueError("Node '%s' marked as 'nowait' but dependency in the flow found"
-                                         % nowait_node.name)
-
-                if flow.failures:
-                    waiting_nodes = flow.failures.all_waiting_nodes()
-                    fallback_nodes = flow.failures.all_fallback_nodes()
-                    all_nodes_from = all_nodes_from | set(waiting_nodes)
-                    all_nodes_to = all_nodes_to | set(fallback_nodes)
-
-                # this should be refactored and keep directly nodes in failures
-                for nowait_node in flow.nowait_nodes:
-                    if nowait_node in all_nodes_from:
-                        raise ValueError("Node '%s' marked as 'nowait' but dependency on failure condition found"
                                          % nowait_node.name)
 
                 if flow.propagate_finished and isinstance(flow.propagate_finished, list):
                     for node in flow.propagate_finished:
-                        if node not in all_nodes_from:
+                        if node not in all_source_nodes:
                             raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
                                              "in flow '%s' to which should be parent nodes propagated"
                                              % (node.name, flow.name))
 
-                not_started = all_nodes_from - all_nodes_to
+                not_started = list(set(all_source_nodes) - set(all_destination_nodes))
 
                 error = False
                 for node in not_started:
