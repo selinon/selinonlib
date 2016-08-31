@@ -133,4 +133,4 @@ class Flow(Node):
             return self.all_nodes_to()
 
     def all_used_nodes(self):
-        return list(set(self.all_destination_nodes() | set(self.all_source_nodes())))
+        return list(set(self.all_destination_nodes()) | set(self.all_source_nodes()))
