@@ -187,8 +187,6 @@ class System(object):
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
         output.write('from %s import %s\n' % (LeafPredicate.predicate_module, ", ".join(predicates)))
 
-        output.write("\n# Tasks\n")
-
         for task in self._tasks:
             output.write("from {} import {}\n".format(task.import_path, task.class_name))
 
