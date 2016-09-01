@@ -12,6 +12,12 @@ from .fieldFloat import fieldFloat
 from .fieldGreaterEqual import fieldGreaterEqual
 from .fieldGreater import fieldGreater
 from .fieldInt import fieldInt
+from .fieldLenEqual import fieldLenEqual
+from .fieldLenGreaterEqual import fieldLenGreaterEqual
+from .fieldLenGreater import fieldLenGreater
+from .fieldLenLessEqual import fieldLenGreaterEqual
+from .fieldLenLess import fieldLenLess
+from .fieldLenNotEqual import fieldLenNotEqual
 from .fieldLessEqual import fieldLessEqual
 from .fieldLess import fieldLess
 from .fieldList import fieldList
@@ -29,3 +35,4 @@ from .isInt import isInt
 from .isList import isList
 from .isNone import isNone
 from .isStr import isStr
+
