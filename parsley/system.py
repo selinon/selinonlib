@@ -364,7 +364,7 @@ class System(object):
         """
         for flow in self._flows:
             for idx, edge in enumerate(flow.edges):
-                output.write('def {}(db):\n'.format(self._dump_condition_name(flow.name, idx)))
+                output.write('def {}(db, node_args):\n'.format(self._dump_condition_name(flow.name, idx)))
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
     def _dump_max_retry(self, output):
