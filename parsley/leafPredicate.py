@@ -33,6 +33,8 @@ class LeafPredicate(Predicate):
     """
     Leaf predicate representation
     """
+    predicate_module = 'parsley.predicates'
+
     def __init__(self, predicate_func, node, flow, args=None):
         """
         :param predicate_func: predicate function
@@ -194,8 +196,8 @@ class LeafPredicate(Predicate):
         """
         return [self._func]
 
-    @staticmethod
-    def create(name, node, flow, args=None):
+    @classmethod
+    def create(cls, name, node, flow, args=None):
         """
         Create predicate
         :param name: predicate name
@@ -208,10 +210,10 @@ class LeafPredicate(Predicate):
         :return: an instantiated predicate
         :raises: ImportError
         """
-        # TODO: make predicates module configurable so a user can define his own predicates? possibly...
         try:
-            module = importlib.import_module('parsley.predicates.%s' % name)
+            module = importlib.import_module(cls.predicate_module)
+            predicate = getattr(module, name)
         except ImportError:
             _logger.error("Cannot import predicate '{}'".format(name))
             raise
-        return LeafPredicate(getattr(module, name), node, flow, args)
+        return LeafPredicate(predicate, node, flow, args)

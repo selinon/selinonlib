@@ -32,6 +32,7 @@ from .logger import Logger
 from .helpers import dict2strkwargs, expr2str
 from .failures import Failures
 from .taskClass import TaskClass
+from .leafPredicate import LeafPredicate
 
 
 _logger = Logger.get_logger(__name__)
@@ -182,7 +183,7 @@ class System(object):
         for flow in self._flows:
             for edge in flow.edges:
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
-        output.write('from parsley.predicates import %s\n' % ", ".join(predicates))
+        output.write('from %s import %s\n' % (LeafPredicate.predicate_module, ", ".join(predicates)))
 
         output.write("\n# Tasks\n")
 
@@ -788,6 +789,9 @@ class System(object):
         for storage_dict in content.get('storages', []):
             storage = Storage.from_dict(storage_dict)
             system.add_storage(storage)
+
+        if 'predicate_module' in content:
+            LeafPredicate.predicate_module = content['predicate_module']
 
         if 'tasks' not in content or content['tasks'] is None:
             raise ValueError("No tasks defined in the system")
