@@ -22,6 +22,8 @@ import codegen
 import graphviz
 import os
 import yaml
+import platform
+from datetime import datetime
 from .task import Task
 from .storage import Storage
 from .flow import Flow
@@ -464,7 +466,9 @@ class System(object):
         :param f: an output stream to write to
         """
         f.write('#!/usr/bin/env python\n')
-        f.write('# auto-generated using Parsley v{}\n\n'.format(parsley_version))
+        f.write('# auto-generated using Parsley v{} on {} at {}\n\n'.format(parsley_version,
+                                                                            platform.node(),
+                                                                            str(datetime.utcnow())))
         self._dump_imports(f)
         self._dump_task_classes(f)
         self._dump_get_task_instance(f)
