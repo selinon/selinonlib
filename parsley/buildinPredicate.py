@@ -173,7 +173,7 @@ class OrPredicate(NaryPredicate):
         :type flow: Flow
         :return: instance of cls
         """
-        return NaryPredicate._create(tree, OrPredicate, nodes_from)
+        return NaryPredicate._create(tree, OrPredicate, nodes_from, flow)
 
 
 class NotPredicate(UnaryPredicate):
