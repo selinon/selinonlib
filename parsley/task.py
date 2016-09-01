@@ -25,7 +25,6 @@ _logger = Logger.get_logger(__name__)
 
 _DEFAULT_MAX_RETRY = 0
 _DEFAULT_RETRY_COUNTDOWN = 5
-_DEFAULT_TIME_LIMIT = 3600
 
 
 class Task(Node):
@@ -165,5 +164,5 @@ class Task(Node):
         else:
             storage = None
         return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY),
-                    d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit', _DEFAULT_TIME_LIMIT),
+                    d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit'),
                     d.get('output_schema'))

@@ -406,7 +406,7 @@ class System(object):
         for task in self._tasks:
             if printed:
                 output.write(',')
-            output.write("\n    '%s': %d" % (task.name, task.time_limit))
+            output.write("\n    '%s': %s" % (task.name, task.time_limit))
             printed = True
         output.write('\n}\n\n')
 
