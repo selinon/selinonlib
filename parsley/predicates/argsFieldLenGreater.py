@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+from functools import reduce
+
+
+def argsFieldLenGreater(node_args, key, length):
+    try:
+        val = reduce(lambda m, k: m[k], key if isinstance(key, list) else [key], node_args)
+        return len(val) > length
+    except:
+        return False
+
+

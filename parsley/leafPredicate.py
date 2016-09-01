@@ -44,12 +44,19 @@ class LeafPredicate(Predicate):
         self._node = node
         self._args = args if args is not None else {}
         self._flow = flow
+        self._func_args = self._get_arguments()
 
     def requires_message(self):
         """
         :return: True if predicate requires a message from a parent node
         """
-        return 'message' in self._get_arguments()
+        return 'message' in self._func_args
+
+    def requires_node_args(self):
+        """
+        :return: True if predicate requires a message from a parent node
+        """
+        return 'node_args' in self._func_args
 
     def _get_arguments(self):
         """
@@ -82,23 +89,27 @@ class LeafPredicate(Predicate):
             # message argument is implicit and does not need to be specified by user
             func_args.remove('message')
 
+        if 'node_args' in func_args:
+            # node_args are implicit as well
+            func_args.remove('node_args')
+
         func_args = set(func_args)
         user_args = set(user_args)
 
         error = False
 
         for arg in func_args - user_args:
-            _logger.error("Argument '%s' of predicate '%s' not specified in node %s"
-                          % (arg, self._func.__name__, self.node.name))
+            _logger.error("Argument '%s' of predicate '%s' not specified in flow '%s'"
+                          % (arg, self._func.__name__, self._flow.name))
             error = True
 
         for arg in user_args - func_args:
-            _logger.error("Invalid argument '%s' for predicate '%s' in node '%s'"
-                          % (arg, self._func.__name__, self.node.name))
+            _logger.error("Invalid argument '%s' for predicate '%s' in flow '%s'"
+                          % (arg, self._func.__name__, self._flow.name))
             error = True
 
         if error:
-            raise ValueError("Bad predicate arguments specified in node '%s'" % self.node.name)
+            raise ValueError("Bad predicate arguments specified in flow '%s'" % self._flow.name)
 
     def _check_usage(self):
         """
@@ -125,6 +136,7 @@ class LeafPredicate(Predicate):
             return "%s(db.get('%s', '%s'), %s)"\
                    % (self._func.__name__, self._flow.name, self._task_str_name(), dict2strkwargs(self._args))
         else:
+            # we hide node_args parameter
             return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
 
     @property
@@ -157,18 +169,23 @@ class LeafPredicate(Predicate):
         # we could directly use db[task] in predicates, but predicates should not handle database errors,
         # so leave them on higher level (celeriac) and index database before predicate is being called
 
+        kwargs = []
         # we want to avoid querying to database if possible, if a predicate does not require message, do not ask for it
         if self.requires_message():
             # this can raise an exception if check was not run, since we are accessing storage that can be None
-            args = [ast.Call(func=ast.Attribute(value=ast.Name(id='db', ctx=ast.Load()), attr='get', ctx=ast.Load()),
-                             args = [ast.Str(s=self._flow.name), ast.Str(s=self._task_str_name())],
-                             keywords=[], starargs = None, kwargs = None)]
-        else:
-            args = []
+            kwargs.append(ast.keyword(arg='message',
+                                      value=ast.Call(func=ast.Attribute(value=ast.Name(id='db', ctx=ast.Load()),
+                                                                        attr='get', ctx=ast.Load()),
+                                                     args = [ast.Str(s=self._flow.name),
+                                                             ast.Str(s=self._task_str_name())],
+                                                     keywords=[], starargs = None, kwargs = None)))
+        if self.requires_node_args():
+            kwargs.append(ast.keyword(arg='node_args', value=ast.Name(id='node_args', ctx=ast.Load())))
+
+        kwargs.extend([ast.keyword(arg=k, value=ast.Str(s=v)) for k, v in self._args.items()])
 
         return ast.Call(func=ast.Name(id=self._func.__name__, ctx=ast.Load()),
-                        args=args, starargs=None, kwargs=None,
-                        keywords=[ast.keyword(arg=k, value=ast.Str(s=v)) for k, v in self._args.items()])
+                        args=[], starargs=None, kwargs=None, keywords=kwargs)
 
     def predicates_used(self):
         """
