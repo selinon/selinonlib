@@ -18,6 +18,10 @@ from .fieldList import fieldList
 from .fieldNone import fieldNone
 from .fieldNotEqual import fieldNotEqual
 from .fieldStr import fieldStr
+from .fieldUrlNetloc import fieldUrlNetloc
+from .fieldUrlPath import fieldUrlPath
+from .fieldUrlScheme import fieldUrlScheme
+from .httpStatus import httpStatus
 from .isBool import isBool
 from .isDict import isDict
 from .isFloat import isFloat
@@ -25,4 +29,3 @@ from .isInt import isInt
 from .isList import isList
 from .isNone import isNone
 from .isStr import isStr
-
