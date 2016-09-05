@@ -135,8 +135,8 @@ class LeafPredicate(Predicate):
 
     def __str__(self):
         if self.requires_message():
-            return "%s(db.get('%s', '%s'), %s)"\
-                   % (self._func.__name__, self._flow.name, self._task_str_name(), dict2strkwargs(self._args))
+            return "%s(db.get('%s'), %s)"\
+                   % (self._func.__name__, self._task_str_name(), dict2strkwargs(self._args))
         else:
             # we hide node_args parameter
             return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
@@ -178,8 +178,7 @@ class LeafPredicate(Predicate):
             kwargs.append(ast.keyword(arg='message',
                                       value=ast.Call(func=ast.Attribute(value=ast.Name(id='db', ctx=ast.Load()),
                                                                         attr='get', ctx=ast.Load()),
-                                                     args = [ast.Str(s=self._flow.name),
-                                                             ast.Str(s=self._task_str_name())],
+                                                     args = [ast.Str(s=self._task_str_name())],
                                                      keywords=[], starargs = None, kwargs = None)))
         if self.requires_node_args():
             kwargs.append(ast.keyword(arg='node_args', value=ast.Name(id='node_args', ctx=ast.Load())))
