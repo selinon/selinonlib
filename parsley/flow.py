@@ -105,6 +105,9 @@ class Flow(Node):
         self._propagate_parent = nodes
 
     def all_nodes_from(self):
+        """
+        :return: all source nodes in flow, excluding failures
+        """
         all_nodes_from = set()
 
         for edge in self._edges:
@@ -113,6 +116,9 @@ class Flow(Node):
         return list(all_nodes_from)
 
     def all_nodes_to(self):
+        """
+        :return: all destination nodes in flow, excluding failures
+        """
         all_nodes_to = set()
 
         for edge in self._edges:
@@ -121,16 +127,25 @@ class Flow(Node):
         return list(all_nodes_to)
 
     def all_source_nodes(self):
+        """
+        :return: all source nodes in flow, including failures
+        """
         if self.failures:
             return list(set(self.all_nodes_from()) | set(self.failures.all_waiting_nodes()))
         else:
             return self.all_nodes_from()
 
     def all_destination_nodes(self):
+        """
+        :return: all destination nodes in flow, including failures
+        """
         if self.failures:
             return list(set(self.all_nodes_to()) | set(self.failures.all_fallback_nodes()))
         else:
             return self.all_nodes_to()
 
     def all_used_nodes(self):
+        """
+        :return: all used nodes in flow
+        """
         return list(set(self.all_destination_nodes()) | set(self.all_source_nodes()))

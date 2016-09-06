@@ -713,6 +713,12 @@ class System(object):
 
     @staticmethod
     def _set_propagate_finished(system, flow, flow_def):
+        """
+        Parse propagate_finished flag and adjust flow accordingly
+        :param system: system that is used
+        :param flow: flow for which flag is configured
+        :param flow_def: flow definition
+        """
         if 'propagate_finished' in flow_def and flow_def['propagate_finished'] is not None:
             if not isinstance(flow_def['propagate_finished'], list) and \
                     not isinstance(flow_def['propagate_finished'], bool):
@@ -732,6 +738,12 @@ class System(object):
 
     @staticmethod
     def _set_propagate_node_args(system, flow, flow_def):
+        """
+        Parse propagate_node_args flag and adjust flow accordingly
+        :param system: system that is used
+        :param flow: flow for which flag is configured
+        :param flow_def: flow definition
+        """
         if 'propagate_node_args' in flow_def and flow_def['propagate_node_args'] is not None:
             if not isinstance(flow_def['propagate_node_args'], list) and \
                     not isinstance(flow_def['propagate_node_args'], bool):
@@ -751,6 +763,12 @@ class System(object):
 
     @staticmethod
     def _set_propagate_parent(system, flow, flow_def):
+        """
+        Parse propagate_parent flag and adjust flow accordingly
+        :param system: system that is used
+        :param flow: flow for which flag is configured
+        :param flow_def: flow definition
+        """
         if 'propagate_parent' in flow_def and flow_def['propagate_parent'] is not None:
             if not isinstance(flow_def['propagate_parent'], list) and \
                     not isinstance(flow_def['propagate_parent'], bool):

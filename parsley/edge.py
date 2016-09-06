@@ -43,18 +43,30 @@ class Edge(object):
 
     @property
     def nodes_from(self):
+        """
+        :return: edge's source nodes
+        """
         return self._nodes_from
 
     @property
     def nodes_to(self):
+        """
+        :return: edge's destination nodes
+        """
         return self._nodes_to
 
     @property
     def predicate(self):
+        """
+        :return: edge condition
+        """
         return self._predicate
 
     @property
     def flow(self):
+        """
+        :return: flow that edge is defined in
+        """
         return self._flow
 
     @staticmethod

@@ -111,5 +111,9 @@ class Predicate(ABC):
 
     @abc.abstractmethod
     def check(self):
+        """
+        Recursively check predicate correctness
+        :raises ValueError: if predicate is not correct
+        """
         pass
 
