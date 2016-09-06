@@ -295,11 +295,11 @@ class System(object):
         Dump get_task_instance() function to a stream
         :param output: a stream to write to
         """
-        output.write('def get_task_instance(task_name, flow_name, parent):\n')
+        output.write('def get_task_instance(task_name, flow_name, parent, finished):\n')
         output.write("    cls = task_classes.get(task_name)\n")
         output.write("    if not cls:\n")
         output.write("        raise ValueError(\"Unknown task with name '%s'\" % flow_name)\n")
-        output.write("    return cls(task_name=task_name, flow_name=flow_name, parent=parent)\n\n")
+        output.write("    return cls(task_name=task_name, flow_name=flow_name, parent=parent, finished=finished)\n\n")
 
     def _dump_storage2instance_mapping(self, output):
         """
