@@ -201,3 +201,36 @@ class NotPredicate(UnaryPredicate):
         :return: instance of cls
         """
         return UnaryPredicate._create(tree, NotPredicate, nodes_from, flow)
+
+
+class AlwaysTruePredicate(BuildinPredicate):
+    """
+    Predicate used if condition in config file is omitted
+    """
+    def __init__(self, flow):
+        self.flow = flow
+
+    def __str__(self):
+        return "True"
+
+    def predicates_used(self):
+        return []
+
+    def check(self):
+        """
+        Check predicate for consistency
+        """
+        pass
+
+    def ast(self):
+        """
+        :return: AST
+        """
+        # We should return:
+        #   return ast.NameConstant(value=True)
+        # but it does not work with codegen
+        return ast.Name(id='True', ctx=ast.Load())
+
+    @staticmethod
+    def create(tree, nodes_from, flow):
+        return AlwaysTruePredicate

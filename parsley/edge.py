@@ -19,6 +19,7 @@
 # ####################################################################
 
 from .predicate import Predicate
+from .buildinPredicate import AlwaysTruePredicate
 
 
 class Edge(object):
@@ -97,6 +98,9 @@ class Edge(object):
         to_names = d['to'] if isinstance(d['to'], list) else [d['to']]
         nodes_to = [system.node_by_name(n) for n in to_names]
 
-        predicate = Predicate.construct(d.get('condition'), nodes_from, flow)
+        if 'condition' in d:
+            predicate = Predicate.construct(d.get('condition'), nodes_from, flow)
+        else:
+            predicate = AlwaysTruePredicate(flow=flow)
 
         return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate, flow=flow)
