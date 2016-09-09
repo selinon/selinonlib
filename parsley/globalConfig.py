@@ -24,6 +24,11 @@ class GlobalConfig(object):
     trace = None
     dispatcher_strategy = None
 
+    # TODO: Possible candidates for "global" configuration;
+    #  * make dispatcher strategy configurable - e.g. strategy: linear/exponential_backoff/...
+    #  * trace configuration - possibly remove Config.trace_by_logging() and generate this directly to config.py
+    #                        - reuse databases for tracepoints
+
     @classmethod
     def from_dict(cls, d):
         if 'predicates_module' in d:
