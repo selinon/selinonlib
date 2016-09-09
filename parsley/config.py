@@ -44,11 +44,7 @@ class _ConfigSingleton(type):
         cls._config = config
 
 
-# A hack to workaround metaclass differences in Python3 and Python2
-_ConfigParent = _ConfigSingleton('Config', (object,), {})
-
-
-class Config(_ConfigParent):
+class Config(metaclass=_ConfigSingleton):
     _config = None
 
     def __init__(self):
