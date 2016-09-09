@@ -34,7 +34,6 @@ from .logger import Logger
 from .helpers import dict2strkwargs, expr2str
 from .failures import Failures
 from .taskClass import TaskClass
-from .leafPredicate import LeafPredicate
 from .globalConfig import GlobalConfig
 
 
