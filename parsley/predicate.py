@@ -45,7 +45,6 @@ class Predicate(metaclass=abc.ABCMeta):
         :type flow: Flow
         :return: Predicate instance
         """
-        # This is actually @abc.abstractstaticmethod, but this does not work in Python2
         pass
 
     @abc.abstractmethod
