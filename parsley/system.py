@@ -35,6 +35,7 @@ from .helpers import dict2strkwargs, expr2str
 from .failures import Failures
 from .taskClass import TaskClass
 from .leafPredicate import LeafPredicate
+from .globalConfig import GlobalConfig
 
 
 _logger = Logger.get_logger(__name__)
@@ -185,7 +186,7 @@ class System(object):
         for flow in self._flows:
             for edge in flow.edges:
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
-        output.write('from %s import %s\n' % (LeafPredicate.predicate_module, ", ".join(predicates)))
+        output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
 
         for task in self._tasks:
             output.write("from {} import {}\n".format(task.import_path, task.class_name))
@@ -810,8 +811,8 @@ class System(object):
             storage = Storage.from_dict(storage_dict)
             system.add_storage(storage)
 
-        if 'predicate_module' in content:
-            LeafPredicate.predicate_module = content['predicate_module']
+        if 'global' in content:
+            GlobalConfig.from_dict(content['global'])
 
         if 'tasks' not in content or content['tasks'] is None:
             raise ValueError("No tasks defined in the system")

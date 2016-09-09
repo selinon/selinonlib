@@ -25,6 +25,7 @@ from dill.source import getsource
 from .predicate import Predicate
 from .helpers import dict2strkwargs
 from .logger import Logger
+from .globalConfig import GlobalConfig
 
 _logger = Logger.get_logger(__name__)
 
@@ -33,8 +34,6 @@ class LeafPredicate(Predicate):
     """
     Leaf predicate representation
     """
-    predicate_module = 'parsley.predicates'
-
     def __init__(self, predicate_func, node, flow, args=None):
         """
         :param predicate_func: predicate function
@@ -210,7 +209,7 @@ class LeafPredicate(Predicate):
         :raises: ImportError
         """
         try:
-            module = importlib.import_module(cls.predicate_module)
+            module = importlib.import_module(GlobalConfig.predicates_module)
             predicate = getattr(module, name)
         except ImportError:
             _logger.error("Cannot import predicate '{}'".format(name))
