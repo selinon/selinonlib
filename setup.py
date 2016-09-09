@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from parsley import parsley_version
 from setuptools import setup, find_packages

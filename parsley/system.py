@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # ####################################################################
 # Copyright (C) 2016  Fridolin Pokorny, fpokorny@redhat.com
@@ -463,7 +463,7 @@ class System(object):
         Perform system dump to a Python source code to an output stream
         :param f: an output stream to write to
         """
-        f.write('#!/usr/bin/env python\n')
+        f.write('#!/usr/bin/env python3\n')
         f.write('# auto-generated using Parsley v{} on {} at {}\n\n'.format(parsley_version,
                                                                             platform.node(),
                                                                             str(datetime.utcnow())))
