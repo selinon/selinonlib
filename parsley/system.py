@@ -801,7 +801,7 @@ class System(object):
         with open(nodes_definition_file, 'r') as f:
             _logger.debug("Parsing '{}'".format(nodes_definition_file))
             try:
-                content = yaml.load(f)
+                content = yaml.load(f, Loader=yaml.SafeLoader)
             except:
                 _logger.error("Bad YAML file, unable to load tasks from {}".format(nodes_definition_file))
                 raise
@@ -837,7 +837,7 @@ class System(object):
             with open(flow_file, 'r') as f:
                 _logger.debug("Parsing '{}'".format(flow_file))
                 try:
-                    content = yaml.load(f)
+                    content = yaml.load(f, Loader=yaml.SafeLoader)
                 except:
                     _logger.error("Bad YAML file, unable to load flow from {}".format(flow_file))
                     raise

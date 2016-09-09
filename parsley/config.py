@@ -54,7 +54,7 @@ class Config(metaclass=_ConfigSingleton):
             return
 
         with open(self._config) as f:
-            self._raw_config = yaml.load(f)
+            self._raw_config = yaml.load(f, Loader=yaml.SafeLoader)
 
     def style_task(self):
         """
