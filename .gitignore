@@ -1,2 +1,5 @@
 *.pyc
 venv
+dist
+parsley.egg-info
+build
