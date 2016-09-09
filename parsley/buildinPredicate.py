@@ -233,4 +233,4 @@ class AlwaysTruePredicate(BuildinPredicate):
 
     @staticmethod
     def create(tree, nodes_from, flow):
-        return AlwaysTruePredicate
+        return AlwaysTruePredicate(flow)
