@@ -91,7 +91,3 @@ def dict2json(o, pretty=True):
         return json.dumps(o, sort_keys=True, separators=(',', ': '), indent = 2)
     else:
         return json.dumps(o)
-
-
-# To define abstract class that can be used in Python2 and Python3
-ABC = abc.ABCMeta('ABC', (object,), {})

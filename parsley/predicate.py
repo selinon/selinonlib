@@ -20,10 +20,10 @@
 
 
 import abc
-from .helpers import dict2json, ABC
+from .helpers import dict2json
 
 
-class Predicate(ABC):
+class Predicate(metaclass=abc.ABCMeta):
     """
     An abstract predicate representation
     """

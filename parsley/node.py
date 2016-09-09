@@ -20,10 +20,9 @@
 
 import abc
 import re
-from .helpers import ABC
 
 
-class Node(ABC):
+class Node(metaclass=abc.ABCMeta):
     """
     An abstract class for node representation
     """
@@ -32,13 +31,12 @@ class Node(ABC):
             raise ValueError("Invalid node name '%s'" % name)
         self._name = name
 
-    @abc.abstractmethod
+    @abc.abstractstaticmethod
     def from_dict(d):
         """
         Construct node from a dict
         :return: instantiated node
         """
-        # Actually @abc.abstractstaticmethod, but this does not work with Python2
         pass
 
     @property
