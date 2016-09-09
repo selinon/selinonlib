@@ -1,6 +1,6 @@
 TEMPFILE := $(shell mktemp -u)
 
-.PHONY: install clean uninstall venv
+.PHONY: install clean uninstall venv doc docs html
 
 install:
 	sh ./bump-version.sh
@@ -17,5 +17,14 @@ venv:
 	@echo "Run 'source venv/bin/activate' to enter virtual environment and 'deactivate' to return from it"
 
 clean:
-	find . -name '*.pyc' -or -name '__pycache__' -delete
-	rm -rf venv
+	find . -name '*.pyc' -or -name '__pycache__' -print0 | xargs -0 rm -rf
+	rm -rf venv docs/source/api docs/build/
+
+doc:
+	@sphinx-apidoc -e -o docs/source/api parsley -f
+	@make -C docs html
+	@echo "Documentation available at 'docs/build/html/index.html'"
+
+docs: doc
+html: doc
+
