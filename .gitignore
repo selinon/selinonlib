@@ -3,4 +3,4 @@ venv
 dist
 parsley.egg-info
 build
-docs/source/api
+docs.source/api
