@@ -1,0 +1,7 @@
+parsley.predicates.fieldEqual module
+====================================
+
+.. automodule:: parsley.predicates.fieldEqual
+    :members:
+    :undoc-members:
+    :show-inheritance:

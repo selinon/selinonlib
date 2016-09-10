@@ -1,0 +1,7 @@
+parsley.leafPredicate module
+============================
+
+.. automodule:: parsley.leafPredicate
+    :members:
+    :undoc-members:
+    :show-inheritance:

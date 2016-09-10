@@ -1,0 +1,7 @@
+parsley.globalConfig module
+===========================
+
+.. automodule:: parsley.globalConfig
+    :members:
+    :undoc-members:
+    :show-inheritance:

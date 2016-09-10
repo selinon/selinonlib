@@ -1,0 +1,7 @@
+parsley.storage module
+======================
+
+.. automodule:: parsley.storage
+    :members:
+    :undoc-members:
+    :show-inheritance:

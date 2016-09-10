@@ -1,0 +1,7 @@
+parsley.predicates.fieldUrlScheme module
+========================================
+
+.. automodule:: parsley.predicates.fieldUrlScheme
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+parsley.predicates.fieldList module
+===================================
+
+.. automodule:: parsley.predicates.fieldList
+    :members:
+    :undoc-members:
+    :show-inheritance:

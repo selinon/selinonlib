@@ -1,0 +1,7 @@
+parsley.predicates.isBool module
+================================
+
+.. automodule:: parsley.predicates.isBool
+    :members:
+    :undoc-members:
+    :show-inheritance:

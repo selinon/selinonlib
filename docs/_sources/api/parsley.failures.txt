@@ -1,0 +1,7 @@
+parsley.failures module
+=======================
+
+.. automodule:: parsley.failures
+    :members:
+    :undoc-members:
+    :show-inheritance:

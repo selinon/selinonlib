@@ -1,0 +1,7 @@
+parsley.predicates.fieldUrlNetloc module
+========================================
+
+.. automodule:: parsley.predicates.fieldUrlNetloc
+    :members:
+    :undoc-members:
+    :show-inheritance:

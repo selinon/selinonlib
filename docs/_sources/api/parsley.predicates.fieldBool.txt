@@ -1,0 +1,7 @@
+parsley.predicates.fieldBool module
+===================================
+
+.. automodule:: parsley.predicates.fieldBool
+    :members:
+    :undoc-members:
+    :show-inheritance:

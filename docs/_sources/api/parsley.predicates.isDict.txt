@@ -1,0 +1,7 @@
+parsley.predicates.isDict module
+================================
+
+.. automodule:: parsley.predicates.isDict
+    :members:
+    :undoc-members:
+    :show-inheritance:

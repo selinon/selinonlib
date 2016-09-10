@@ -1,0 +1,7 @@
+parsley.predicates.httpStatus module
+====================================
+
+.. automodule:: parsley.predicates.httpStatus
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+parsley.edge module
+===================
+
+.. automodule:: parsley.edge
+    :members:
+    :undoc-members:
+    :show-inheritance:

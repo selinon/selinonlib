@@ -1,0 +1,7 @@
+parsley.predicates.isStr module
+===============================
+
+.. automodule:: parsley.predicates.isStr
+    :members:
+    :undoc-members:
+    :show-inheritance:

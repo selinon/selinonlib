@@ -1,0 +1,7 @@
+parsley.predicates.fieldDict module
+===================================
+
+.. automodule:: parsley.predicates.fieldDict
+    :members:
+    :undoc-members:
+    :show-inheritance:

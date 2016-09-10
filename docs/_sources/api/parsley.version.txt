@@ -1,0 +1,7 @@
+parsley.version module
+======================
+
+.. automodule:: parsley.version
+    :members:
+    :undoc-members:
+    :show-inheritance:

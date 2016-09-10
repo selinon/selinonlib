@@ -1,0 +1,83 @@
+parsley.predicates package
+==========================
+
+Submodules
+----------
+
+.. toctree::
+
+   parsley.predicates.alwaysFalse
+   parsley.predicates.alwaysTrue
+   parsley.predicates.argsEmpty
+   parsley.predicates.argsFieldBool
+   parsley.predicates.argsFieldContain
+   parsley.predicates.argsFieldDict
+   parsley.predicates.argsFieldEqual
+   parsley.predicates.argsFieldExist
+   parsley.predicates.argsFieldFloat
+   parsley.predicates.argsFieldGreater
+   parsley.predicates.argsFieldGreaterEqual
+   parsley.predicates.argsFieldInt
+   parsley.predicates.argsFieldLenEqual
+   parsley.predicates.argsFieldLenGreater
+   parsley.predicates.argsFieldLenGreaterEqual
+   parsley.predicates.argsFieldLenLess
+   parsley.predicates.argsFieldLenLessEqual
+   parsley.predicates.argsFieldLenNotEqual
+   parsley.predicates.argsFieldLess
+   parsley.predicates.argsFieldLessEqual
+   parsley.predicates.argsFieldList
+   parsley.predicates.argsFieldNone
+   parsley.predicates.argsFieldNotEqual
+   parsley.predicates.argsFieldStr
+   parsley.predicates.argsFieldUrlNetloc
+   parsley.predicates.argsFieldUrlPath
+   parsley.predicates.argsFieldUrlScheme
+   parsley.predicates.argsIsBool
+   parsley.predicates.argsIsDict
+   parsley.predicates.argsIsFloat
+   parsley.predicates.argsIsInt
+   parsley.predicates.argsIsList
+   parsley.predicates.argsIsNone
+   parsley.predicates.argsIsStr
+   parsley.predicates.empty
+   parsley.predicates.fieldBool
+   parsley.predicates.fieldContain
+   parsley.predicates.fieldDict
+   parsley.predicates.fieldEqual
+   parsley.predicates.fieldExist
+   parsley.predicates.fieldFloat
+   parsley.predicates.fieldGreater
+   parsley.predicates.fieldGreaterEqual
+   parsley.predicates.fieldInt
+   parsley.predicates.fieldLenEqual
+   parsley.predicates.fieldLenGreater
+   parsley.predicates.fieldLenGreaterEqual
+   parsley.predicates.fieldLenLess
+   parsley.predicates.fieldLenLessEqual
+   parsley.predicates.fieldLenNotEqual
+   parsley.predicates.fieldLess
+   parsley.predicates.fieldLessEqual
+   parsley.predicates.fieldList
+   parsley.predicates.fieldNone
+   parsley.predicates.fieldNotEqual
+   parsley.predicates.fieldStr
+   parsley.predicates.fieldUrlNetloc
+   parsley.predicates.fieldUrlPath
+   parsley.predicates.fieldUrlScheme
+   parsley.predicates.httpStatus
+   parsley.predicates.isBool
+   parsley.predicates.isDict
+   parsley.predicates.isFloat
+   parsley.predicates.isInt
+   parsley.predicates.isList
+   parsley.predicates.isNone
+   parsley.predicates.isStr
+
+Module contents
+---------------
+
+.. automodule:: parsley.predicates
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,7 @@
+parsley.predicates.argsFieldUrlPath module
+==========================================
+
+.. automodule:: parsley.predicates.argsFieldUrlPath
+    :members:
+    :undoc-members:
+    :show-inheritance:

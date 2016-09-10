@@ -1,0 +1,7 @@
+parsley.buildinPredicate module
+===============================
+
+.. automodule:: parsley.buildinPredicate
+    :members:
+    :undoc-members:
+    :show-inheritance:

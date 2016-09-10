@@ -1,0 +1,41 @@
+parsley package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+
+    parsley.predicates
+
+Submodules
+----------
+
+.. toctree::
+
+   parsley.buildinPredicate
+   parsley.config
+   parsley.edge
+   parsley.failureNode
+   parsley.failures
+   parsley.flow
+   parsley.globalConfig
+   parsley.helpers
+   parsley.leafPredicate
+   parsley.logger
+   parsley.node
+   parsley.predicate
+   parsley.storage
+   parsley.strategies
+   parsley.system
+   parsley.task
+   parsley.taskClass
+   parsley.version
+
+Module contents
+---------------
+
+.. automodule:: parsley
+    :members:
+    :undoc-members:
+    :show-inheritance:

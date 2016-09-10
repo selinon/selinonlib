@@ -1,0 +1,7 @@
+parsley.predicate module
+========================
+
+.. automodule:: parsley.predicate
+    :members:
+    :undoc-members:
+    :show-inheritance:
