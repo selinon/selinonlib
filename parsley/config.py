@@ -36,6 +36,7 @@ class _ConfigSingleton(type):
     def set_config(cls, config):
         """
         Set config which should be used in within Config singleton
+
         :param config: configuration that should be used
         :type: dict
         """
@@ -45,6 +46,9 @@ class _ConfigSingleton(type):
 
 
 class Config(metaclass=_ConfigSingleton):
+    """
+    Configuration supplied by user
+    """
     _config = None
 
     def __init__(self):
@@ -59,6 +63,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_task(self):
         """
         Return style for tasks in the graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -70,6 +75,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_flow(self):
         """
         Return style for a flow node in the graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -82,6 +88,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_condition(self):
         """
         Return style for conditions in the graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -94,6 +101,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_storage(self):
         """
         Return style for storage in the graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -106,6 +114,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_edge(self):
         """
         Return style for edges in the graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -117,6 +126,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_store_edge(self):
         """
         Return style for edges that lead to a storage in the graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -129,6 +139,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_graph(self):
         """
         Return style for the whole graph, see graphviz styling options
+
         :return: style definition
         :rtype: dict
         """
@@ -140,6 +151,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_fallback_edge(self):
         """
         Return style for fallback edges
+
         :return: style definition
         :rtype: dict
         """
@@ -152,6 +164,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_fallback_node(self):
         """
         Return style for fallback node
+
         :return: style definition
         :rtype: dict
         """
@@ -164,6 +177,7 @@ class Config(metaclass=_ConfigSingleton):
     def style_fallback_true(self):
         """
         Return style for fallback true node
+
         :return: style definition
         :rtype: dict
         """

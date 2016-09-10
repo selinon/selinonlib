@@ -69,6 +69,7 @@ class System(object):
     def _check_name_collision(self, name):
         """
         Tasks and Flows share name space, check for collisions
+
         :param name: a node name
         :raises: ValueError
         """
@@ -80,6 +81,7 @@ class System(object):
     def add_task(self, task):
         """
         Register a task in the system
+
         :param task: a task to be registered
         :type task: Task
         """
@@ -89,6 +91,7 @@ class System(object):
     def add_flow(self, flow):
         """
         Register a flow in the system
+
         :param flow: a flow to be registered
         :type flow: flow
         """
@@ -117,6 +120,7 @@ class System(object):
     def task_by_name(self, name, graceful=False):
         """
         Find a task by its name
+
         :param name: a task name
         :param graceful: if True, no exception is raised if task couldn't be found
         :return: task with name 'name'
@@ -133,6 +137,7 @@ class System(object):
     def flow_by_name(self, name, graceful=False):
         """
         Find a flow by its name
+
         :param name: a flow name
         :param graceful: if True, no exception is raised if flow couldn't be found
         :return: flow with name 'name'
@@ -149,6 +154,7 @@ class System(object):
     def node_by_name(self, name, graceful=False):
         """
         Find a node (flow or task) by its name
+
         :param name: a node name
         :param graceful: if True, no exception is raised if node couldn't be found
         :return: flow with name 'name'
@@ -168,6 +174,7 @@ class System(object):
     def class_of_task(self, task):
         """
         Return task class of a task
+
         :param task: task to look task class for
         :return: TaskClass or None if a task class for task is not available
         """
@@ -179,6 +186,7 @@ class System(object):
     def _dump_imports(self, output):
         """
         Dump used imports of tasks to a stream
+
         :param output: a stream to write to
         """
         predicates = set([])
@@ -199,6 +207,7 @@ class System(object):
     def _dump_is_flow(self, output):
         """
         Dump is_flow() check to a stream
+
         :param output: a stream to write to
         """
         output.write('def is_flow(name):\n')
@@ -207,6 +216,7 @@ class System(object):
     def _dump_output_schemas(self, output):
         """
         Dump output schema mapping to a stream
+
         :param output: a stream to write to
         """
         output.write('output_schemas = {')
@@ -222,6 +232,7 @@ class System(object):
     def _dump_propagate_finished(self, output):
         """
         Dump propagate_finished flag configuration to a stream
+
         :param output: a stream to write to
         """
         output.write('propagate_finished = {')
@@ -240,6 +251,7 @@ class System(object):
     def _dump_propagate_node_args(self, output):
         """
         Dump propagate_node_args flag configuration to a stream
+
         :param output: a stream to write to
         """
         output.write('propagate_node_args = {')
@@ -258,6 +270,7 @@ class System(object):
     def _dump_propagate_parent(self, output):
         """
         Dump propagate_parent flag configuration to a stream
+
         :param output: a stream to write to
         """
         output.write('propagate_parent = {')
@@ -276,6 +289,7 @@ class System(object):
     def _dump_task_classes(self, output):
         """
         Dump mapping from task name to task class
+
         :param output: a stream to write to
         """
         output.write('task_classes = {')
@@ -287,12 +301,11 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
-        pass
-
     @staticmethod
     def _dump_get_task_instance(output):
         """
         Dump get_task_instance() function to a stream
+
         :param output: a stream to write to
         """
         output.write('def get_task_instance(task_name, flow_name, parent, finished):\n')
@@ -304,6 +317,7 @@ class System(object):
     def _dump_storage2instance_mapping(self, output):
         """
         Dump storage name to instance mapping to a stream
+
         :param output: a stream to write to
         """
         storage_var_names = []
@@ -333,6 +347,7 @@ class System(object):
     def _dump_task2storage_mapping(self, output):
         """
         Dump task name to storage name mapping to a stream
+
         :param output: a stream to write to
         """
         output.write('task2storage_mapping = {\n')
@@ -349,6 +364,7 @@ class System(object):
     def _dump_condition_name(flow_name, idx):
         """
         Create condition name for a dump
+
         :param flow_name: flow name
         :type flow_name: str
         :param idx: index of condition within the flow
@@ -361,6 +377,7 @@ class System(object):
     def _dump_condition_functions(self, output):
         """
         Dump condition functions to a stream
+
         :param output: a stream to write to
         """
         for flow in self._flows:
@@ -371,6 +388,7 @@ class System(object):
     def _dump_max_retry(self, output):
         """
         Dump max_retry configuration to a stream
+
         :param output: a stream to write to
         """
         output.write('max_retry = {')
@@ -385,6 +403,7 @@ class System(object):
     def _dump_retry_countdown(self, output):
         """
         Dump retry_countdown configuration to a stream
+
         :param output: a stream to write to
         """
         output.write('retry_countdown = {')
@@ -399,6 +418,7 @@ class System(object):
     def _dump_time_limit(self, output):
         """
         Dump max_retry configuration to a stream
+
         :param output: a stream to write to
         """
         output.write('time_limit = {')
@@ -413,6 +433,7 @@ class System(object):
     def _dump_nowait_nodes(self, output):
         """
         Dump nowait nodes to a stream
+
         :param output: a stream to write to
         """
 
@@ -430,6 +451,7 @@ class System(object):
     def _dump_init(output):
         """
         Dump init function to a stream
+
         :param output: a stream to write to
         :return:
         """
@@ -440,6 +462,7 @@ class System(object):
     def _dump_edge_table(self, output):
         """
         Dump edge definition table to a stream
+
         :param output: a stream to write to
         """
         output.write('edge_table = {\n')
@@ -461,6 +484,7 @@ class System(object):
     def dump2stream(self, f):
         """
         Perform system dump to a Python source code to an output stream
+
         :param f: an output stream to write to
         """
         f.write('#!/usr/bin/env python3\n')
@@ -515,6 +539,7 @@ class System(object):
     def dump2file(self, output_file):
         """
         Perform system dump to a Python source code
+
         :param output_file: an output file to write to
         """
         _logger.debug("Performing system dump to '%s'" % output_file)
@@ -524,6 +549,7 @@ class System(object):
     def plot_graph(self, output_dir, image_format=None):
         """
         Plot system flows to graphs - each flow in a separate file
+
         :param output_dir: output directory to write graphs of flows to
         :param image_format: image format, the default is svg if None
         :return: list of file names to which the graph was rendered
@@ -616,6 +642,7 @@ class System(object):
     def _post_parse_check(self):
         """
         Called once parse was done to ensure that system was correctly defined in config file
+
         :raises: ValueError
         """
         _logger.debug("Post parse check is going to be executed")
@@ -628,6 +655,7 @@ class System(object):
     def _check(self):
         """
         Check system for consistency
+
         :raises: ValueError
         """
         _logger.info("Checking system for consistency")
@@ -715,6 +743,7 @@ class System(object):
     def _set_propagate_finished(system, flow, flow_def):
         """
         Parse propagate_finished flag and adjust flow accordingly
+
         :param system: system that is used
         :param flow: flow for which flag is configured
         :param flow_def: flow definition
@@ -740,6 +769,7 @@ class System(object):
     def _set_propagate_node_args(system, flow, flow_def):
         """
         Parse propagate_node_args flag and adjust flow accordingly
+
         :param system: system that is used
         :param flow: flow for which flag is configured
         :param flow_def: flow definition
@@ -765,6 +795,7 @@ class System(object):
     def _set_propagate_parent(system, flow, flow_def):
         """
         Parse propagate_parent flag and adjust flow accordingly
+
         :param system: system that is used
         :param flow: flow for which flag is configured
         :param flow_def: flow definition
@@ -790,6 +821,7 @@ class System(object):
     def from_files(nodes_definition_file, flow_definition_files, no_check=False):
         """
         Construct System from files
+
         :param nodes_definition_file: path to nodes definition file
         :param flow_definition_files: path to files that describe flows
         :param no_check: True if system shouldn't be checked for consistency (recommended to check)

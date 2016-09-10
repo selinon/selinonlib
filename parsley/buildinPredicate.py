@@ -58,6 +58,7 @@ class NaryPredicate(BuildinPredicate):
     def _create(tree, cls, nodes_from, flow):
         """
         Instantiate N-ary predicate cls
+
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param cls: class of type NaryPredicate
@@ -98,6 +99,7 @@ class UnaryPredicate(BuildinPredicate):
     def _create(tree, cls, nodes_from, flow):
         """
         Instantiate N-ary predicate cls
+
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param cls: class of type NaryPredicate
@@ -139,6 +141,7 @@ class AndPredicate(NaryPredicate):
     def create(tree, nodes_from, flow):
         """
         Create And predicate
+
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param nodes_from: nodes that are used in described edge
@@ -166,6 +169,7 @@ class OrPredicate(NaryPredicate):
     def create(tree, nodes_from, flow):
         """
         Create Or predicate
+
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param nodes_from: nodes that are used in described edge
@@ -193,6 +197,7 @@ class NotPredicate(UnaryPredicate):
     def create(tree, nodes_from, flow):
         """
         Create Or predicate
+
         :param tree: node from which should be predicate instantiated
         :type tree: List
         :param nodes_from: nodes that are used in described edge

@@ -19,6 +19,9 @@
 
 
 class TaskClass(object):
+    """
+    Task's class abstraction
+    """
     def __init__(self, class_name, import_path):
         self._class_name = class_name
         self._import_path = import_path
@@ -55,6 +58,7 @@ class TaskClass(object):
     def add_task(self, task):
         """
         Register a task to this class
+
         :param task: task to be added
         """
         assert(self.task_of_class(task))

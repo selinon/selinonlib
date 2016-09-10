@@ -56,6 +56,7 @@ def expr2str(e):
 def keylist2str(keylist):
     """
     Convert keylist to a string representation
+
     :param keylist: keylist to be converted
     :type keylist: list
     :return: string representation
@@ -68,6 +69,7 @@ def keylist2str(keylist):
 def pushd(new_dir):
     """
     Traverse directory tree in push/pop manner
+
     :param new_dir: new directory to cd to
     :type new_dir: str
     """
@@ -82,6 +84,7 @@ def pushd(new_dir):
 def dict2json(o, pretty=True):
     """
     Convert dict to json (string)
+
     :param o: dictionary to be converted
     :param pretty: if True, nice formatting will be used
     :type pretty: bool

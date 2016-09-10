@@ -170,7 +170,8 @@ class Failures(object):
 
     def dump2stream(self, f, flow_name):
         """
-        Dumo failures to the Python config file for Dispatcher
+        Dump failures to the Python config file for Dispatcher
+
         :param f: output stream to dump to
         :param flow_name: a name of a flow that failures belong to
         """

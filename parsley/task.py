@@ -149,6 +149,7 @@ class Task(Node):
     def from_dict(d, system):
         """
         Construct task from a dict
+
         :param d: dictionary to be used to construct the task
         :return: Task instance
         :param system: system that should be used to for lookup a storage

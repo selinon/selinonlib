@@ -62,6 +62,7 @@ class Storage(object):
     def register_task(self, task):
         """
         Register a new that uses this storage
+
         :param task: task to be registered
         """
         self._tasks.append(task)
@@ -70,6 +71,7 @@ class Storage(object):
     def from_dict(d):
         """
         Construct storage instance from a dict
+
         :param d: dict that should be used to instantiate Storage
         :rtype: Storage
         """

@@ -71,6 +71,7 @@ class Logger(object):
     def get_logger(cls, name):
         """
         Get logging logger
+
         :param name: logging logger name
         :rtype: _LoggerWrapper
         """

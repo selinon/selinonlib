@@ -74,6 +74,7 @@ class Edge(object):
     def from_dict(d, system, flow):
         """
         Construct edge from a dict
+
         :param d: a dictionary from which the system should be created
         :type d: dict
         :param system:

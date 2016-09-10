@@ -35,6 +35,7 @@ class Node(metaclass=abc.ABCMeta):
     def from_dict(d):
         """
         Construct node from a dict
+
         :return: instantiated node
         """
         pass
@@ -64,6 +65,7 @@ class Node(metaclass=abc.ABCMeta):
     def check_name(name):
         """
         Check whether name is a correct node (flow/task) name
+
         :param name: node name
         :return: True if name is a correct node name
         :rtype: bool

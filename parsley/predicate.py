@@ -39,6 +39,7 @@ class Predicate(metaclass=abc.ABCMeta):
     def create(tree, nodes_from, flow):
         """
         Create the predicate
+
         :param nodes_from: nodes which are used within edge definition
         :type nodes_from: List[Nodes]
         :param flow: flow to which predicate belongs to
@@ -66,6 +67,7 @@ class Predicate(metaclass=abc.ABCMeta):
     def construct(tree, nodes_from, flow):
         """
         Top-down creation of predicates - recursively called to construct predicates
+
         :param tree: a dictionary describing nodes
         :type tree: dict
         :param nodes_from: nodes which are used within edge
@@ -112,6 +114,7 @@ class Predicate(metaclass=abc.ABCMeta):
     def check(self):
         """
         Recursively check predicate correctness
+
         :raises ValueError: if predicate is not correct
         """
         pass

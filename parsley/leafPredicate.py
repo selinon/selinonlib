@@ -81,6 +81,7 @@ class LeafPredicate(Predicate):
     def _check_parameters(self):
         """
         Check user defined predicate parameters against predicate parameters
+
         :raises: ValueError
         """
         func_args = self._get_arguments()
@@ -115,6 +116,7 @@ class LeafPredicate(Predicate):
     def _check_usage(self):
         """
         Check correct predicate usage
+
         :raises: ValueError
         """
         if self.requires_message() and self.node and self.node.is_flow():
@@ -127,6 +129,7 @@ class LeafPredicate(Predicate):
     def check(self):
         """
         Check whether predicate is correctly used
+
         :raises: ValueError
         """
         self._check_usage()
@@ -198,6 +201,7 @@ class LeafPredicate(Predicate):
     def create(cls, name, node, flow, args=None):
         """
         Create predicate
+
         :param name: predicate name
         :type name: str
         :param node: node to which predicate belongs

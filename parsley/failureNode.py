@@ -104,6 +104,7 @@ class FailureNode(object):
     def to(self, node_name):
         """
         Retrieve next permutation
+
         :param node_name: a name of the node for next permutation
         :rtype: FailureNode
         """
@@ -119,6 +120,7 @@ class FailureNode(object):
     def add_to(self, node_name, failure):
         """
         Add failure for next permutation
+
         :param node_name: a node for next permutation
         :param failure: FailureNode that should be added
         """
@@ -141,6 +143,7 @@ class FailureNode(object):
     def construct(cls, flow, failures):
         """
         Construct failures from failures dictionary
+
         :param failures: failures dictionary
         :param flow: flow to which failures conform to
         :return: a link for linked list of failures and a dict of starting failures
