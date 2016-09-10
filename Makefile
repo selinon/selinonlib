@@ -18,7 +18,7 @@ venv:
 
 clean:
 	find . -name '*.pyc' -or -name '__pycache__' -print0 | xargs -0 rm -rf
-	rm -rf venv docs/source/api docs/build/
+	rm -rf venv docs.source/api docs/build/
 
 doc:
 	@sphinx-apidoc -e -o docs.source/api parsley -f
