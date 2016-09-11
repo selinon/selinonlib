@@ -99,6 +99,11 @@ class System(object):
         self._flows.append(flow)
 
     def add_storage(self, storage):
+        """
+        Add storage to system
+
+        :param storage: storage that should be added
+        """
         # We need to check for name collision with tasks as well since we import them by name
         for task in self._tasks:
             if task.name == storage.name:
@@ -110,6 +115,13 @@ class System(object):
         self._storages.append(storage)
 
     def storage_by_name(self, name, graceful=False):
+        """
+        Retrieve storage by its name
+
+        :param name: name of the storage
+        :param graceful: if true, exception is raised if no such storage with name name is found
+        :return: storage
+        """
         for storage in self._storages:
             if storage.name == name:
                 return storage

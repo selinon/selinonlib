@@ -17,42 +17,49 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
-#
-# A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider
-# having two failure conditions:
-# failure:
-#   - nodes:
-#         - Task1
-#         - Task2
-#         - Task3
-#     fallback:
-#         - FallbackTask1
-#   - nodes:
-#         - Task1
-#         - Task2
-#     fallback:
-#         - FallbackTask2
-# What we do here, we construct a graph of all possible permutations connected using edges that represent a node
-# that should be added to create a new permutation:
-#
-#  |-------------------------------
-#  |                              |
-# T1           T2           T3    |
-#   \         /  \         / \    |
-#    \       /    \       /   \   |
-#     \     /      \     /     \  v
-#      T1,T2*       T2,T3      T1,T3
-#         \         /           /
-#          \       /           /
-#           T1,T2,T3*  <-------
-#
-# For nodes "T1,T2,T3" and "T1,T2" we assign a fallback as configured. This graph is then serialized into the Python
-# configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.
-#
-# Note we are creating sparse tree - only for nodes that are listed in failures.
-#
-# Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with
-# Python code generation.
+"""
+A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider
+having two failure conditions:
+
+.. code-block:: yaml
+
+  failure:
+    - nodes:
+          - Task1
+          - Task2
+          - Task3
+      fallback:
+          - FallbackTask1
+    - nodes:
+          - Task1
+          - Task2
+      fallback:
+          - FallbackTask2
+
+What we do here, we construct a graph of all possible permutations connected using edges that represent a node
+that should be added to create a new permutation:
+
+.. code-block:: yaml
+
+   |-------------------------------
+   |                              |
+  T1           T2           T3    |
+    \         /  \         / \    |
+     \       /    \       /   \   |
+      \     /      \     /     \  v
+       T1,T2*       T2,T3      T1,T3
+          \         /           /
+           \       /           /
+            T1,T2,T3*  <-------
+
+For nodes ``T1,T2,T3`` and ``T1,T2`` we assign a fallback as configured. This graph is then serialized into the Python
+configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.
+
+Note we are creating sparse tree - only for nodes that are listed in failures.
+
+Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with
+Python code generation.
+"""
 
 from functools import reduce
 
@@ -75,30 +82,51 @@ class FailureNode(object):
 
     @property
     def fallback(self):
+        """
+        :return: fallback of a failure node
+        """
         return self._fallback
 
     @fallback.setter
     def fallback(self, fallback):
+        """
+        :param fallback: fallback for a failure node
+        """
         self._fallback = fallback
 
     @property
     def traversed(self):
+        """
+        :return: traversed tasks/nodes in failure node
+        """
         return self._traversed
 
     @property
     def next(self):
+        """
+        :return: next dict to a failure node
+        """
         return self._next
 
     @property
     def failure_link(self):
+        """
+        :return: failure link
+        """
         return self._failure_link
 
     @property
     def flow(self):
+        """
+        :return: flow to which the failure node corresponds
+        """
         return self._flow
 
     @failure_link.setter
     def failure_link(self, failure_link):
+        """
+        :param failure_link: set failure link
+        """
         self._failure_link = failure_link
 
     def to(self, node_name):

@@ -60,14 +60,23 @@ class Flow(Node):
 
     @property
     def failures(self):
+        """
+        :return: failures defined within the flow
+        """
         return self._failures
 
     @failures.setter
     def failures(self, failures):
+        """
+        :param failures: failures to be set
+        """
         self._failures = failures
 
     @property
     def nowait_nodes(self):
+        """
+        :return: nodes that are marked with nowait flag - dispatcher will not wait for their completion
+        """
         return self._nowait_nodes
 
     def add_edge(self, edge):
@@ -78,30 +87,51 @@ class Flow(Node):
         self._edges.append(edge)
 
     def add_nowait_node(self, node):
+        """
+        :param node: add a node that should be marked with nowait flag
+        """
         self._nowait_nodes.append(node)
 
     @property
     def propagate_finished(self):
+        """
+        :return: subflows from which should be propagated finished nodes
+        """
         return self._propagate_finished
 
     @propagate_finished.setter
     def propagate_finished(self, nodes):
+        """
+        :param nodes: set nodes (subflows) which should be used to propagate finished
+        """
         self._propagate_finished = nodes
 
     @property
     def propagate_node_args(self):
+        """
+        :return: nodes to which should be propagated node arguments
+        """
         return self._propagate_node_args
 
     @propagate_node_args.setter
     def propagate_node_args(self, nodes):
+        """
+        :param nodes: set nodes (subflows) to which should be propagated node arguments
+        """
         self._propagate_node_args = nodes
 
     @property
     def propagate_parent(self):
+        """
+        :return: flows to which should be propagated parent nodes
+        """
         return self._propagate_parent
 
     @propagate_parent.setter
     def propagate_parent(self, nodes):
+        """
+        :param nodes: set flows to which shoule be propagated parent nodes
+        """
         self._propagate_parent = nodes
 
     def all_nodes_from(self):
