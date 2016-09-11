@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>parsley.system module &#8212; Parsley 43d0045 documentation</title>
+    <title>parsley.system module &#8212; Parsley 0.1.0a1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '43d0045',
+        VERSION:     '0.1.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Parsley 43d0045 documentation" href="../index.html" />
+    <link rel="top" title="Parsley 0.1.0a1 documentation" href="../index.html" />
     <link rel="up" title="parsley package" href="parsley.html" />
     <link rel="next" title="parsley.task module" href="parsley.task.html" />
     <link rel="prev" title="parsley.strategies module" href="parsley.strategies.html" />
@@ -57,7 +57,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flow</strong> (<a class="reference internal" href="parsley.edge.html#parsley.edge.Edge.flow" title="parsley.edge.Edge.flow"><em>flow</em></a>) &#8211; a flow to be registered</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flow</strong> (<a class="reference internal" href="parsley.failureNode.html#parsley.failureNode.FailureNode.flow" title="parsley.failureNode.FailureNode.flow"><em>flow</em></a>) &#8211; a flow to be registered</td>
 </tr>
 </tbody>
 </table>
@@ -66,7 +66,16 @@
 <dl class="method">
 <dt id="parsley.system.System.add_storage">
 <code class="descname">add_storage</code><span class="sig-paren">(</span><em>storage</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsley/system.html#System.add_storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsley.system.System.add_storage" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add storage to system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>storage</strong> &#8211; storage that should be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="parsley.system.System.add_task">
@@ -247,7 +256,23 @@
 <dl class="method">
 <dt id="parsley.system.System.storage_by_name">
 <code class="descname">storage_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>graceful=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsley/system.html#System.storage_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsley.system.System.storage_by_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Retrieve storage by its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; name of the storage</li>
+<li><strong>graceful</strong> &#8211; if true, exception is raised if no such storage with name name is found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">storage</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="parsley.system.System.task_by_name">

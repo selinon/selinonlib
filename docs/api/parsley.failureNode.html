@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>parsley.failureNode module &#8212; Parsley 43d0045 documentation</title>
+    <title>parsley.failureNode module &#8212; Parsley 0.1.0a1 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '43d0045',
+        VERSION:     '0.1.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Parsley 43d0045 documentation" href="../index.html" />
+    <link rel="top" title="Parsley 0.1.0a1 documentation" href="../index.html" />
     <link rel="up" title="parsley package" href="parsley.html" />
     <link rel="next" title="parsley.failures module" href="parsley.failures.html" />
     <link rel="prev" title="parsley.edge module" href="parsley.edge.html" />
@@ -44,6 +44,41 @@
             
   <div class="section" id="module-parsley.failureNode">
 <span id="parsley-failurenode-module"></span><h1>parsley.failureNode module<a class="headerlink" href="#module-parsley.failureNode" title="Permalink to this headline">¶</a></h1>
+<p>A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider
+having two failure conditions:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">failure</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nodes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task1</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task2</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task3</span>
+    <span class="l l-Scalar l-Scalar-Plain">fallback</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FallbackTask1</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nodes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task1</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task2</span>
+    <span class="l l-Scalar l-Scalar-Plain">fallback</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FallbackTask2</span>
+</pre></div>
+</div>
+<p>What we do here, we construct a graph of all possible permutations connected using edges that represent a node
+that should be added to create a new permutation:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span> |-------------------------------
+ |                              |
+T1           T2           T3    |
+  \         /  \         / \    |
+   \       /    \       /   \   |
+    \     /      \     /     \  v
+     T1,T2*       T2,T3      T1,T3
+        \         /           /
+         \       /           /
+          T1,T2,T3*  &lt;-------
+</pre></div>
+</div>
+<p>For nodes <code class="docutils literal"><span class="pre">T1,T2,T3</span></code> and <code class="docutils literal"><span class="pre">T1,T2</span></code> we assign a fallback as configured. This graph is then serialized into the Python
+configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.</p>
+<p>Note we are creating sparse tree - only for nodes that are listed in failures.</p>
+<p>Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with
+Python code generation.</p>
 <dl class="class">
 <dt id="parsley.failureNode.FailureNode">
 <em class="property">class </em><code class="descclassname">parsley.failureNode.</code><code class="descname">FailureNode</code><span class="sig-paren">(</span><em>flow</em>, <em>traversed</em>, <em>failure_link</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/parsley/failureNode.html#FailureNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#parsley.failureNode.FailureNode" title="Permalink to this definition">¶</a></dt>
@@ -91,17 +126,41 @@
 <dl class="attribute">
 <dt id="parsley.failureNode.FailureNode.failure_link">
 <code class="descname">failure_link</code><a class="headerlink" href="#parsley.failureNode.FailureNode.failure_link" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">failure link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="parsley.failureNode.FailureNode.fallback">
 <code class="descname">fallback</code><a class="headerlink" href="#parsley.failureNode.FailureNode.fallback" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">fallback of a failure node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="parsley.failureNode.FailureNode.flow">
 <code class="descname">flow</code><a class="headerlink" href="#parsley.failureNode.FailureNode.flow" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">flow to which the failure node corresponds</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="parsley.failureNode.FailureNode.has_to">
@@ -121,7 +180,15 @@
 <dl class="attribute">
 <dt id="parsley.failureNode.FailureNode.next">
 <code class="descname">next</code><a class="headerlink" href="#parsley.failureNode.FailureNode.next" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">next dict to a failure node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="parsley.failureNode.FailureNode.to">
@@ -142,7 +209,15 @@
 <dl class="attribute">
 <dt id="parsley.failureNode.FailureNode.traversed">
 <code class="descname">traversed</code><a class="headerlink" href="#parsley.failureNode.FailureNode.traversed" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">traversed tasks/nodes in failure node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 

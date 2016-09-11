@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>parsley.system &#8212; Parsley 43d0045 documentation</title>
+    <title>parsley.system &#8212; Parsley 0.1.0a1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '43d0045',
+        VERSION:     '0.1.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Parsley 43d0045 documentation" href="../../index.html" />
+    <link rel="top" title="Parsley 0.1.0a1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -142,6 +142,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_flows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.add_storage"><a class="viewcode-back" href="../../api/parsley.system.html#parsley.system.System.add_storage">[docs]</a>    <span class="k">def</span> <span class="nf">add_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add storage to system</span>
+
+<span class="sd">        :param storage: storage that should be added</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># We need to check for name collision with tasks as well since we import them by name</span>
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">storage</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
@@ -153,6 +158,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_storages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">storage</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="System.storage_by_name"><a class="viewcode-back" href="../../api/parsley.system.html#parsley.system.System.storage_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">storage_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">graceful</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve storage by its name</span>
+
+<span class="sd">        :param name: name of the storage</span>
+<span class="sd">        :param graceful: if true, exception is raised if no such storage with name name is found</span>
+<span class="sd">        :return: storage</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">storage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storages</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">storage</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">storage</span>

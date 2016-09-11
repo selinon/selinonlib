@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>parsley.flow &#8212; Parsley 43d0045 documentation</title>
+    <title>parsley.flow &#8212; Parsley 0.1.0a1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '43d0045',
+        VERSION:     '0.1.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Parsley 43d0045 documentation" href="../../index.html" />
+    <link rel="top" title="Parsley 0.1.0a1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -103,14 +103,23 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">failures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: failures defined within the flow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span>
 
     <span class="nd">@failures</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">failures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">failures</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param failures: failures to be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_failures</span> <span class="o">=</span> <span class="n">failures</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">nowait_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: nodes that are marked with nowait flag - dispatcher will not wait for their completion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nowait_nodes</span>
 
 <div class="viewcode-block" id="Flow.add_edge"><a class="viewcode-back" href="../../api/parsley.flow.html#parsley.flow.Flow.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
@@ -121,30 +130,51 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Flow.add_nowait_node"><a class="viewcode-back" href="../../api/parsley.flow.html#parsley.flow.Flow.add_nowait_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_nowait_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param node: add a node that should be marked with nowait flag</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nowait_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">propagate_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: subflows from which should be propagated finished nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_finished</span>
 
     <span class="nd">@propagate_finished</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">propagate_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param nodes: set nodes (subflows) which should be used to propagate finished</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_finished</span> <span class="o">=</span> <span class="n">nodes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">propagate_node_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: nodes to which should be propagated node arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_node_args</span>
 
     <span class="nd">@propagate_node_args</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">propagate_node_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param nodes: set nodes (subflows) to which should be propagated node arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_node_args</span> <span class="o">=</span> <span class="n">nodes</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">propagate_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: flows to which should be propagated parent nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_parent</span>
 
     <span class="nd">@propagate_parent</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">propagate_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param nodes: set flows to which shoule be propagated parent nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_propagate_parent</span> <span class="o">=</span> <span class="n">nodes</span>
 
 <div class="viewcode-block" id="Flow.all_nodes_from"><a class="viewcode-back" href="../../api/parsley.flow.html#parsley.flow.Flow.all_nodes_from">[docs]</a>    <span class="k">def</span> <span class="nf">all_nodes_from</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

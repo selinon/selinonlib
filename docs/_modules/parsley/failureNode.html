@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>parsley.failureNode &#8212; Parsley 43d0045 documentation</title>
+    <title>parsley.failureNode &#8212; Parsley 0.1.0a1 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '43d0045',
+        VERSION:     '0.1.0a1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="Parsley 43d0045 documentation" href="../../index.html" />
+    <link rel="top" title="Parsley 0.1.0a1 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -60,42 +60,49 @@
 <span class="c1"># along with this program; if not, write to the Free Software</span>
 <span class="c1"># Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
 <span class="c1"># ####################################################################</span>
-<span class="c1">#</span>
-<span class="c1"># A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider</span>
-<span class="c1"># having two failure conditions:</span>
-<span class="c1"># failure:</span>
-<span class="c1">#   - nodes:</span>
-<span class="c1">#         - Task1</span>
-<span class="c1">#         - Task2</span>
-<span class="c1">#         - Task3</span>
-<span class="c1">#     fallback:</span>
-<span class="c1">#         - FallbackTask1</span>
-<span class="c1">#   - nodes:</span>
-<span class="c1">#         - Task1</span>
-<span class="c1">#         - Task2</span>
-<span class="c1">#     fallback:</span>
-<span class="c1">#         - FallbackTask2</span>
-<span class="c1"># What we do here, we construct a graph of all possible permutations connected using edges that represent a node</span>
-<span class="c1"># that should be added to create a new permutation:</span>
-<span class="c1">#</span>
-<span class="c1">#  |-------------------------------</span>
-<span class="c1">#  |                              |</span>
-<span class="c1"># T1           T2           T3    |</span>
-<span class="c1">#   \         /  \         / \    |</span>
-<span class="c1">#    \       /    \       /   \   |</span>
-<span class="c1">#     \     /      \     /     \  v</span>
-<span class="c1">#      T1,T2*       T2,T3      T1,T3</span>
-<span class="c1">#         \         /           /</span>
-<span class="c1">#          \       /           /</span>
-<span class="c1">#           T1,T2,T3*  &lt;-------</span>
-<span class="c1">#</span>
-<span class="c1"># For nodes &quot;T1,T2,T3&quot; and &quot;T1,T2&quot; we assign a fallback as configured. This graph is then serialized into the Python</span>
-<span class="c1"># configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.</span>
-<span class="c1">#</span>
-<span class="c1"># Note we are creating sparse tree - only for nodes that are listed in failures.</span>
-<span class="c1">#</span>
-<span class="c1"># Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with</span>
-<span class="c1"># Python code generation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider</span>
+<span class="sd">having two failure conditions:</span>
+
+<span class="sd">.. code-block:: yaml</span>
+
+<span class="sd">  failure:</span>
+<span class="sd">    - nodes:</span>
+<span class="sd">          - Task1</span>
+<span class="sd">          - Task2</span>
+<span class="sd">          - Task3</span>
+<span class="sd">      fallback:</span>
+<span class="sd">          - FallbackTask1</span>
+<span class="sd">    - nodes:</span>
+<span class="sd">          - Task1</span>
+<span class="sd">          - Task2</span>
+<span class="sd">      fallback:</span>
+<span class="sd">          - FallbackTask2</span>
+
+<span class="sd">What we do here, we construct a graph of all possible permutations connected using edges that represent a node</span>
+<span class="sd">that should be added to create a new permutation:</span>
+
+<span class="sd">.. code-block:: yaml</span>
+
+<span class="sd">   |-------------------------------</span>
+<span class="sd">   |                              |</span>
+<span class="sd">  T1           T2           T3    |</span>
+<span class="sd">    \         /  \         / \    |</span>
+<span class="sd">     \       /    \       /   \   |</span>
+<span class="sd">      \     /      \     /     \  v</span>
+<span class="sd">       T1,T2*       T2,T3      T1,T3</span>
+<span class="sd">          \         /           /</span>
+<span class="sd">           \       /           /</span>
+<span class="sd">            T1,T2,T3*  &lt;-------</span>
+
+<span class="sd">For nodes ``T1,T2,T3`` and ``T1,T2`` we assign a fallback as configured. This graph is then serialized into the Python</span>
+<span class="sd">configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.</span>
+
+<span class="sd">Note we are creating sparse tree - only for nodes that are listed in failures.</span>
+
+<span class="sd">Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with</span>
+<span class="sd">Python code generation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
 
@@ -118,30 +125,51 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">fallback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: fallback of a failure node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback</span>
 
     <span class="nd">@fallback</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">fallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fallback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param fallback: fallback for a failure node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fallback</span> <span class="o">=</span> <span class="n">fallback</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">traversed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: traversed tasks/nodes in failure node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_traversed</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: next dict to a failure node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">failure_link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: failure link</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_failure_link</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: flow to which the failure node corresponds</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow</span>
 
     <span class="nd">@failure_link</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">failure_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">failure_link</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param failure_link: set failure link</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_failure_link</span> <span class="o">=</span> <span class="n">failure_link</span>
 
 <div class="viewcode-block" id="FailureNode.to"><a class="viewcode-back" href="../../api/parsley.failureNode.html#parsley.failureNode.FailureNode.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
