@@ -23,7 +23,7 @@ clean:
 doc:
 	@sphinx-apidoc -e -o docs.source/api parsley -f
 	@make -f Makefile.docs docs html
-	@echo "Documentation available at 'docs/build/html/index.html'"
+	@echo "Documentation available at 'docs/index.html'"
 
 docs: doc
 html: doc
