@@ -23,7 +23,7 @@ having two failure conditions:
 
 .. code-block:: yaml
 
-  failure:
+  failures:
     - nodes:
           - Task1
           - Task2
