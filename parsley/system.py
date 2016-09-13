@@ -205,7 +205,8 @@ class System(object):
         for flow in self._flows:
             for edge in flow.edges:
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
-        output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
+        if predicates:
+            output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
 
         for task in self._tasks:
             output.write("from {} import {}\n".format(task.import_path, task.class_name))
