@@ -242,61 +242,24 @@ class System(object):
                 printed = True
         output.write('\n}\n\n')
 
-    def _dump_propagate_finished(self, output):
+    def _dump_dict(self, output, dict_name, dict_items):
         """
         Dump propagate_finished flag configuration to a stream
 
         :param output: a stream to write to
         """
-        output.write('propagate_finished = {')
+        output.write('%s = {' % dict_name)
         printed = False
-        for flow in self._flows:
-            if printed:
-                output.write(",")
-            if isinstance(flow.propagate_finished, list):
-                string = [f.name for f in flow.propagate_finished]
-            else:
-                string = str(flow.propagate_finished)
-            output.write("\n    '%s': %s" % (flow.name, string))
-            printed = True
-        output.write('\n}\n\n')
-
-    def _dump_propagate_node_args(self, output):
-        """
-        Dump propagate_node_args flag configuration to a stream
-
-        :param output: a stream to write to
-        """
-        output.write('propagate_node_args = {')
-        printed = False
-        for flow in self._flows:
-            if printed:
-                output.write(",")
-            if isinstance(flow.propagate_node_args, list):
-                string = [f.name for f in flow.propagate_node_args]
-            else:
-                string = str(flow.propagate_node_args)
-            output.write("\n    '%s': %s" % (flow.name, string))
-            printed = True
-        output.write('\n}\n\n')
-
-    def _dump_propagate_parent(self, output):
-        """
-        Dump propagate_parent flag configuration to a stream
-
-        :param output: a stream to write to
-        """
-        output.write('propagate_parent = {')
-        printed = False
-        for flow in self._flows:
-            if printed:
-                output.write(",")
-            if isinstance(flow.propagate_parent, list):
-                string = [f.name for f in flow.propagate_parent]
-            else:
-                string = str(flow.propagate_parent)
-            output.write("\n    '%s': %s" % (flow.name, string))
-            printed = True
+        for item in dict_items:
+            for key, value in item.items():
+                if printed:
+                    output.write(",")
+                if isinstance(value, list):
+                    string = [item.name for item in value]
+                else:
+                    string = str(value)
+                output.write("\n    '%s': %s" % (key, string))
+                printed = True
         output.write('\n}\n\n')
 
     def _dump_task_classes(self, output):
@@ -515,9 +478,11 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')
-        self._dump_propagate_finished(f)
-        self._dump_propagate_node_args(f)
-        self._dump_propagate_parent(f)
+        self._dump_dict(f, 'propagate_node_args', [{f.name: f.propagate_node_args} for f in self.flows])
+        self._dump_dict(f, 'propagate_finished', [{f.name: f.propagate_finished} for f in self.flows])
+        self._dump_dict(f, 'propagate_parent', [{f.name: f.propagate_parent} for f in self.flows])
+        self._dump_dict(f, 'propagate_compound_finished', [{f.name: f.propagate_compound_finished} for f in self.flows])
+        self._dump_dict(f, 'propagate_compound_parent', [{f.name: f.propagate_compound_parent} for f in self.flows])
         f.write('#'*80+'\n\n')
         self._dump_max_retry(f)
         self._dump_retry_countdown(f)
@@ -699,6 +664,7 @@ class System(object):
         # We want to check that if we depend on a node, that node is being started at least once in the flow
         # This also covers check for starting node definition
         for flow in self._flows:
+            # TODO: we should make this more transparent by placing it to separate functions
             try:
                 all_source_nodes = flow.all_source_nodes()
                 all_destination_nodes = flow.all_destination_nodes()
@@ -730,12 +696,56 @@ class System(object):
                         raise ValueError("Node '%s' marked as 'nowait' but dependency in the flow found"
                                          % nowait_node.name)
 
-                if flow.propagate_finished and isinstance(flow.propagate_finished, list):
+                if isinstance(flow.propagate_finished, list):
                     for node in flow.propagate_finished:
                         if node not in all_source_nodes:
                             raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
                                              "in flow '%s' to which should be parent nodes propagated"
                                              % (node.name, flow.name))
+
+                if isinstance(flow.propagate_compound_finished, list):
+                    for node in flow.propagate_compound_finished:
+                        if node not in all_source_nodes:
+                            raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
+                                             "in flow '%s' to which should be parent nodes propagated"
+                                             % (node.name, flow.name))
+
+                if isinstance(flow.propagate_parent, list):
+                    for node in flow.propagate_parent:
+                        if node not in all_source_nodes:
+                            raise ValueError("Subflow '%s' should receive parent, but there is no dependency "
+                                             "in flow '%s' to which should be parent nodes propagated"
+                                             % (node.name, flow.name))
+
+                if isinstance(flow.propagate_compound_parent, list):
+                    for node in flow.propagate_compound_parent:
+                        if node not in all_source_nodes:
+                            raise ValueError("Subflow '%s' should receive parent, but there is no dependency "
+                                             "in flow '%s' to which should be parent nodes propagated"
+                                             % (node.name, flow.name))
+
+                if isinstance(flow.propagate_finished, list) and isinstance(flow.propagate_compound_finished, list):
+                    for node in flow.propagate_finished:
+                        if node in flow.propagate_compound_finished:
+                            raise ValueError("Cannot mark node '%s' for propagate_finished and "
+                                             "propagate_compound_finished at the same time in flow '%s'"
+                                             % (node.name, flow.name))
+
+                if isinstance(flow.propagate_parent, list) and isinstance(flow.propagate_compound_parent, list):
+                    for node in flow.propagate_parent:
+                        if node in flow.propagate_compound_parent:
+                            raise ValueError("Cannot mark node '%s' for propagate_parent and propagate_compound_parent "
+                                             "at the same time in flow '%s'" % (node.name, flow.name))
+
+                if isinstance(flow.propagate_parent, list) and flow.propagate_compound_parent is True or \
+                        flow.propagate_parent is True and isinstance(flow.propagate_compound_parent, list):
+                    raise ValueError("Misleading configuration of propagate_parent and "
+                                     "propagate_compound_parent for flow '%s'" % flow.name)
+
+                if isinstance(flow.propagate_finished, list) and flow.propagate_compound_finished is True or \
+                        flow.propagate_finished is True and isinstance(flow.propagate_compound_finished, list):
+                    raise ValueError("Misleading configuration of propagate_finished and "
+                                     "propagate_compound_finished for flow '%s'" % flow.name)
 
                 not_started = list(set(all_source_nodes) - set(all_destination_nodes))
 
@@ -753,82 +763,33 @@ class System(object):
                 raise
 
     @staticmethod
-    def _set_propagate_finished(system, flow, flow_def):
-        """
-        Parse propagate_finished flag and adjust flow accordingly
-
-        :param system: system that is used
-        :param flow: flow for which flag is configured
-        :param flow_def: flow definition
-        """
-        if 'propagate_finished' in flow_def and flow_def['propagate_finished'] is not None:
-            if not isinstance(flow_def['propagate_finished'], list) and \
-                    not isinstance(flow_def['propagate_finished'], bool):
-                flow_def['propagate_finished'] = [flow_def['propagate_finished']]
-
-            if isinstance(flow_def['propagate_finished'], list):
-                flow.propagate_finished = []
-                for node_name in flow_def['propagate_finished']:
-                    node = system.flow_by_name(node_name)
-                    flow.propagate_finished.append(node)
-            elif isinstance(flow_def['propagate_finished'], bool):
-                flow.propagate_finished = flow_def['propagate_finished']
-            else:
-                raise ValueError("Unknown value in 'propagate_finished' in flow %s" % flow.name)
-        else:
-            flow.propagate_finished = False
-
-    @staticmethod
-    def _set_propagate_node_args(system, flow, flow_def):
+    def _set_propagate(system, flow_name, flow_def, propagate_type):
         """
         Parse propagate_node_args flag and adjust flow accordingly
 
         :param system: system that is used
-        :param flow: flow for which flag is configured
+        :param flow_name: flow name for which flag is configured
         :param flow_def: flow definition
+        :param propagate_type: propagate flag type
         """
-        if 'propagate_node_args' in flow_def and flow_def['propagate_node_args'] is not None:
-            if not isinstance(flow_def['propagate_node_args'], list) and \
-                    not isinstance(flow_def['propagate_node_args'], bool):
-                flow_def['propagate_node_args'] = [flow_def['propagate_node_args']]
+        ret = False
 
-            if isinstance(flow_def['propagate_node_args'], list):
-                flow.propagate_node_args = []
-                for node_name in flow_def['propagate_node_args']:
+        if propagate_type in flow_def and flow_def[propagate_type] is not None:
+            if not isinstance(flow_def[propagate_type], list) and \
+                    not isinstance(flow_def[propagate_type], bool):
+                flow_def[propagate_type] = [flow_def[propagate_type]]
+
+            if isinstance(flow_def[propagate_type], list):
+                ret = []
+                for node_name in flow_def[propagate_type]:
                     node = system.flow_by_name(node_name)
-                    flow.propagate_node_args.append(node)
-            elif isinstance(flow_def['propagate_node_args'], bool):
-                flow.propagate_node_args = flow_def['propagate_node_args']
+                    ret.append(node)
+            elif isinstance(flow_def[propagate_type], bool):
+                ret = flow_def[propagate_type]
             else:
-                raise ValueError("Unknown value in 'propagate_node_args' in flow %s" % flow.name)
-        else:
-            flow.propagate_node_args = False
+                raise ValueError("Unknown value in '%s' in flow %s" % (flow_name, propagate_type))
 
-    @staticmethod
-    def _set_propagate_parent(system, flow, flow_def):
-        """
-        Parse propagate_parent flag and adjust flow accordingly
-
-        :param system: system that is used
-        :param flow: flow for which flag is configured
-        :param flow_def: flow definition
-        """
-        if 'propagate_parent' in flow_def and flow_def['propagate_parent'] is not None:
-            if not isinstance(flow_def['propagate_parent'], list) and \
-                    not isinstance(flow_def['propagate_parent'], bool):
-                flow_def['propagate_parent'] = [flow_def['propagate_parent']]
-
-            if isinstance(flow_def['propagate_parent'], list):
-                flow.propagate_parent = []
-                for node_name in flow_def['propagate_parent']:
-                    node = system.flow_by_name(node_name)
-                    flow.propagate_parent.append(node)
-            elif isinstance(flow_def['propagate_parent'], bool):
-                flow.propagate_parent = flow_def['propagate_parent']
-            else:
-                raise ValueError("Unknown value in 'propagate_parent' in flow %s" % flow.name)
-        else:
-            flow.propagate_parent = False
+        return ret
 
     @staticmethod
     def from_files(nodes_definition_file, flow_definition_files, no_check=False):
@@ -909,9 +870,13 @@ class System(object):
                         node = system.node_by_name(node_name)
                         flow.add_nowait_node(node)
 
-                System._set_propagate_finished(system, flow, flow_def)
-                System._set_propagate_node_args(system, flow, flow_def)
-                System._set_propagate_parent(system, flow, flow_def)
+                flow.propagate_node_args = System._set_propagate(system, flow.name, flow_def, 'propagate_node_args')
+                flow.propagate_finished = System._set_propagate(system, flow.name, flow_def, 'propagate_finished')
+                flow.propagate_parent = System._set_propagate(system, flow.name, flow_def, 'propagate_parent')
+                flow.propagate_compound_finished = System._set_propagate(system, flow.name, flow_def,
+                                                                         'propagate_compound_finished')
+                flow.propagate_compound_parent = System._set_propagate(system, flow.name, flow_def,
+                                                                       'propagate_compound_parent')
 
         system._post_parse_check()
         if not no_check:

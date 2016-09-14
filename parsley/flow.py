@@ -43,9 +43,11 @@ class Flow(Node):
         self._failures = failures if failures else None
         self._nowait_nodes = nowait_nodes if nowait_nodes else []
 
-        self._propagate_finished = None
-        self._propagate_node_args = None
-        self._propagate_parent = None
+        self.propagate_node_args = False
+        self.propagate_finished = False
+        self.propagate_parent = False
+        self.propagate_compound_finished = False
+        self.propagate_compound_parent = False
 
     @staticmethod
     def from_dict(d):
@@ -91,48 +93,6 @@ class Flow(Node):
         :param node: add a node that should be marked with nowait flag
         """
         self._nowait_nodes.append(node)
-
-    @property
-    def propagate_finished(self):
-        """
-        :return: subflows from which should be propagated finished nodes
-        """
-        return self._propagate_finished
-
-    @propagate_finished.setter
-    def propagate_finished(self, nodes):
-        """
-        :param nodes: set nodes (subflows) which should be used to propagate finished
-        """
-        self._propagate_finished = nodes
-
-    @property
-    def propagate_node_args(self):
-        """
-        :return: nodes to which should be propagated node arguments
-        """
-        return self._propagate_node_args
-
-    @propagate_node_args.setter
-    def propagate_node_args(self, nodes):
-        """
-        :param nodes: set nodes (subflows) to which should be propagated node arguments
-        """
-        self._propagate_node_args = nodes
-
-    @property
-    def propagate_parent(self):
-        """
-        :return: flows to which should be propagated parent nodes
-        """
-        return self._propagate_parent
-
-    @propagate_parent.setter
-    def propagate_parent(self, nodes):
-        """
-        :param nodes: set flows to which shoule be propagated parent nodes
-        """
-        self._propagate_parent = nodes
 
     def all_nodes_from(self):
         """
