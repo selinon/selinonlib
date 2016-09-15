@@ -41,6 +41,9 @@ def linear_increase(start_retry, max_retry, step,
     :param max_retry: upper limit of scheduling
     :param step: step to use in linear increase
     """
+    if len(active_nodes) == 0:
+        return None
+
     if len(new_started_nodes) > 0 or len(new_fallback_nodes) > 0:
         retry = previous_retry + step
         if retry > max_retry:
@@ -60,6 +63,9 @@ def linear_adopt(start_retry, max_retry, step,
     :param max_retry: upper limit of scheduling
     :param step: step to use in linear increase
     """
+    if len(active_nodes) == 0:
+        return None
+
     if len(new_started_nodes) > 0 or len(new_fallback_nodes) > 0:
         retry = previous_retry + step
         if retry > max_retry:
@@ -85,6 +91,9 @@ def biexponential_increase(start_retry, max_retry,
     if previous_retry is None:
         return start_retry
 
+    if len(active_nodes) == 0:
+        return None
+
     if len(new_started_nodes) > 0 or len(new_fallback_nodes) > 0:
         retry = previous_retry * 2
         if retry > max_retry:
@@ -106,6 +115,9 @@ def biexponential_adopt(start_retry, max_retry,
     if previous_retry is None:
         return start_retry
 
+    if len(active_nodes) == 0:
+        return None
+
     if len(new_started_nodes) > 0 or len(new_fallback_nodes) > 0:
         retry = previous_retry * 2
         if retry > max_retry:
@@ -126,6 +138,9 @@ def random(start_retry, max_retry, previous_retry, active_nodes, failed_nodes, n
     :param start_retry: lower limit of scheduling
     :param max_retry: upper limit of scheduling
     """
+    if len(active_nodes) == 0:
+        return None
+
     return gen_random(start_retry, max_retry)
 
 
