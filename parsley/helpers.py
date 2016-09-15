@@ -19,9 +19,10 @@
 # ####################################################################
 
 import os
-import re
+import sys
+import ast
 import json
-import abc
+from dill.source import getsource
 from contextlib import contextmanager
 
 
@@ -95,3 +96,28 @@ def dict2json(o, pretty=True):
         return json.dumps(o, sort_keys=True, separators=(',', ': '), indent = 2)
     else:
         return json.dumps(o)
+
+
+def get_function_arguments(function):
+    """
+    Get arguments of function
+
+    :param function: function to parse arguments
+    :return: list of arguments that predicate function expects
+    """
+    ret = []
+
+    func_source = getsource(function)
+    func_ast = ast.parse(func_source)
+    call = func_ast.body[0]
+
+    for arg in call.args.args:
+        # Python2 and Python3 have different AST representations for arg, this can be removed since we support
+        # only python3
+        if sys.version_info[0] == 2:
+            ret.append(arg.id)
+        else:
+            ret.append(arg.arg)
+
+    return ret
+

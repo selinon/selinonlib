@@ -19,11 +19,9 @@
 # ####################################################################
 
 import ast
-import sys
 import importlib
-from dill.source import getsource
 from .predicate import Predicate
-from .helpers import dict2strkwargs
+from .helpers import dict2strkwargs, get_function_arguments
 from .logger import Logger
 from .globalConfig import GlobalConfig
 
@@ -45,7 +43,7 @@ class LeafPredicate(Predicate):
         self._node = node
         self._args = args if args is not None else {}
         self._flow = flow
-        self._func_args = self._get_arguments()
+        self._func_args = get_function_arguments(self._func)
 
     def requires_message(self):
         """
@@ -59,32 +57,13 @@ class LeafPredicate(Predicate):
         """
         return 'node_args' in self._func_args
 
-    def _get_arguments(self):
-        """
-        :return: list of arguments that predicate function expects
-        """
-        ret = []
-
-        func_source = getsource(self._func)
-        func_ast = ast.parse(func_source)
-        call = func_ast.body[0]
-
-        for arg in call.args.args:
-            # Python2 and Python3 have different AST representations for arg
-            if sys.version_info[0] == 2:
-                ret.append(arg.id)
-            else:
-                ret.append(arg.arg)
-
-        return ret
-
     def _check_parameters(self):
         """
         Check user defined predicate parameters against predicate parameters
 
         :raises: ValueError
         """
-        func_args = self._get_arguments()
+        func_args = get_function_arguments(self._func)
         user_args = self._args.keys()
 
         if 'message' in func_args:
