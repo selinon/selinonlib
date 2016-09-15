@@ -20,6 +20,7 @@
 
 from .node import Node
 from .logger import Logger
+from .globalConfig import GlobalConfig
 
 _logger = Logger.get_logger(__name__)
 
@@ -32,7 +33,7 @@ class Task(Node):
     A task representation within the system
     """
     def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None, retry_countdown=None,
-                 time_limit=None, output_schema=None, task_class=None):
+                 time_limit=None, version=None, output_schema=None, task_class=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
@@ -42,6 +43,7 @@ class Task(Node):
         :param retry_countdown: countdown in seconds to retry task in case of failure
         :param time_limit: configured time limit for task run
         :param output_schema: task result output schema
+        :param version: version of task
         :param task_class: class of the task
         """
         if not isinstance(import_path, str):
@@ -68,6 +70,9 @@ class Task(Node):
             raise ValueError("Error in task '%s' definition - retr_countdown should be None or positive integer;"
                              " got '%s'" % (name, retry_countdown))
 
+        if version is not None and (not isinstance(version, int) or version < 0):
+            raise ValueError("Invalid task version, should be non-negative integer, got %s" % version)
+
         super(Task, self).__init__(name)
         self._import_path = import_path
         self._max_retry = max_retry
@@ -77,6 +82,7 @@ class Task(Node):
         self._storage = storage
         self._output_schema = output_schema
         self._task_class = task_class
+        self.version = version or GlobalConfig.default_task_version
         # register task usage
         if storage:
             storage.register_task(self)
@@ -145,6 +151,13 @@ class Task(Node):
         """
         self._task_class = task_class
 
+    @property
+    def queue_name(self):
+        """
+        :return: a name of queue that will be used for task messages
+        """
+        return "queue_%s_v%s" % (self.name, self.version)
+
     @staticmethod
     def from_dict(d, system):
         """
@@ -165,5 +178,5 @@ class Task(Node):
         else:
             storage = None
         return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY),
-                    d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit'),
+                    d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit'), d.get('version'),
                     d.get('output_schema'))

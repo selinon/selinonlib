@@ -95,3 +95,10 @@ class Storage(object):
             raise KeyError('Storage configuration definition is mandatory')
 
         return Storage(d['name'], d['import'], d['configuration'], d.get('classname'))
+
+    @property
+    def var_name(self):
+        """
+        return: name of storage variable that will be used in config.py file
+        """
+        return "_storage_%s" % self.name

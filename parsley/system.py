@@ -146,6 +146,24 @@ class System(object):
             raise KeyError("Task with name {} not found in the system".format(name))
         return None
 
+    def task_queue_names(self):
+        """
+        :return: corresponding mapping from task name to task queue
+        """
+        ret = {}
+
+        for task in self._tasks:
+            ret[task.name] = task.queue_name
+
+        return ret
+
+    def dispatcher_queue_name(self):
+        """
+        :return: dispatcher queue name
+        """
+        # leave this as method (no static/class), so we know that system is instantiated
+        return 'queue_celeriac_dispatcher_v%s' % GlobalConfig.config_version
+
     def flow_by_name(self, name, graceful=False):
         """
         Find a flow by its name
@@ -215,6 +233,10 @@ class System(object):
             if len(storage.tasks) > 0:
                 output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
 
+        # we need partial for strategy function and for using storage as trace destination
+        output.write("\nimport functools\n")
+        output.write("from {} import {} as _strategy_function\n".format(GlobalConfig.strategy_module,
+                                                                        GlobalConfig.strategy_function))
         output.write('\n\n')
 
     def _dump_is_flow(self, output):
@@ -277,6 +299,18 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
+    def _dump_queues(self, output):
+        output.write('queues = {')
+        printed = False
+        for task in self._tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': '%s'" % (task.name, task.queue_name))
+            printed = True
+        output.write('\n}\n\n')
+
+        output.write("dispatcher_queue = '%s'\n\n" % self.dispatcher_queue_name())
+
     @staticmethod
     def _dump_get_task_instance(output):
         """
@@ -299,8 +333,7 @@ class System(object):
         storage_var_names = []
         for storage in self._storages:
             if len(storage.tasks) > 0:
-                storage_var_name = "_storage_%s" % storage.name
-                output.write("%s = %s" % (storage_var_name, storage.class_name))
+                output.write("%s = %s" % (storage.var_name, storage.class_name))
                 if storage.configuration and isinstance(storage.configuration, dict):
                     output.write("(%s)\n" % dict2strkwargs(storage.configuration))
                 elif storage.configuration:
@@ -308,7 +341,7 @@ class System(object):
                 else:
                     output.write("()\n")
 
-                storage_var_names.append((storage.name, storage_var_name,))
+                storage_var_names.append((storage.name, storage.var_name,))
 
         output.write('storage2instance_mapping = {\n')
         printed = False
@@ -335,6 +368,17 @@ class System(object):
                 output.write("    '%s': '%s'" % (task.name, storage.name))
                 printed = True
         output.write("\n}\n\n")
+
+    @staticmethod
+    def _dump_strategy_func(output):
+        """
+        Dump scheduling strategy function to a stream
+
+        :param output: a stream to write to
+        """
+        # functools is imported in self._dump_imports() so it is safe to use
+        output.write('strategy_function = functools.partial(_strategy_function, %s)\n\n'
+                     % dict2strkwargs(GlobalConfig.strategy_func_args))
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
@@ -431,8 +475,10 @@ class System(object):
         :param output: a stream to write to
         :return:
         """
-        output.write('def init():\n')
-        output.write('    pass\n')
+        output.write('def init(config_cls):\n')
+        GlobalConfig.dump_trace(output, 'config_cls', indent_count=1)
+        # always pass in case we have nothing to init
+        output.write('    return\n')
         output.write('\n')
 
     def _dump_edge_table(self, output):
@@ -469,12 +515,15 @@ class System(object):
                                                                             str(datetime.utcnow())))
         self._dump_imports(f)
         self._dump_task_classes(f)
+        self._dump_queues(f)
         self._dump_get_task_instance(f)
         f.write('#'*80+'\n\n')
         self._dump_task2storage_mapping(f)
         self._dump_storage2instance_mapping(f)
         f.write('#'*80+'\n\n')
         self._dump_is_flow(f)
+        f.write('#'*80+'\n\n')
+        self._dump_strategy_func(f)
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')
@@ -758,6 +807,10 @@ class System(object):
 
                 if error:
                     raise ValueError("Dependency on not started node detected in flow '%s'" % flow.name)
+
+                if self.dispatcher_queue_name() in self.task_queue_names().keys():
+                    raise ValueError("Detected collision in queue names - dispatcher queue name %s, "
+                                     "task queue names: %s" % (self.dispatcher_queue_name(), self.task_queue_names()))
             except:
                 _logger.error("Check of flow '%s' failed" % flow.name)
                 raise
@@ -817,7 +870,7 @@ class System(object):
             system.add_storage(storage)
 
         if 'global' in content:
-            GlobalConfig.from_dict(content['global'])
+            GlobalConfig.from_dict(system, content['global'])
 
         if 'tasks' not in content or content['tasks'] is None:
             raise ValueError("No tasks defined in the system")
