@@ -44,6 +44,10 @@ def main():
                         help='construct an image of the system')
     parser.add_argument('-graph-format', dest='graph_format', action='store', metavar='FORMAT', default='svg',
                         help='format of the output image for -graph')
+    parser.add_argument('-list-task-queues', dest='list_task_queues', action='store_true',
+                        help='list all task queues to stdout')
+    parser.add_argument('-list-dispatcher-queue', dest='list_dispatcher_queue', action='store_true',
+                        help='list dispatcher queue to stdout')
 
     args = parser.parse_args()
 
@@ -56,8 +60,18 @@ def main():
     if args.dump:
         system.dump2file(args.dump)
         some_work = True
-    elif args.graph:
+
+    if args.graph:
         system.plot_graph(args.graph, args.graph_format)
+        some_work = True
+
+    if args.list_task_queues:
+        for queue_name in system.task_queue_names().values():
+            print(queue_name)
+            some_work = True
+
+    if args.list_dispatcher_queue:
+        print(system.dispatcher_queue_name())
         some_work = True
 
     if not some_work:
