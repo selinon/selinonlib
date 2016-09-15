@@ -21,7 +21,7 @@
 import importlib
 from .helpers import get_function_arguments
 
-_EXPECTED_STRATEGY_FUNC_ARGS = {'previous_retry', 'active_count', 'failed_count', 'started_count', 'fallback_count'}
+_EXPECTED_STRATEGY_FUNC_ARGS = {'previous_retry', 'active_nodes', 'failed_nodes', 'started_nodes', 'fallback_nodes'}
 _DEFAULT_CONFIG_VERSION = 0
 _DEFAULT_TASK_VERSION = 0
 
