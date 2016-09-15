@@ -300,7 +300,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_queues(self, output):
-        output.write('queues = {')
+        output.write('task_queues = {')
         printed = False
         for task in self._tasks:
             if printed:
