@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from selinonlib import selinonlib_version
 from setuptools import setup, find_packages
 
 # Note: We are not distributing examples/ for now
@@ -13,7 +12,7 @@ def get_requirements():
 
 setup(
     name='selinonlib',
-    version=selinonlib_version,
+    version='0.1.0rc1',
     packages=find_packages(),
     scripts=['selinonlib-cli'],
     install_requires=get_requirements(),
