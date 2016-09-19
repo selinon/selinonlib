@@ -12,7 +12,7 @@ def get_requirements():
 
 setup(
     name='selinonlib',
-    version='0.1.0rc1',
+    version='0.1.0rc2',
     packages=find_packages(),
     scripts=['selinonlib-cli'],
     install_requires=get_requirements(),
