@@ -3,7 +3,7 @@
     #   ./parsley-cli.py -tasks-definition examples/example.yml -flow-definition examples/example.yml -graph ./ -v -v -v
     # you should have following files in your directory
     #   flow1.svg, flow2.svg, flow3.svg
-    # In order to generate Python code for Celeriac to example.py, run:
+    # In order to generate Python code for Selinon to example.py, run:
     #   ./parsley-cli.py -tasks-definition examples/example.yml -flow-definition examples/example.yml -dump example.py -v -v -v
     #
     # Definition of tasks. For each task you have to provide name and the import that should be used in order to
@@ -33,7 +33,7 @@
           # You can specify a path to a JSON schema if you want to verify task results. If the task result does not
           # conform to this schema an exception is raised and the worker fails once max_retry is reached.
           output_schema: "path/to/output/schema.json"
-          # You can specify Celery's time_limit that will be set by Celeriac for the task. Keep in mind that
+          # You can specify Celery's time_limit that will be set by Selinon for the task. Keep in mind that
           # this limit is applicable on task class level - so if you create multiple tasks of the same type, they must
           # obey same time_limit. If not set, it defaults to 3600.
           time_limit: 3600
@@ -58,8 +58,8 @@
     # to provide a definition of a storage that should be used with all the details how to connect to it. Each storage
     # is named and you can use this name to refer to the particular storage in tasks definition. Fields 'import' and
     # 'classname' have similar meaning as in case of tasks definition - Python's import path and class name (which
-    # defaults to name field if not provided explicitly). The implementation of storage has to conform to Celeriac's
-    # DataStorage, so configuration is specific to your implementation of Celeriac's DataStorage (see Celeriac for
+    # defaults to name field if not provided explicitly). The implementation of storage has to conform to Selinon's
+    # DataStorage, so configuration is specific to your implementation of Selinon's DataStorage (see Selinon for
     # more info).
     storages:
         - name: "storage1"
@@ -120,7 +120,7 @@
                 from:
                 condition:
                     name: "alwaysTrue"
-            # Note that if we do not provides 'args' argument in Celeriac, the result of Task1 will be propagated as
+            # Note that if we do not provides 'args' argument in Selinon, the result of Task1 will be propagated as
             # an argument to Task2.
 
         - name: "flow2"

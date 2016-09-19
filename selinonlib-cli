@@ -27,7 +27,7 @@ from selinonlib import Config
 
 def main():
     parser = argparse.ArgumentParser('selinonlib',
-                                     description='YAML configuration file parser for Celeriac; v%s' % version)
+                                     description='YAML configuration file parser for Selinon; v%s' % version)
     parser.add_argument('-config', dest='config', action='store', metavar='CONFIG.yml',
                         help='path to configuration file')
     parser.add_argument('-nodes-definition', dest='nodes', action='store', metavar='NODES.yml',

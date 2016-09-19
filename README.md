@@ -1,6 +1,6 @@
 # Selinonlib
 
-A simple tool to visualize, check dependencies and generate Python code for [Celeriac](https://github.com/fridex/celeriac).
+A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/fridex/selinon).
 
 ## The Idea
 
@@ -35,11 +35,11 @@ or see *A Quick First Touch* section to use directly git repo.
 
 ### Why is this tool useful?
 
-See [Celeriac](https://github.com/fridex/celeriac) dispatcher for usage examples. This tool is intended to automatically generate Python code from a YAML configuration file, perform additional consistency checks or plot flow graphs.
+See [Selinon](https://github.com/fridex/selinon) dispatcher for usage examples. This tool is intended to automatically generate Python code from a YAML configuration file, perform additional consistency checks or plot flow graphs.
 
 ### I'm getting warning: "Multiple starting nodes found in a flow". Why?
 
-In order to propagate arguments to a flow, you should start flow with one single task (e.g. init task) which result is then propagated as an argument to each direct child tasks or transitive child tasks. This avoids various inconsistency errors and race conditions. If you define multiple starting nodes, arguments are not propagated from the first task. If you don't want to propagate arguments from an init task, you can ignore this warning for a certain flow or specify arguments explicitly in Celeriac dispatcher.
+In order to propagate arguments to a flow, you should start flow with one single task (e.g. init task) which result is then propagated as an argument to each direct child tasks or transitive child tasks. This avoids various inconsistency errors and race conditions. If you define multiple starting nodes, arguments are not propagated from the first task. If you don't want to propagate arguments from an init task, you can ignore this warning for a certain flow or specify arguments explicitly in Selinon dispatcher.
 
 ### How should I name tasks and flows?
 
@@ -61,7 +61,7 @@ condition:
 
 ### What exceptions can predicates raise?
 
-Predicates were designed to return *always* True/False. If a condition cannot be satisfied, there is returned False. So it is safe for example to access possibly non-existing keys - predicates will return False. But there can be raised exceptions if there is problem with a database - see [https://github.com/fridex/celeriac](Celeriac)'s DBAdapter.
+Predicates were designed to return *always* True/False. If a condition cannot be satisfied, there is returned False. So it is safe for example to access possibly non-existing keys - predicates will return False. But there can be raised exceptions if there is problem with a database - see [https://github.com/fridex/selinon](Selinon)'s DBAdapter.
 
 
 ## A Quick First Touch
@@ -88,7 +88,7 @@ Plot graphs of flows:
 $ ./selinonlib-cli -tasks-definition exampes/example.yml -flow-definition examples/example.yml -verbose -graph ${PWD} && xdg-open flow1.svg
 ```
 
-Generate Python code configuration for Celeriac:
+Generate Python code configuration for Selinon:
 ```
 $ ./selinonlib-cli -tasks example/example.yaml -flow examples/examples.yaml -v -dump dump.py && cat dump.py
 ```

@@ -135,7 +135,7 @@ class LeafPredicate(Predicate):
         :return: AST representation of predicate
         """
         # we could directly use db[task] in predicates, but predicates should not handle database errors,
-        # so leave them on higher level (celeriac) and index database before predicate is being called
+        # so leave them on higher level (selinon) and index database before predicate is being called
 
         kwargs = []
         # we want to avoid querying to database if possible, if a predicate does not require message, do not ask for it
