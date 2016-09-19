@@ -66,12 +66,12 @@ def main():
         some_work = True
 
     if args.list_task_queues:
-        for queue_name in system.task_queue_names().values():
-            print(queue_name)
+        for task_name, queue_name in system.task_queue_names().items():
+            print("%s:%s" % (task_name, queue_name))
             some_work = True
 
     if args.list_dispatcher_queue:
-        print(system.dispatcher_queue_name())
+        print("%s:%s" % ('dispatcher', system.dispatcher_queue_name()))
         some_work = True
 
     if not some_work:

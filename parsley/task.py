@@ -33,7 +33,7 @@ class Task(Node):
     A task representation within the system
     """
     def __init__(self, name, import_path, class_name=None, storage=None, max_retry=None, retry_countdown=None,
-                 time_limit=None, version=None, output_schema=None, task_class=None):
+                 time_limit=None, queue=None, output_schema=None, task_class=None):
         """
         :param name: name of the task
         :param import_path: tasks's import
@@ -43,7 +43,7 @@ class Task(Node):
         :param retry_countdown: countdown in seconds to retry task in case of failure
         :param time_limit: configured time limit for task run
         :param output_schema: task result output schema
-        :param version: version of task
+        :param queue: task queue
         :param task_class: class of the task
         """
         if not isinstance(import_path, str):
@@ -70,8 +70,8 @@ class Task(Node):
             raise ValueError("Error in task '%s' definition - retr_countdown should be None or positive integer;"
                              " got '%s'" % (name, retry_countdown))
 
-        if version is not None and (not isinstance(version, int) or version < 0):
-            raise ValueError("Invalid task version, should be non-negative integer, got %s" % version)
+        if queue is not None and not isinstance(queue, str):
+            raise ValueError("Invalid task queue, should be string, got %s" % queue)
 
         super(Task, self).__init__(name)
         self.import_path = import_path
@@ -82,19 +82,12 @@ class Task(Node):
         self.storage = storage
         self.output_schema = output_schema
         self.task_class = task_class
-        self.version = version or GlobalConfig.default_task_version
+        self.queue_name = queue or GlobalConfig.default_task_queue
         # register task usage
         if storage:
             storage.register_task(self)
         _logger.debug("Creating task with name '%s' import path '%s', class name '%s'"
                       % (self.name, self.import_path, self.class_name))
-
-    @property
-    def queue_name(self):
-        """
-        :return: a name of queue that will be used for task messages
-        """
-        return "queue_%s_v%s" % (self.name, self.version)
 
     @staticmethod
     def from_dict(d, system):
@@ -116,5 +109,5 @@ class Task(Node):
         else:
             storage = None
         return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY),
-                    d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit'), d.get('version'),
+                    d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit'), d.get('queue'),
                     d.get('output_schema'))

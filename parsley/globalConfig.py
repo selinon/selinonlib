@@ -23,8 +23,9 @@ from .helpers import get_function_arguments
 
 _EXPECTED_STRATEGY_FUNC_ARGS = {'previous_retry', 'active_nodes', 'failed_nodes',
                                 'new_started_nodes', 'new_fallback_nodes'}
-_DEFAULT_CONFIG_VERSION = 0
-_DEFAULT_TASK_VERSION = 0
+
+# Celery's default queue
+_DEFAULT_CELERY_QUEUE = 'celery'
 
 
 class GlobalConfig(object):
@@ -37,8 +38,8 @@ class GlobalConfig(object):
     strategy_function = 'biexponential_increase'
     strategy_func_args = {'start_retry': 2, 'max_retry': 120}
 
-    default_task_version = _DEFAULT_TASK_VERSION
-    config_version = _DEFAULT_CONFIG_VERSION
+    default_task_queue = _DEFAULT_CELERY_QUEUE
+    config_dispatcher_queue = _DEFAULT_CELERY_QUEUE
 
     _trace_logging = None
     _trace_import = None
@@ -161,5 +162,5 @@ class GlobalConfig(object):
         if 'trace' in d:
             cls._parse_trace(system, d['trace'])
 
-        cls.config_version = d.get('config_version', _DEFAULT_CONFIG_VERSION)
-        cls.default_task_version = d.get('default_task_version', _DEFAULT_TASK_VERSION)
+        cls.dispatcher_queue = d.get('dispatcher_queue', _DEFAULT_CELERY_QUEUE)
+        cls.default_task_queue = d.get('default_task_queue', _DEFAULT_CELERY_QUEUE)

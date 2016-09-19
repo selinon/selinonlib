@@ -146,7 +146,7 @@ class System(object):
         :return: dispatcher queue name
         """
         # leave this as method (no static/class), so we know that system is instantiated
-        return 'queue_celeriac_dispatcher_v%s' % GlobalConfig.config_version
+        return GlobalConfig.dispatcher_queue
 
     def flow_by_name(self, name, graceful=False):
         """
