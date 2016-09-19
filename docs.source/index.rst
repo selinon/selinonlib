@@ -1,5 +1,5 @@
 Welcome to Selinonlib's documentation!
-===================================
+======================================
 
 Selinonlib is a library and tool that is used in `Selinon <https://fridex.github.io/selinon>`_ - a tool for dynamic data control flow on top of Celery distributed task queue. See `Selinon documentation <https://fridex.github.io/selinon>`_ for more info. The project is hosted on `Github <https://github.com/fridex/selinonlib>`_.
 
