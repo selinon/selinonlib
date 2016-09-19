@@ -1,6 +1,6 @@
 # Selinonlib
 
-A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/fridex/selinon). You can find generated Sphinx documentation [here](https://fridex.github.io/selimonlib). Project is hosted on [Github](https://github.com/fridex/selimon).
+A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/fridex/selinon). You can find generated Sphinx documentation [here](https://fridex.github.io/selinonlib). Project is hosted on [Github](https://github.com/fridex/selinon).
 
 ## The Idea
 
