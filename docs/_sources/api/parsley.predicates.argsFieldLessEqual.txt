@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldLessEqual module
-============================================
-
-.. automodule:: parsley.predicates.argsFieldLessEqual
-    :members:
-    :undoc-members:
-    :show-inheritance:

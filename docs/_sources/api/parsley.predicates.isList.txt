@@ -1,7 +1,0 @@
-parsley.predicates.isList module
-================================
-
-.. automodule:: parsley.predicates.isList
-    :members:
-    :undoc-members:
-    :show-inheritance:

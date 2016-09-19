@@ -1,6 +1,6 @@
 *.pyc
 venv
 dist
-parsley.egg-info
+selinonlib.egg-info
 build
 docs.source/api

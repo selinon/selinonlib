@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>selinonlib.failureNode module &#8212; Selinonlib 0.1.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Selinonlib 0.1.0a1 documentation" href="../index.html" />
+    <link rel="up" title="selinonlib package" href="selinonlib.html" />
+    <link rel="next" title="selinonlib.failures module" href="selinonlib.failures.html" />
+    <link rel="prev" title="selinonlib.edge module" href="selinonlib.edge.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-selinonlib.failureNode">
+<span id="selinonlib-failurenode-module"></span><h1>selinonlib.failureNode module<a class="headerlink" href="#module-selinonlib.failureNode" title="Permalink to this headline">¶</a></h1>
+<p>A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider
+having two failure conditions:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">failures</span><span class="p p-Indicator">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nodes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task1</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task2</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task3</span>
+    <span class="l l-Scalar l-Scalar-Plain">fallback</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FallbackTask1</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nodes</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task1</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">Task2</span>
+    <span class="l l-Scalar l-Scalar-Plain">fallback</span><span class="p p-Indicator">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">FallbackTask2</span>
+</pre></div>
+</div>
+<p>What we do here, we construct a graph of all possible permutations connected using edges that represent a node
+that should be added to create a new permutation:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span> |-------------------------------
+ |                              |
+T1           T2           T3    |
+  \         /  \         / \    |
+   \       /    \       /   \   |
+    \     /      \     /     \  v
+     T1,T2*       T2,T3      T1,T3
+        \         /           /
+         \       /           /
+          T1,T2,T3*  &lt;-------
+</pre></div>
+</div>
+<p>For nodes <code class="docutils literal"><span class="pre">T1,T2,T3</span></code> and <code class="docutils literal"><span class="pre">T1,T2</span></code> we assign a fallback as configured. This graph is then serialized into the Python
+configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.</p>
+<p>Note we are creating sparse tree - only for nodes that are listed in failures.</p>
+<p>Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with
+Python code generation.</p>
+<dl class="class">
+<dt id="selinonlib.failureNode.FailureNode">
+<em class="property">class </em><code class="descclassname">selinonlib.failureNode.</code><code class="descname">FailureNode</code><span class="sig-paren">(</span><em>flow</em>, <em>traversed</em>, <em>failure_link</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/failureNode.html#FailureNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.failureNode.FailureNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A representation of a failure node permutation</p>
+<dl class="method">
+<dt id="selinonlib.failureNode.FailureNode.add_to">
+<code class="descname">add_to</code><span class="sig-paren">(</span><em>node_name</em>, <em>failure</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/failureNode.html#FailureNode.add_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.failureNode.FailureNode.add_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add failure for next permutation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>node_name</strong> &#8211; a node for next permutation</li>
+<li><strong>failure</strong> &#8211; FailureNode that should be added</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="selinonlib.failureNode.FailureNode.construct">
+<em class="property">classmethod </em><code class="descname">construct</code><span class="sig-paren">(</span><em>flow</em>, <em>failures</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/failureNode.html#FailureNode.construct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.failureNode.FailureNode.construct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct failures from failures dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>failures</strong> &#8211; failures dictionary</li>
+<li><strong>flow</strong> &#8211; flow to which failures conform to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a link for linked list of failures and a dict of starting failures</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.failureNode.FailureNode.has_to">
+<code class="descname">has_to</code><span class="sig-paren">(</span><em>node_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/failureNode.html#FailureNode.has_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.failureNode.FailureNode.has_to" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_name</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if there is a link to next permutation for node of name node_name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.failureNode.FailureNode.to">
+<code class="descname">to</code><span class="sig-paren">(</span><em>node_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/failureNode.html#FailureNode.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.failureNode.FailureNode.to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve next permutation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_name</strong> &#8211; a name of the node for next permutation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#selinonlib.failureNode.FailureNode" title="selinonlib.failureNode.FailureNode">FailureNode</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="selinonlib.html">selinonlib package</a><ul>
+      <li>Previous: <a href="selinonlib.edge.html" title="previous chapter">selinonlib.edge module</a></li>
+      <li>Next: <a href="selinonlib.failures.html" title="next chapter">selinonlib.failures module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/selinonlib.failureNode.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fridolin Pokorny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/api/selinonlib.failureNode.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/fridex/selinonlib" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

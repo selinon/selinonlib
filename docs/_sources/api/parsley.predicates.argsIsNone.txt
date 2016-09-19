@@ -1,7 +1,0 @@
-parsley.predicates.argsIsNone module
-====================================
-
-.. automodule:: parsley.predicates.argsIsNone
-    :members:
-    :undoc-members:
-    :show-inheritance:

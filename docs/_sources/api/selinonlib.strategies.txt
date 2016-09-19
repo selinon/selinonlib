@@ -1,0 +1,7 @@
+selinonlib.strategies module
+============================
+
+.. automodule:: selinonlib.strategies
+    :members:
+    :undoc-members:
+    :show-inheritance:

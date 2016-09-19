@@ -1,7 +1,0 @@
-parsley.predicates.fieldContain module
-======================================
-
-.. automodule:: parsley.predicates.fieldContain
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>selinonlib.strategies module &#8212; Selinonlib 0.1.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Selinonlib 0.1.0a1 documentation" href="../index.html" />
+    <link rel="up" title="selinonlib package" href="selinonlib.html" />
+    <link rel="next" title="selinonlib.system module" href="selinonlib.system.html" />
+    <link rel="prev" title="selinonlib.storage module" href="selinonlib.storage.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-selinonlib.strategies">
+<span id="selinonlib-strategies-module"></span><h1>selinonlib.strategies module<a class="headerlink" href="#module-selinonlib.strategies" title="Permalink to this headline">¶</a></h1>
+<p>Functions for scheduling dispatcher - Dispatcher strategy configuration functions. All of them are receiving:</p>
+<blockquote>
+<div><ul class="simple">
+<li>previous_retry - value of previous retry, None if scheduling for the first time</li>
+<li>active_nodes - active nodes within the system</li>
+<li>failed_nodes - failed nodes within the system</li>
+<li>new_started_nodes - newly started nodes the system, these nodes are already in active_nodes</li>
+<li>new_fallback_nodes - newly started fallback nodes, these nodes are already in active_nodes</li>
+</ul>
+</div></blockquote>
+<p>Other parameters are specific for strategy function and are configurable from YAML configuration file.</p>
+<dl class="function">
+<dt id="selinonlib.strategies.biexponential_adopt">
+<code class="descclassname">selinonlib.strategies.</code><code class="descname">biexponential_adopt</code><span class="sig-paren">(</span><em>start_retry</em>, <em>max_retry</em>, <em>previous_retry</em>, <em>active_nodes</em>, <em>failed_nodes</em>, <em>new_started_nodes</em>, <em>new_fallback_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/strategies.html#biexponential_adopt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.strategies.biexponential_adopt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase exponentially if no node started, decrease exponentially if a node scheduled</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_retry</strong> &#8211; starting retry to use</li>
+<li><strong>max_retry</strong> &#8211; upper limit of scheduling</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="selinonlib.strategies.biexponential_increase">
+<code class="descclassname">selinonlib.strategies.</code><code class="descname">biexponential_increase</code><span class="sig-paren">(</span><em>start_retry</em>, <em>max_retry</em>, <em>previous_retry</em>, <em>active_nodes</em>, <em>failed_nodes</em>, <em>new_started_nodes</em>, <em>new_fallback_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/strategies.html#biexponential_increase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.strategies.biexponential_increase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase exponentially if no node started, decrease drastically to start_retry if a node scheduled</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_retry</strong> &#8211; starting retry to use</li>
+<li><strong>max_retry</strong> &#8211; upper limit of scheduling</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="selinonlib.strategies.linear_adopt">
+<code class="descclassname">selinonlib.strategies.</code><code class="descname">linear_adopt</code><span class="sig-paren">(</span><em>start_retry</em>, <em>max_retry</em>, <em>step</em>, <em>previous_retry</em>, <em>active_nodes</em>, <em>failed_nodes</em>, <em>new_started_nodes</em>, <em>new_fallback_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/strategies.html#linear_adopt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.strategies.linear_adopt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase linearly if no node started, decrease linearly if a node scheduled</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_retry</strong> &#8211; starting retry to use</li>
+<li><strong>max_retry</strong> &#8211; upper limit of scheduling</li>
+<li><strong>step</strong> &#8211; step to use in linear increase</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="selinonlib.strategies.linear_increase">
+<code class="descclassname">selinonlib.strategies.</code><code class="descname">linear_increase</code><span class="sig-paren">(</span><em>start_retry</em>, <em>max_retry</em>, <em>step</em>, <em>previous_retry</em>, <em>active_nodes</em>, <em>failed_nodes</em>, <em>new_started_nodes</em>, <em>new_fallback_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/strategies.html#linear_increase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.strategies.linear_increase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase linearly if no node started, decrease drastically to start_retry if a node scheduled</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_retry</strong> &#8211; starting retry to use</li>
+<li><strong>max_retry</strong> &#8211; upper limit of scheduling</li>
+<li><strong>step</strong> &#8211; step to use in linear increase</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="selinonlib.strategies.random">
+<code class="descclassname">selinonlib.strategies.</code><code class="descname">random</code><span class="sig-paren">(</span><em>start_retry</em>, <em>max_retry</em>, <em>previous_retry</em>, <em>active_nodes</em>, <em>failed_nodes</em>, <em>new_started_nodes</em>, <em>new_fallback_nodes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/strategies.html#random"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.strategies.random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Schedule randomly
+:param start_retry: lower limit of scheduling
+:param max_retry: upper limit of scheduling</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="selinonlib.html">selinonlib package</a><ul>
+      <li>Previous: <a href="selinonlib.storage.html" title="previous chapter">selinonlib.storage module</a></li>
+      <li>Next: <a href="selinonlib.system.html" title="next chapter">selinonlib.system module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/selinonlib.strategies.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fridolin Pokorny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/api/selinonlib.strategies.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/fridex/selinonlib" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -1,7 +1,0 @@
-parsley.predicates.alwaysFalse module
-=====================================
-
-.. automodule:: parsley.predicates.alwaysFalse
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldNotEqual module
-===========================================
-
-.. automodule:: parsley.predicates.argsFieldNotEqual
-    :members:
-    :undoc-members:
-    :show-inheritance:

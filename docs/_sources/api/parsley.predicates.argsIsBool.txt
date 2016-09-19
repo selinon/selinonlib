@@ -1,7 +1,0 @@
-parsley.predicates.argsIsBool module
-====================================
-
-.. automodule:: parsley.predicates.argsIsBool
-    :members:
-    :undoc-members:
-    :show-inheritance:

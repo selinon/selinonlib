@@ -1,7 +1,0 @@
-parsley.predicates.fieldGreaterEqual module
-===========================================
-
-.. automodule:: parsley.predicates.fieldGreaterEqual
-    :members:
-    :undoc-members:
-    :show-inheritance:

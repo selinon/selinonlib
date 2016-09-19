@@ -1,7 +1,0 @@
-parsley.predicates.isFloat module
-=================================
-
-.. automodule:: parsley.predicates.isFloat
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-parsley.failureNode module
-==========================
-
-.. automodule:: parsley.failureNode
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldLenLess module
-==========================================
-
-.. automodule:: parsley.predicates.argsFieldLenLess
-    :members:
-    :undoc-members:
-    :show-inheritance:

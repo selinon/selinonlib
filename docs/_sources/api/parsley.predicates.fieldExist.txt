@@ -1,7 +1,0 @@
-parsley.predicates.fieldExist module
-====================================
-
-.. automodule:: parsley.predicates.fieldExist
-    :members:
-    :undoc-members:
-    :show-inheritance:

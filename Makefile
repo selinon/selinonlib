@@ -21,7 +21,7 @@ clean:
 	rm -rf venv docs.source/api docs/build/
 
 doc:
-	@sphinx-apidoc -e -o docs.source/api parsley -f
+	@sphinx-apidoc -e -o docs.source/api selinonlib -f
 	@make -f Makefile.docs docs html
 	@echo "Documentation available at 'docs/index.html'"
 

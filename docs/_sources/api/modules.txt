@@ -1,7 +1,7 @@
-parsley
-=======
+selinonlib
+==========
 
 .. toctree::
    :maxdepth: 4
 
-   parsley
+   selinonlib

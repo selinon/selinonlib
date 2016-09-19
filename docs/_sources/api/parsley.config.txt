@@ -1,7 +1,0 @@
-parsley.config module
-=====================
-
-.. automodule:: parsley.config
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,7 +1,0 @@
-parsley.predicates.fieldInt module
-==================================
-
-.. automodule:: parsley.predicates.fieldInt
-    :members:
-    :undoc-members:
-    :show-inheritance:

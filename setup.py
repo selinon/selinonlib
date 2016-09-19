@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from parsley import parsley_version
+from selinonlib import selinonlib_version
 from setuptools import setup, find_packages
 
 # Note: We are not distributing examples/ for now
@@ -12,10 +12,10 @@ def get_requirements():
 
 
 setup(
-    name='parsley',
-    version=parsley_version,
+    name='selinonlib',
+    version=selinonlib_version,
     packages=find_packages(),
-    scripts=['parsley-cli.py'],
+    scripts=['selinonlib-cli.py'],
     install_requires=get_requirements(),
     author='Fridolin Pokorny',
     author_email='fpokorny@redhat.com',
@@ -23,7 +23,7 @@ setup(
     maintainer_email='fpokorny@redhat.com',
     description='a simple tool to visualize, check and generate Python code from a YAML configuration file for Celeriac'
                 ' dispatcher for Celery',
-    url='https://github.com/fridex/parsley',
+    url='https://github.com/fridex/selinonlib',
     license='GPL',
     keywords='node task graph edge celery celeriac yaml condition',
 )

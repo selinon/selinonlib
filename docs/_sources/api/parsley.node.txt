@@ -1,7 +1,0 @@
-parsley.node module
-===================
-
-.. automodule:: parsley.node
-    :members:
-    :undoc-members:
-    :show-inheritance:

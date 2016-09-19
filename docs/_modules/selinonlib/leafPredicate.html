@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>selinonlib.leafPredicate &#8212; Selinonlib 0.1.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Selinonlib 0.1.0a1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for selinonlib.leafPredicate</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># ####################################################################</span>
+<span class="c1"># Copyright (C) 2016  Fridolin Pokorny, fpokorny@redhat.com</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU General Public License</span>
+<span class="c1"># as published by the Free Software Foundation; either version 2</span>
+<span class="c1"># of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software</span>
+<span class="c1"># Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="c1"># ####################################################################</span>
+
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">from</span> <span class="nn">.predicate</span> <span class="k">import</span> <span class="n">Predicate</span>
+<span class="kn">from</span> <span class="nn">.helpers</span> <span class="k">import</span> <span class="n">dict2strkwargs</span><span class="p">,</span> <span class="n">get_function_arguments</span>
+<span class="kn">from</span> <span class="nn">.logger</span> <span class="k">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">.globalConfig</span> <span class="k">import</span> <span class="n">GlobalConfig</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">Logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="LeafPredicate"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate">[docs]</a><span class="k">class</span> <span class="nc">LeafPredicate</span><span class="p">(</span><span class="n">Predicate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Leaf predicate representation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predicate_func</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param predicate_func: predicate function</span>
+<span class="sd">        :param node: node that predicate conforms to</span>
+<span class="sd">        :param flow: flow to which predicate belongs to</span>
+<span class="sd">        :param args: predicate arguments that should be used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="n">flow</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">predicate_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="n">args</span> <span class="k">if</span> <span class="n">args</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func_args</span> <span class="o">=</span> <span class="n">get_function_arguments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LeafPredicate.requires_message"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate.requires_message">[docs]</a>    <span class="k">def</span> <span class="nf">requires_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: True if predicate requires a message from a parent node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;message&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func_args</span></div>
+
+<div class="viewcode-block" id="LeafPredicate.requires_node_args"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate.requires_node_args">[docs]</a>    <span class="k">def</span> <span class="nf">requires_node_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: True if predicate requires a message from a parent node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;node_args&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func_args</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check user defined predicate parameters against predicate parameters</span>
+
+<span class="sd">        :raises: ValueError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">func_args</span> <span class="o">=</span> <span class="n">get_function_arguments</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">)</span>
+        <span class="n">user_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s1">&#39;message&#39;</span> <span class="ow">in</span> <span class="n">func_args</span><span class="p">:</span>
+            <span class="c1"># message argument is implicit and does not need to be specified by user</span>
+            <span class="n">func_args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;message&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;node_args&#39;</span> <span class="ow">in</span> <span class="n">func_args</span><span class="p">:</span>
+            <span class="c1"># node_args are implicit as well</span>
+            <span class="n">func_args</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;node_args&#39;</span><span class="p">)</span>
+
+        <span class="n">func_args</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">func_args</span><span class="p">)</span>
+        <span class="n">user_args</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">user_args</span><span class="p">)</span>
+
+        <span class="n">error</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">func_args</span> <span class="o">-</span> <span class="n">user_args</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Argument &#39;</span><span class="si">%s</span><span class="s2">&#39; of predicate &#39;</span><span class="si">%s</span><span class="s2">&#39; not specified in flow &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                          <span class="o">%</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">user_args</span> <span class="o">-</span> <span class="n">func_args</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid argument &#39;</span><span class="si">%s</span><span class="s2">&#39; for predicate &#39;</span><span class="si">%s</span><span class="s2">&#39; in flow &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                          <span class="o">%</span> <span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bad predicate arguments specified in flow &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check correct predicate usage</span>
+
+<span class="sd">        :raises: ValueError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_message</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">is_flow</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Results of sub-flows cannot be used in predicates&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_message</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot inspect results in starting edge in predicate &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_message</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">storage</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use predicate that requires a message without storage &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LeafPredicate.check"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check whether predicate is correctly used</span>
+
+<span class="sd">        :raises: ValueError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_usage</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_parameters</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_message</span><span class="p">():</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(db.get(&#39;</span><span class="si">%s</span><span class="s2">&#39;), </span><span class="si">%s</span><span class="s2">)&quot;</span>\
+                   <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_str_name</span><span class="p">(),</span> <span class="n">dict2strkwargs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># we hide node_args parameter</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">dict2strkwargs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_task_str_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># task_name can be None if we have starting edge</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;None&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="LeafPredicate.ast"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate.ast">[docs]</a>    <span class="k">def</span> <span class="nf">ast</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: AST representation of predicate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># we could directly use db[task] in predicates, but predicates should not handle database errors,</span>
+        <span class="c1"># so leave them on higher level (celeriac) and index database before predicate is being called</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># we want to avoid querying to database if possible, if a predicate does not require message, do not ask for it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_message</span><span class="p">():</span>
+            <span class="c1"># this can raise an exception if check was not run, since we are accessing storage that can be None</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">keyword</span><span class="p">(</span><span class="n">arg</span><span class="o">=</span><span class="s1">&#39;message&#39;</span><span class="p">,</span>
+                                      <span class="n">value</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;db&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">()),</span>
+                                                                        <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">()),</span>
+                                                     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_str_name</span><span class="p">())],</span>
+                                                     <span class="n">keywords</span><span class="o">=</span><span class="p">[],</span> <span class="n">starargs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">requires_node_args</span><span class="p">():</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">keyword</span><span class="p">(</span><span class="n">arg</span><span class="o">=</span><span class="s1">&#39;node_args&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;node_args&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">())))</span>
+
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">ast</span><span class="o">.</span><span class="n">keyword</span><span class="p">(</span><span class="n">arg</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">s</span><span class="o">=</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+
+        <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">()),</span>
+                        <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">starargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keywords</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LeafPredicate.predicates_used"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate.predicates_used">[docs]</a>    <span class="k">def</span> <span class="nf">predicates_used</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: list of predicates that are used</span>
+<span class="sd">        :rtype: List[Predicate]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">]</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LeafPredicate.create"><a class="viewcode-back" href="../../api/selinonlib.leafPredicate.html#selinonlib.leafPredicate.LeafPredicate.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create predicate</span>
+
+<span class="sd">        :param name: predicate name</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param node: node to which predicate belongs</span>
+<span class="sd">        :type node: Node</span>
+<span class="sd">        :param flow: flow to which predicate belongs</span>
+<span class="sd">        :type flow: Flow</span>
+<span class="sd">        :param args: predicate arguments</span>
+<span class="sd">        :return: an instantiated predicate</span>
+<span class="sd">        :raises: ImportError</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">GlobalConfig</span><span class="o">.</span><span class="n">predicates_module</span><span class="p">)</span>
+            <span class="n">predicate</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Cannot import predicate &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">LeafPredicate</span><span class="p">(</span><span class="n">predicate</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fridolin Pokorny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/fridex/selinonlib" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

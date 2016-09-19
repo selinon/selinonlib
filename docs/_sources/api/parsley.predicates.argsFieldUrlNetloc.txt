@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldUrlNetloc module
-============================================
-
-.. automodule:: parsley.predicates.argsFieldUrlNetloc
-    :members:
-    :undoc-members:
-    :show-inheritance:

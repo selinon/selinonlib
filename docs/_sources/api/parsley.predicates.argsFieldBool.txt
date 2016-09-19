@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldBool module
-=======================================
-
-.. automodule:: parsley.predicates.argsFieldBool
-    :members:
-    :undoc-members:
-    :show-inheritance:

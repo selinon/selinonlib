@@ -1,7 +1,0 @@
-parsley.strategies module
-=========================
-
-.. automodule:: parsley.strategies
-    :members:
-    :undoc-members:
-    :show-inheritance:

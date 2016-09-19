@@ -1,0 +1,7 @@
+selinonlib.buildinPredicate module
+==================================
+
+.. automodule:: selinonlib.buildinPredicate
+    :members:
+    :undoc-members:
+    :show-inheritance:

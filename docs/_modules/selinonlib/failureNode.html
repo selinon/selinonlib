@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>selinonlib.failureNode &#8212; Selinonlib 0.1.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Selinonlib 0.1.0a1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for selinonlib.failureNode</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># ####################################################################</span>
+<span class="c1"># Copyright (C) 2016  Fridolin Pokorny, fpokorny@redhat.com</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or</span>
+<span class="c1"># modify it under the terms of the GNU General Public License</span>
+<span class="c1"># as published by the Free Software Foundation; either version 2</span>
+<span class="c1"># of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program; if not, write to the Free Software</span>
+<span class="c1"># Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.</span>
+<span class="c1"># ####################################################################</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider</span>
+<span class="sd">having two failure conditions:</span>
+
+<span class="sd">.. code-block:: yaml</span>
+
+<span class="sd">  failures:</span>
+<span class="sd">    - nodes:</span>
+<span class="sd">          - Task1</span>
+<span class="sd">          - Task2</span>
+<span class="sd">          - Task3</span>
+<span class="sd">      fallback:</span>
+<span class="sd">          - FallbackTask1</span>
+<span class="sd">    - nodes:</span>
+<span class="sd">          - Task1</span>
+<span class="sd">          - Task2</span>
+<span class="sd">      fallback:</span>
+<span class="sd">          - FallbackTask2</span>
+
+<span class="sd">What we do here, we construct a graph of all possible permutations connected using edges that represent a node</span>
+<span class="sd">that should be added to create a new permutation:</span>
+
+<span class="sd">.. code-block:: yaml</span>
+
+<span class="sd">   |-------------------------------</span>
+<span class="sd">   |                              |</span>
+<span class="sd">  T1           T2           T3    |</span>
+<span class="sd">    \         /  \         / \    |</span>
+<span class="sd">     \       /    \       /   \   |</span>
+<span class="sd">      \     /      \     /     \  v</span>
+<span class="sd">       T1,T2*       T2,T3      T1,T3</span>
+<span class="sd">          \         /           /</span>
+<span class="sd">           \       /           /</span>
+<span class="sd">            T1,T2,T3*  &lt;-------</span>
+
+<span class="sd">For nodes ``T1,T2,T3`` and ``T1,T2`` we assign a fallback as configured. This graph is then serialized into the Python</span>
+<span class="sd">configuration code. This way the dispatcher has O(N) time complexity when dealing with failures.</span>
+
+<span class="sd">Note we are creating sparse tree - only for nodes that are listed in failures.</span>
+
+<span class="sd">Note that we link failure nodes as allocated - we get a one way linked list of all failure nodes that helps us with</span>
+<span class="sd">Python code generation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+
+
+<div class="viewcode-block" id="FailureNode"><a class="viewcode-back" href="../../api/selinonlib.failureNode.html#selinonlib.failureNode.FailureNode">[docs]</a><span class="k">class</span> <span class="nc">FailureNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A representation of a failure node permutation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">traversed</span><span class="p">,</span> <span class="n">failure_link</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param flow: flow to which the failure node conforms to</span>
+<span class="sd">        :param traversed: traversed nodes - also permutation of nodes</span>
+<span class="sd">        :param failure_link: link to next failure node in failures</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="n">flow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fallback</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">traversed</span> <span class="o">=</span> <span class="n">traversed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">failure_link</span> <span class="o">=</span> <span class="n">failure_link</span>
+
+<div class="viewcode-block" id="FailureNode.to"><a class="viewcode-back" href="../../api/selinonlib.failureNode.html#selinonlib.failureNode.FailureNode.to">[docs]</a>    <span class="k">def</span> <span class="nf">to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve next permutation</span>
+
+<span class="sd">        :param node_name: a name of the node for next permutation</span>
+<span class="sd">        :rtype: FailureNode</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="FailureNode.has_to"><a class="viewcode-back" href="../../api/selinonlib.failureNode.html#selinonlib.failureNode.FailureNode.has_to">[docs]</a>    <span class="k">def</span> <span class="nf">has_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param node_name:</span>
+<span class="sd">        :return: True if there is a link to next permutation for node of name node_name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span></div>
+
+<div class="viewcode-block" id="FailureNode.add_to"><a class="viewcode-back" href="../../api/selinonlib.failureNode.html#selinonlib.failureNode.FailureNode.add_to">[docs]</a>    <span class="k">def</span> <span class="nf">add_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">failure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add failure for next permutation</span>
+
+<span class="sd">        :param node_name: a node for next permutation</span>
+<span class="sd">        :param failure: FailureNode that should be added</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">node_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">failure</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_fallback</span><span class="p">(</span><span class="n">failure_node</span><span class="p">,</span> <span class="n">fallback</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failure_node</span><span class="o">.</span><span class="n">fallback</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multiple definitions of a failure in flow &#39;</span><span class="si">%s</span><span class="s2">&#39; with failure of </span><span class="si">%s</span><span class="s2">&quot;</span>
+                             <span class="o">%</span> <span class="p">(</span><span class="n">failure_node</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">failure_node</span><span class="o">.</span><span class="n">traversed</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fallback</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fallback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fallback</span> <span class="o">=</span> <span class="p">[</span><span class="n">fallback</span><span class="p">]</span>
+
+        <span class="c1"># additional checks are done by System</span>
+        <span class="n">failure_node</span><span class="o">.</span><span class="n">fallback</span> <span class="o">=</span> <span class="n">fallback</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="FailureNode.construct"><a class="viewcode-back" href="../../api/selinonlib.failureNode.html#selinonlib.failureNode.FailureNode.construct">[docs]</a>    <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">failures</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct failures from failures dictionary</span>
+
+<span class="sd">        :param failures: failures dictionary</span>
+<span class="sd">        :param flow: flow to which failures conform to</span>
+<span class="sd">        :return: a link for linked list of failures and a dict of starting failures</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">last_allocated</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">starting_failures</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">failure</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+            <span class="n">used_starting_failures</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">failure</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">starting_failures</span><span class="p">:</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="n">FailureNode</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="p">[</span><span class="n">node</span><span class="p">],</span> <span class="n">last_allocated</span><span class="p">)</span>
+                    <span class="n">last_allocated</span> <span class="o">=</span> <span class="n">f</span>
+                    <span class="n">starting_failures</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+                    <span class="n">used_starting_failures</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">used_starting_failures</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">starting_failures</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+
+            <span class="n">current_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">used_starting_failures</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">next_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">failure</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">])):</span>  <span class="c1"># for every permutation length</span>
+
+                <span class="k">for</span> <span class="n">edge_node</span> <span class="ow">in</span> <span class="n">failure</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">]:</span>  <span class="c1"># edge_node is a node that can create a new permutation from a node</span>
+
+                    <span class="k">for</span> <span class="n">current_node</span> <span class="ow">in</span> <span class="n">current_nodes</span><span class="p">:</span>
+
+                        <span class="k">if</span> <span class="n">edge_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">current_node</span><span class="o">.</span><span class="n">traversed</span><span class="p">:</span>
+
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">current_node</span><span class="o">.</span><span class="n">has_to</span><span class="p">(</span><span class="n">edge_node</span><span class="p">):</span>
+                                <span class="n">next_node</span> <span class="o">=</span> <span class="n">current_node</span><span class="o">.</span><span class="n">traversed</span> <span class="o">+</span> <span class="p">[</span><span class="n">edge_node</span><span class="p">]</span>
+                                <span class="n">f</span> <span class="o">=</span> <span class="n">FailureNode</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">next_node</span><span class="p">,</span> <span class="n">last_allocated</span><span class="p">)</span>
+                                <span class="n">last_allocated</span> <span class="o">=</span> <span class="n">f</span>
+                                <span class="n">current_node</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">edge_node</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+                                <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">current_nodes</span><span class="p">:</span>
+                                    <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">traversed</span><span class="p">)</span> <span class="o">^</span> <span class="nb">set</span><span class="p">(</span><span class="n">next_node</span><span class="p">)</span>
+
+                                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">has_to</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">diff</span><span class="p">)[</span><span class="mi">0</span><span class="p">]):</span>
+                                            <span class="n">node</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">diff</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">f</span><span class="p">)</span>
+
+                                <span class="n">next_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="c1"># keep for generating new permutations</span>
+                                <span class="n">next_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_node</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">edge_node</span><span class="p">))</span>
+
+                <span class="n">current_nodes</span> <span class="o">=</span> <span class="n">next_nodes</span>
+                <span class="n">next_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">f</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">failure</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span> <span class="n">used_starting_failures</span><span class="p">[</span><span class="n">failure</span><span class="p">[</span><span class="s1">&#39;nodes&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_add_fallback</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">failure</span><span class="p">[</span><span class="s1">&#39;fallback&#39;</span><span class="p">])</span>
+
+        <span class="c1"># we could make enumerable and avoid last_allocated (it would be cleaner), but let&#39;s stick with</span>
+        <span class="c1"># this one for now</span>
+        <span class="k">return</span> <span class="n">last_allocated</span><span class="p">,</span> <span class="n">starting_failures</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fridolin Pokorny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+    </div>
+
+    
+    <a href="https://github.com/fridex/selinonlib" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

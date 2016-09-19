@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldFloat module
-========================================
-
-.. automodule:: parsley.predicates.argsFieldFloat
-    :members:
-    :undoc-members:
-    :show-inheritance:

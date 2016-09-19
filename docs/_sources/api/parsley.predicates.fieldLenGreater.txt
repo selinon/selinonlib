@@ -1,7 +1,0 @@
-parsley.predicates.fieldLenGreater module
-=========================================
-
-.. automodule:: parsley.predicates.fieldLenGreater
-    :members:
-    :undoc-members:
-    :show-inheritance:

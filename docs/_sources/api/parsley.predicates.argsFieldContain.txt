@@ -1,7 +1,0 @@
-parsley.predicates.argsFieldContain module
-==========================================
-
-.. automodule:: parsley.predicates.argsFieldContain
-    :members:
-    :undoc-members:
-    :show-inheritance:

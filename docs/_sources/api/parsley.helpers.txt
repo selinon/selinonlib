@@ -1,7 +1,0 @@
-parsley.helpers module
-======================
-
-.. automodule:: parsley.helpers
-    :members:
-    :undoc-members:
-    :show-inheritance:

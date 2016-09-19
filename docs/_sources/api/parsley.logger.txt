@@ -1,7 +1,0 @@
-parsley.logger module
-=====================
-
-.. automodule:: parsley.logger
-    :members:
-    :undoc-members:
-    :show-inheritance:

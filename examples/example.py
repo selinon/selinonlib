@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# auto-generated using Parsley v3dde2e3
+# auto-generated using Selinonlib v3dde2e3
 
-from parsley.predicates import fieldGreater, fieldNone, alwaysTrue, fieldEqual
+from selinonlib.predicates import fieldGreater, fieldNone, alwaysTrue, fieldEqual
 
 # Tasks
 from worker.task1 import Task1

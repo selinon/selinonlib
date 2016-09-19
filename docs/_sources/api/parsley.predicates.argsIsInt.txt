@@ -1,7 +1,0 @@
-parsley.predicates.argsIsInt module
-===================================
-
-.. automodule:: parsley.predicates.argsIsInt
-    :members:
-    :undoc-members:
-    :show-inheritance:

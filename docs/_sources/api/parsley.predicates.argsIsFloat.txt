@@ -1,7 +1,0 @@
-parsley.predicates.argsIsFloat module
-=====================================
-
-.. automodule:: parsley.predicates.argsIsFloat
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,0 +1,7 @@
+selinonlib.logger module
+========================
+
+.. automodule:: selinonlib.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:

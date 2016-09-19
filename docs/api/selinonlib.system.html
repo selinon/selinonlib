@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>selinonlib.system module &#8212; Selinonlib 0.1.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Selinonlib 0.1.0a1 documentation" href="../index.html" />
+    <link rel="up" title="selinonlib package" href="selinonlib.html" />
+    <link rel="next" title="selinonlib.task module" href="selinonlib.task.html" />
+    <link rel="prev" title="selinonlib.strategies module" href="selinonlib.strategies.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-selinonlib.system">
+<span id="selinonlib-system-module"></span><h1>selinonlib.system module<a class="headerlink" href="#module-selinonlib.system" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="selinonlib.system.System">
+<em class="property">class </em><code class="descclassname">selinonlib.system.</code><code class="descname">System</code><span class="sig-paren">(</span><em>tasks=None</em>, <em>flows=None</em>, <em>storages=None</em>, <em>task_classes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The representation of the whole system</p>
+<dl class="method">
+<dt id="selinonlib.system.System.add_flow">
+<code class="descname">add_flow</code><span class="sig-paren">(</span><em>flow</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.add_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.add_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a flow in the system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flow</strong> (<a class="reference internal" href="selinonlib.flow.html#module-selinonlib.flow" title="selinonlib.flow"><em>flow</em></a>) &#8211; a flow to be registered</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.add_storage">
+<code class="descname">add_storage</code><span class="sig-paren">(</span><em>storage</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.add_storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.add_storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add storage to system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>storage</strong> &#8211; storage that should be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.add_task">
+<code class="descname">add_task</code><span class="sig-paren">(</span><em>task</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.add_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.add_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a task in the system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> (<a class="reference internal" href="selinonlib.task.html#selinonlib.task.Task" title="selinonlib.task.Task"><em>Task</em></a>) &#8211; a task to be registered</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.class_of_task">
+<code class="descname">class_of_task</code><span class="sig-paren">(</span><em>task</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.class_of_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.class_of_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return task class of a task</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>task</strong> &#8211; task to look task class for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">TaskClass or None if a task class for task is not available</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.dispatcher_queue_name">
+<code class="descname">dispatcher_queue_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.dispatcher_queue_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.dispatcher_queue_name" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dispatcher queue name</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.dump2file">
+<code class="descname">dump2file</code><span class="sig-paren">(</span><em>output_file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.dump2file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.dump2file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform system dump to a Python source code</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>output_file</strong> &#8211; an output file to write to</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.dump2stream">
+<code class="descname">dump2stream</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.dump2stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.dump2stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform system dump to a Python source code to an output stream</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>f</strong> &#8211; an output stream to write to</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.flow_by_name">
+<code class="descname">flow_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>graceful=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.flow_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.flow_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a flow by its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; a flow name</li>
+<li><strong>graceful</strong> &#8211; if True, no exception is raised if flow couldn&#8217;t be found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">flow with name &#8216;name&#8217;</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="selinonlib.flow.html#selinonlib.flow.Flow" title="selinonlib.flow.Flow">Flow</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">KeyError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="selinonlib.system.System.from_files">
+<em class="property">static </em><code class="descname">from_files</code><span class="sig-paren">(</span><em>nodes_definition_file</em>, <em>flow_definition_files</em>, <em>no_check=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct System from files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>nodes_definition_file</strong> &#8211; path to nodes definition file</li>
+<li><strong>flow_definition_files</strong> &#8211; path to files that describe flows</li>
+<li><strong>no_check</strong> &#8211; True if system shouldn&#8217;t be checked for consistency (recommended to check)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">System instance</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#selinonlib.system.System" title="selinonlib.system.System">System</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.node_by_name">
+<code class="descname">node_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>graceful=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.node_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.node_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a node (flow or task) by its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; a node name</li>
+<li><strong>graceful</strong> &#8211; if True, no exception is raised if node couldn&#8217;t be found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">flow with name &#8216;name&#8217;</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="selinonlib.node.html#selinonlib.node.Node" title="selinonlib.node.Node">Node</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">KeyError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.plot_graph">
+<code class="descname">plot_graph</code><span class="sig-paren">(</span><em>output_dir</em>, <em>image_format=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.plot_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.plot_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot system flows to graphs - each flow in a separate file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>output_dir</strong> &#8211; output directory to write graphs of flows to</li>
+<li><strong>image_format</strong> &#8211; image format, the default is svg if None</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of file names to which the graph was rendered</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List[str]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.storage_by_name">
+<code class="descname">storage_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>graceful=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.storage_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.storage_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve storage by its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; name of the storage</li>
+<li><strong>graceful</strong> &#8211; if true, exception is raised if no such storage with name name is found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">storage</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.task_by_name">
+<code class="descname">task_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>graceful=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.task_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.task_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a task by its name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; a task name</li>
+<li><strong>graceful</strong> &#8211; if True, no exception is raised if task couldn&#8217;t be found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">task with name &#8216;name&#8217;</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference internal" href="selinonlib.task.html#selinonlib.task.Task" title="selinonlib.task.Task">Task</a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last">KeyError</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="selinonlib.system.System.task_queue_names">
+<code class="descname">task_queue_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/system.html#System.task_queue_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.system.System.task_queue_names" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">corresponding mapping from task name to task queue</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="selinonlib.html">selinonlib package</a><ul>
+      <li>Previous: <a href="selinonlib.strategies.html" title="previous chapter">selinonlib.strategies module</a></li>
+      <li>Next: <a href="selinonlib.task.html" title="next chapter">selinonlib.task module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/selinonlib.system.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fridolin Pokorny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/api/selinonlib.system.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/fridex/selinonlib" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

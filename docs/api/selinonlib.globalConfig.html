@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>selinonlib.globalConfig module &#8212; Selinonlib 0.1.0a1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.0a1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Selinonlib 0.1.0a1 documentation" href="../index.html" />
+    <link rel="up" title="selinonlib package" href="selinonlib.html" />
+    <link rel="next" title="selinonlib.helpers module" href="selinonlib.helpers.html" />
+    <link rel="prev" title="selinonlib.flow module" href="selinonlib.flow.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-selinonlib.globalConfig">
+<span id="selinonlib-globalconfig-module"></span><h1>selinonlib.globalConfig module<a class="headerlink" href="#module-selinonlib.globalConfig" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="selinonlib.globalConfig.GlobalConfig">
+<em class="property">class </em><code class="descclassname">selinonlib.globalConfig.</code><code class="descname">GlobalConfig</code><a class="reference internal" href="../_modules/selinonlib/globalConfig.html#GlobalConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>User global configuration stated in YAML file</p>
+<dl class="attribute">
+<dt id="selinonlib.globalConfig.GlobalConfig.config_dispatcher_queue">
+<code class="descname">config_dispatcher_queue</code><em class="property"> = 'celery'</em><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.config_dispatcher_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="selinonlib.globalConfig.GlobalConfig.default_task_queue">
+<code class="descname">default_task_queue</code><em class="property"> = 'celery'</em><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.default_task_queue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="selinonlib.globalConfig.GlobalConfig.dump_trace">
+<em class="property">classmethod </em><code class="descname">dump_trace</code><span class="sig-paren">(</span><em>output</em>, <em>config_name</em>, <em>indent_count=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/globalConfig.html#GlobalConfig.dump_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.dump_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dump trace configuration to output stream</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>output</strong> &#8211; output stream to write to</li>
+<li><strong>config_name</strong> &#8211; name of configuration class instance to be referenced when initializing trace</li>
+<li><strong>indent_count</strong> &#8211; indentation that should be used to indent source</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="selinonlib.globalConfig.GlobalConfig.from_dict">
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>system</em>, <em>d</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/selinonlib/globalConfig.html#GlobalConfig.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse global configuration from a dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>system</strong> &#8211; system instance for storage lookup</li>
+<li><strong>d</strong> &#8211; dictionary containing global configuration as stated in YAML config file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="selinonlib.globalConfig.GlobalConfig.predicates_module">
+<code class="descname">predicates_module</code><em class="property"> = 'selinonlib.predicates'</em><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.predicates_module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="selinonlib.globalConfig.GlobalConfig.strategy_func_args">
+<code class="descname">strategy_func_args</code><em class="property"> = {'start_retry': 2, 'max_retry': 120}</em><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.strategy_func_args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="selinonlib.globalConfig.GlobalConfig.strategy_function">
+<code class="descname">strategy_function</code><em class="property"> = 'biexponential_increase'</em><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.strategy_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="selinonlib.globalConfig.GlobalConfig.strategy_module">
+<code class="descname">strategy_module</code><em class="property"> = 'selinonlib.strategies'</em><a class="headerlink" href="#selinonlib.globalConfig.GlobalConfig.strategy_module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="selinonlib.html">selinonlib package</a><ul>
+      <li>Previous: <a href="selinonlib.flow.html" title="previous chapter">selinonlib.flow module</a></li>
+      <li>Next: <a href="selinonlib.helpers.html" title="next chapter">selinonlib.helpers module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/selinonlib.globalConfig.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Fridolin Pokorny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/api/selinonlib.globalConfig.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/fridex/selinonlib" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

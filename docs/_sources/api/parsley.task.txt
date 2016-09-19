@@ -1,7 +1,0 @@
-parsley.task module
-===================
-
-.. automodule:: parsley.task
-    :members:
-    :undoc-members:
-    :show-inheritance:

@@ -1,4 +1,4 @@
-# Parsley
+# Selinonlib
 
 A simple tool to visualize, check dependencies and generate Python code for [Celeriac](https://github.com/fridex/celeriac).
 
@@ -26,7 +26,7 @@ Refer to examples/example.yml configuration with comments for more info. There a
 
 *Currently not available!*
 ```
-$ pip install parsley
+$ pip install selinonlib
 ```
 
 or see *A Quick First Touch* section to use directly git repo.
@@ -68,7 +68,7 @@ Predicates were designed to return *always* True/False. If a condition cannot be
 
 Clone the repo:
 ```
-$ git clone https://github.com/fridex/parsley && cd parsley
+$ git clone https://github.com/fridex/selinonlib && cd selinonlib
 ```
 
 Install requirements:
@@ -85,15 +85,15 @@ make venv && source venv/bin/activate
 
 Plot graphs of flows:
 ```
-$ ./parsley-cli -tasks-definition exampes/example.yml -flow-definition examples/example.yml -verbose -graph ${PWD} && xdg-open flow1.svg
+$ ./selinonlib-cli -tasks-definition exampes/example.yml -flow-definition examples/example.yml -verbose -graph ${PWD} && xdg-open flow1.svg
 ```
 
 Generate Python code configuration for Celeriac:
 ```
-$ ./parsley-cli -tasks example/example.yaml -flow examples/examples.yaml -v -dump dump.py && cat dump.py
+$ ./selinonlib-cli -tasks example/example.yaml -flow examples/examples.yaml -v -dump dump.py && cat dump.py
 ```
 
 Plot graphs of flows with a custom style (you can use shortcuts of arguments as shown bellow):
 ```
-$ ./parsley-cli -config examples/example.config.yml -tasks exampes/example.yml -flow examples/example.yml -v -graph . && xdg-open flow1.svg
+$ ./selinonlib-cli -config examples/example.config.yml -tasks exampes/example.yml -flow examples/example.yml -v -graph . && xdg-open flow1.svg
 ```

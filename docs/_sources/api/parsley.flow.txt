@@ -1,7 +1,0 @@
-parsley.flow module
-===================
-
-.. automodule:: parsley.flow
-    :members:
-    :undoc-members:
-    :show-inheritance:

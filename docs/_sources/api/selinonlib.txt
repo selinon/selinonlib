@@ -1,0 +1,41 @@
+selinonlib package
+==================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    selinonlib.predicates
+
+Submodules
+----------
+
+.. toctree::
+
+   selinonlib.buildinPredicate
+   selinonlib.config
+   selinonlib.edge
+   selinonlib.failureNode
+   selinonlib.failures
+   selinonlib.flow
+   selinonlib.globalConfig
+   selinonlib.helpers
+   selinonlib.leafPredicate
+   selinonlib.logger
+   selinonlib.node
+   selinonlib.predicate
+   selinonlib.storage
+   selinonlib.strategies
+   selinonlib.system
+   selinonlib.task
+   selinonlib.taskClass
+   selinonlib.version
+
+Module contents
+---------------
+
+.. automodule:: selinonlib
+    :members:
+    :undoc-members:
+    :show-inheritance:
