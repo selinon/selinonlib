@@ -30,46 +30,11 @@ class Storage(object):
         :param configuration: storage configuration that will be passed
         :param class_name: storage class name
         """
-        self._name = name
-        self._import_path = import_path
-        self._configuration = configuration
-        self._class_name = class_name if class_name else name
-        self._tasks = []
-
-    @property
-    def name(self):
-        """
-        :return: name of the storage
-        """
-        return self._name
-
-    @property
-    def import_path(self):
-        """
-        :return: import that should be used for the storage
-        """
-        return self._import_path
-
-    @property
-    def configuration(self):
-        """
-        :return: configuration as supplied in YAML config file
-        """
-        return self._configuration
-
-    @property
-    def class_name(self):
-        """
-        :return: class name of storage (defaults to name)
-        """
-        return self._class_name
-
-    @property
-    def tasks(self):
-        """
-        :return: tasks that use this storage
-        """
-        return self._tasks
+        self.name = name
+        self.import_path = import_path
+        self.configuration = configuration
+        self.class_name = class_name if class_name else name
+        self.tasks = []
 
     def register_task(self, task):
         """
@@ -77,7 +42,7 @@ class Storage(object):
 
         :param task: task to be registered
         """
-        self._tasks.append(task)
+        self.tasks.append(task)
 
     @staticmethod
     def from_dict(d):

@@ -74,82 +74,20 @@ class Task(Node):
             raise ValueError("Invalid task version, should be non-negative integer, got %s" % version)
 
         super(Task, self).__init__(name)
-        self._import_path = import_path
-        self._max_retry = max_retry
-        self._retry_countdown = retry_countdown
-        self._time_limit = time_limit
-        self._class_name = class_name if class_name else name
-        self._storage = storage
-        self._output_schema = output_schema
-        self._task_class = task_class
+        self.import_path = import_path
+        self.max_retry = max_retry
+        self.retry_countdown = retry_countdown
+        self.time_limit = time_limit
+        self.class_name = class_name if class_name else name
+        self.storage = storage
+        self.output_schema = output_schema
+        self.task_class = task_class
         self.version = version or GlobalConfig.default_task_version
         # register task usage
         if storage:
             storage.register_task(self)
         _logger.debug("Creating task with name '%s' import path '%s', class name '%s'"
                       % (self.name, self.import_path, self.class_name))
-
-    @property
-    def import_path(self):
-        """
-        :return: a task import
-        """
-        return self._import_path
-
-    @property
-    def class_name(self):
-        """
-        :return: a task class name
-        """
-        return self._class_name
-
-    @property
-    def storage(self):
-        return self._storage
-
-    @property
-    def max_retry(self):
-        """
-        :return: task max_retry count (see Celery max_retry)
-        """
-        return self._max_retry
-
-    @property
-    def retry_countdown(self):
-        """
-        :return: task retry_countdown (see Celery self.retry() countdown)
-        """
-        return self._retry_countdown
-
-    @property
-    def time_limit(self):
-        """
-        :return: task time_limit (see Celery time_limit)
-        """
-        return self._time_limit
-
-    @property
-    def output_schema(self):
-        """
-        :return: path to task output schema or None if not defined
-        """
-        return self._output_schema
-
-    @property
-    def task_class(self):
-        """
-        :return: class of the task
-        :rtype: TaskClass
-        """
-        return self._task_class
-
-    @task_class.setter
-    def task_class(self, task_class):
-        """
-        :param task_class: set task_class for task
-        :type task_class: TaskClass
-        """
-        self._task_class = task_class
 
     @property
     def queue_name(self):

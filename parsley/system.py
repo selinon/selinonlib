@@ -45,26 +45,10 @@ class System(object):
     The representation of the whole system
     """
     def __init__(self, tasks=None, flows=None, storages=None, task_classes=None):
-        self._flows = flows if flows else []
-        self._tasks = tasks if tasks else []
-        self._storages = storages if storages else []
-        self._task_classes = task_classes if task_classes else []
-
-    @property
-    def tasks(self):
-        """
-        :return: tasks available in the system
-        :rtype: List[Task]
-        """
-        return self._tasks
-
-    @property
-    def flows(self):
-        """
-        :return: flows available in the system
-        :rtype: List[Flow]
-        """
-        return self._flows
+        self.flows = flows if flows else []
+        self.tasks = tasks if tasks else []
+        self.storages = storages if storages else []
+        self.task_classes = task_classes if task_classes else []
 
     def _check_name_collision(self, name):
         """
@@ -73,9 +57,9 @@ class System(object):
         :param name: a node name
         :raises: ValueError
         """
-        if any(flow.name == name for flow in self._flows):
+        if any(flow.name == name for flow in self.flows):
             raise ValueError("Unable to add node with name '%s', a flow with the same name already exist" % name)
-        if any(task.name == name for task in self._tasks):
+        if any(task.name == name for task in self.tasks):
             raise ValueError("Unable to add node with name '%s', a task with the same name already exist" % name)
 
     def add_task(self, task):
@@ -86,7 +70,7 @@ class System(object):
         :type task: Task
         """
         self._check_name_collision(task.name)
-        self._tasks.append(task)
+        self.tasks.append(task)
 
     def add_flow(self, flow):
         """
@@ -96,7 +80,7 @@ class System(object):
         :type flow: flow
         """
         self._check_name_collision(flow.name)
-        self._flows.append(flow)
+        self.flows.append(flow)
 
     def add_storage(self, storage):
         """
@@ -105,14 +89,14 @@ class System(object):
         :param storage: storage that should be added
         """
         # We need to check for name collision with tasks as well since we import them by name
-        for task in self._tasks:
+        for task in self.tasks:
             if task.name == storage.name:
                 raise ValueError("Storage has same name as task '%s'" % storage.name)
 
-        for stored_storage in self._storages:
+        for stored_storage in self.storages:
             if stored_storage.name == storage:
                 raise ValueError("Multiple storages of the same name '{}'".format(storage.name))
-        self._storages.append(storage)
+        self.storages.append(storage)
 
     def storage_by_name(self, name, graceful=False):
         """
@@ -122,7 +106,7 @@ class System(object):
         :param graceful: if true, exception is raised if no such storage with name name is found
         :return: storage
         """
-        for storage in self._storages:
+        for storage in self.storages:
             if storage.name == name:
                 return storage
         if not graceful:
@@ -139,7 +123,7 @@ class System(object):
         :rtype: Task
         :raises: KeyError
         """
-        for task in self._tasks:
+        for task in self.tasks:
             if task.name == name:
                 return task
         if not graceful:
@@ -152,7 +136,7 @@ class System(object):
         """
         ret = {}
 
-        for task in self._tasks:
+        for task in self.tasks:
             ret[task.name] = task.queue_name
 
         return ret
@@ -174,7 +158,7 @@ class System(object):
         :rtype: Flow
         :raises: KeyError
         """
-        for flow in self._flows:
+        for flow in self.flows:
             if flow.name == name:
                 return flow
         if not graceful:
@@ -208,7 +192,7 @@ class System(object):
         :param task: task to look task class for
         :return: TaskClass or None if a task class for task is not available
         """
-        for task_class in self._task_classes:
+        for task_class in self.task_classes:
             if task_class.task_of_class(task):
                 return task_class
         return None
@@ -220,16 +204,16 @@ class System(object):
         :param output: a stream to write to
         """
         predicates = set([])
-        for flow in self._flows:
+        for flow in self.flows:
             for edge in flow.edges:
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
         if predicates:
             output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
 
-        for task in self._tasks:
+        for task in self.tasks:
             output.write("from {} import {}\n".format(task.import_path, task.class_name))
 
-        for storage in self._storages:
+        for storage in self.storages:
             if len(storage.tasks) > 0:
                 output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
 
@@ -246,7 +230,7 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('def is_flow(name):\n')
-        output.write('    return name in %s\n\n' % str([flow.name for flow in self._flows]))
+        output.write('    return name in %s\n\n' % str([flow.name for flow in self.flows]))
 
     def _dump_output_schemas(self, output):
         """
@@ -256,7 +240,7 @@ class System(object):
         """
         output.write('output_schemas = {')
         printed = False
-        for task in self._tasks:
+        for task in self.tasks:
             if task.output_schema:
                 if printed:
                     output.write(",")
@@ -292,7 +276,7 @@ class System(object):
         """
         output.write('task_classes = {')
         printed = False
-        for task in self._tasks:
+        for task in self.tasks:
             if printed:
                 output.write(',')
             output.write("\n    '%s': %s" % (task.name, task.class_name))
@@ -302,7 +286,7 @@ class System(object):
     def _dump_queues(self, output):
         output.write('task_queues = {')
         printed = False
-        for task in self._tasks:
+        for task in self.tasks:
             if printed:
                 output.write(',')
             output.write("\n    '%s': '%s'" % (task.name, task.queue_name))
@@ -331,7 +315,7 @@ class System(object):
         :param output: a stream to write to
         """
         storage_var_names = []
-        for storage in self._storages:
+        for storage in self.storages:
             if len(storage.tasks) > 0:
                 output.write("%s = %s" % (storage.var_name, storage.class_name))
                 if storage.configuration and isinstance(storage.configuration, dict):
@@ -361,7 +345,7 @@ class System(object):
         """
         output.write('task2storage_mapping = {\n')
         printed = False
-        for storage in self._storages:
+        for storage in self.storages:
             for task in storage.tasks:
                 if printed:
                     output.write(",\n")
@@ -400,7 +384,7 @@ class System(object):
 
         :param output: a stream to write to
         """
-        for flow in self._flows:
+        for flow in self.flows:
             for idx, edge in enumerate(flow.edges):
                 output.write('def {}(db, node_args):\n'.format(self._dump_condition_name(flow.name, idx)))
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
@@ -413,7 +397,7 @@ class System(object):
         """
         output.write('max_retry = {')
         printed = False
-        for task in self._tasks:
+        for task in self.tasks:
             if printed:
                 output.write(',')
             output.write("\n    '%s': %d" % (task.name, task.max_retry))
@@ -428,7 +412,7 @@ class System(object):
         """
         output.write('retry_countdown = {')
         printed = False
-        for task in self._tasks:
+        for task in self.tasks:
             if printed:
                 output.write(',')
             output.write("\n    '%s': %d" % (task.name, task.retry_countdown))
@@ -443,7 +427,7 @@ class System(object):
         """
         output.write('time_limit = {')
         printed = False
-        for task in self._tasks:
+        for task in self.tasks:
             if printed:
                 output.write(',')
             output.write("\n    '%s': %s" % (task.name, task.time_limit))
@@ -459,7 +443,7 @@ class System(object):
 
         output.write('nowait_nodes = {\n')
         printed = False
-        for flow in self._flows:
+        for flow in self.flows:
             if printed:
                     output.write(',\n')
             output.write("    '%s': %s" % (flow.name, [node.name for node in flow.nowait_nodes]))
@@ -488,7 +472,7 @@ class System(object):
         :param output: a stream to write to
         """
         output.write('edge_table = {\n')
-        for idx, flow in enumerate(self._flows):
+        for idx, flow in enumerate(self.flows):
             output.write("    '{}': [".format(flow.name))
             for idx_edge, edge in enumerate(flow.edges):
                 if idx_edge > 0:
@@ -497,7 +481,7 @@ class System(object):
                 output.write("{'from': %s" % str([node.name for node in edge.nodes_from]))
                 output.write(", 'to': %s" % str([node.name for node in edge.nodes_to]))
                 output.write(", 'condition': %s}" % self._dump_condition_name(flow.name, idx_edge))
-            if idx + 1 < len(self._flows):
+            if idx + 1 < len(self.flows):
                 output.write('],\n')
             else:
                 output.write(']\n')
@@ -539,13 +523,13 @@ class System(object):
         self._dump_time_limit(f)
         f.write('#'*80+'\n\n')
 
-        for flow in self._flows:
+        for flow in self.flows:
             if flow.failures:
                 flow.failures.dump2stream(f, flow.name)
 
         f.write('failures = {')
         printed = False
-        for i, flow in enumerate(self._flows):
+        for i, flow in enumerate(self.flows):
             if flow.failures:
                 if printed:
                     f.write(",")
@@ -586,7 +570,7 @@ class System(object):
         ret = []
         image_format = image_format if image_format else 'svg'
 
-        for flow in self._flows:
+        for flow in self.flows:
             storage_connections = []
             graph = graphviz.Digraph(format=image_format)
             graph.graph_attr.update(Config().style_graph())
@@ -675,7 +659,7 @@ class System(object):
         _logger.debug("Post parse check is going to be executed")
         # we want to have circular dependencies, so we need to check consistency after parsing since all flows
         # are listed (by names) in a separate definition
-        for flow in self._flows:
+        for flow in self.flows:
             if len(flow.edges) == 0:
                 raise ValueError("Empty flow: %s" % flow.name)
 
@@ -687,7 +671,7 @@ class System(object):
         """
         _logger.info("Checking system for consistency")
 
-        for task_class in self._task_classes:
+        for task_class in self.task_classes:
             task_ref = task_class.tasks[0]
             for task in task_class.tasks[1:]:
                 if task_ref.output_schema != task.output_schema:
@@ -706,13 +690,13 @@ class System(object):
                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
                                        task_class.class_name))
 
-        for storage in self._storages:
+        for storage in self.storages:
             if len(storage.tasks) == 0:
                 _logger.warning("Storage '{}' not used in any flow".format(storage.name))
 
         # We want to check that if we depend on a node, that node is being started at least once in the flow
         # This also covers check for starting node definition
-        for flow in self._flows:
+        for flow in self.flows:
             # TODO: we should make this more transparent by placing it to separate functions
             try:
                 all_source_nodes = flow.all_source_nodes()
@@ -880,7 +864,7 @@ class System(object):
             task_class = system.class_of_task(task)
             if not task_class:
                 task_class = TaskClass(task.class_name, task.import_path)
-                system._task_classes.append(task_class)
+                system.task_classes.append(task_class)
             task_class.add_task(task)
             task.task_class = task_class
             system.add_task(task)

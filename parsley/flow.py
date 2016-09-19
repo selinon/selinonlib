@@ -39,9 +39,9 @@ class Flow(Node):
         """
         super(Flow, self).__init__(name)
         _logger.debug("Creating flow '{}'".format(name))
-        self._edges = edges if edges else []
-        self._failures = failures if failures else None
-        self._nowait_nodes = nowait_nodes if nowait_nodes else []
+        self.edges = edges if edges else []
+        self.failures = failures if failures else None
+        self.nowait_nodes = nowait_nodes if nowait_nodes else []
 
         self.propagate_node_args = False
         self.propagate_finished = False
@@ -53,46 +53,18 @@ class Flow(Node):
     def from_dict(d):
         raise NotImplementedError()
 
-    @property
-    def edges(self):
-        """
-        :return: edges presented in the flow
-        """
-        return self._edges
-
-    @property
-    def failures(self):
-        """
-        :return: failures defined within the flow
-        """
-        return self._failures
-
-    @failures.setter
-    def failures(self, failures):
-        """
-        :param failures: failures to be set
-        """
-        self._failures = failures
-
-    @property
-    def nowait_nodes(self):
-        """
-        :return: nodes that are marked with nowait flag - dispatcher will not wait for their completion
-        """
-        return self._nowait_nodes
-
     def add_edge(self, edge):
         """
         :param edge: edge to be added
         :type edge: List[Edge]
         """
-        self._edges.append(edge)
+        self.edges.append(edge)
 
     def add_nowait_node(self, node):
         """
         :param node: add a node that should be marked with nowait flag
         """
-        self._nowait_nodes.append(node)
+        self.nowait_nodes.append(node)
 
     def all_nodes_from(self):
         """
@@ -100,7 +72,7 @@ class Flow(Node):
         """
         all_nodes_from = set()
 
-        for edge in self._edges:
+        for edge in self.edges:
             all_nodes_from = all_nodes_from | set(edge.nodes_from)
 
         return list(all_nodes_from)
@@ -111,7 +83,7 @@ class Flow(Node):
         """
         all_nodes_to = set()
 
-        for edge in self._edges:
+        for edge in self.edges:
             all_nodes_to = all_nodes_to | set(edge.nodes_to)
 
         return list(all_nodes_to)

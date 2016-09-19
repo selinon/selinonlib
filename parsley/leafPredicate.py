@@ -39,10 +39,11 @@ class LeafPredicate(Predicate):
         :param flow: flow to which predicate belongs to
         :param args: predicate arguments that should be used
         """
+        self.node = node
+        self.flow = flow
+
         self._func = predicate_func
-        self._node = node
         self._args = args if args is not None else {}
-        self._flow = flow
         self._func_args = get_function_arguments(self._func)
 
     def requires_message(self):
@@ -81,16 +82,16 @@ class LeafPredicate(Predicate):
 
         for arg in func_args - user_args:
             _logger.error("Argument '%s' of predicate '%s' not specified in flow '%s'"
-                          % (arg, self._func.__name__, self._flow.name))
+                          % (arg, self._func.__name__, self.flow.name))
             error = True
 
         for arg in user_args - func_args:
             _logger.error("Invalid argument '%s' for predicate '%s' in flow '%s'"
-                          % (arg, self._func.__name__, self._flow.name))
+                          % (arg, self._func.__name__, self.flow.name))
             error = True
 
         if error:
-            raise ValueError("Bad predicate arguments specified in flow '%s'" % self._flow.name)
+            raise ValueError("Bad predicate arguments specified in flow '%s'" % self.flow.name)
 
     def _check_usage(self):
         """
@@ -121,22 +122,6 @@ class LeafPredicate(Predicate):
         else:
             # we hide node_args parameter
             return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
-
-    @property
-    def node(self):
-        """
-        :return: node to which predicate corresponds
-        :rtype: Node
-        """
-        return self._node
-
-    @property
-    def flow(self):
-        """
-        :return: flow to which predicate belongs to
-        :rtype: Flow
-        """
-        return self._flow
 
     def _task_str_name(self):
         # task_name can be None if we have starting edge

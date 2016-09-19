@@ -37,38 +37,10 @@ class Edge(object):
         :param flow: flow to which edge belongs to
         :type flow: Flow
         """
-        self._nodes_from = nodes_from
-        self._nodes_to = nodes_to
-        self._predicate = predicate
-        self._flow = flow
-
-    @property
-    def nodes_from(self):
-        """
-        :return: edge's source nodes
-        """
-        return self._nodes_from
-
-    @property
-    def nodes_to(self):
-        """
-        :return: edge's destination nodes
-        """
-        return self._nodes_to
-
-    @property
-    def predicate(self):
-        """
-        :return: edge condition
-        """
-        return self._predicate
-
-    @property
-    def flow(self):
-        """
-        :return: flow that edge is defined in
-        """
-        return self._flow
+        self.nodes_from = nodes_from
+        self.nodes_to = nodes_to
+        self.predicate = predicate
+        self.flow = flow
 
     @staticmethod
     def from_dict(d, system, flow):

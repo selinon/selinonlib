@@ -23,37 +23,16 @@ class TaskClass(object):
     Task's class abstraction
     """
     def __init__(self, class_name, import_path):
-        self._class_name = class_name
-        self._import_path = import_path
-        self._tasks = []
-
-    @property
-    def class_name(self):
-        """
-        :return: name of the class
-        """
-        return self._class_name
-
-    @property
-    def import_path(self):
-        """
-        :return: import of the task
-        """
-        return self._import_path
-
-    @property
-    def tasks(self):
-        """
-        :return: tasks that are instantiated from this task
-        """
-        return self._tasks
+        self.class_name = class_name
+        self.import_path = import_path
+        self.tasks = []
 
     def task_of_class(self, task):
         """
         :param task: task to be checked
         :return: True if task is of this class
         """
-        return self._class_name == task.class_name and self._import_path == task.import_path
+        return self.class_name == task.class_name and self.import_path == task.import_path
 
     def add_task(self, task):
         """
@@ -62,5 +41,5 @@ class TaskClass(object):
         :param task: task to be added
         """
         assert(self.task_of_class(task))
-        self._tasks.append(task)
+        self.tasks.append(task)
 

@@ -33,8 +33,8 @@ class Failures(object):
         :param last_allocated: last allocated starting node for linked list
         :param starting_nodes: starting nodes for failures
         """
-        self._waiting_nodes = []
-        self._fallback_nodes = []
+        self.waiting_nodes = []
+        self.fallback_nodes = []
 
         for failure in raw_definition:
             waiting_nodes_entry = []
@@ -57,32 +57,18 @@ class Failures(object):
             else:
                 raise ValueError("Unknown fallback definition in flow '%s', failure: %s" % (flow.name, failure))
 
-            self._waiting_nodes.append(waiting_nodes_entry)
-            self._fallback_nodes.append(fallback_nodes_entry)
+            self.waiting_nodes.append(waiting_nodes_entry)
+            self.fallback_nodes.append(fallback_nodes_entry)
 
-        self._raw_definition = raw_definition
-        self._last_allocated = last_allocated
-        self._starting_nodes = starting_nodes
-
-    @property
-    def waiting_nodes(self):
-        """
-        :return: fallback list containing list of nodes for which there is defined a callback
-        """
-        return self._waiting_nodes
-
-    @property
-    def fallback_nodes(self):
-        """
-        :return: fallback list containing list of nodes defined as a callback
-        """
-        return self._fallback_nodes
+        self.raw_definition = raw_definition
+        self.last_allocated = last_allocated
+        self.starting_nodes = starting_nodes
 
     def all_waiting_nodes(self):
         """
         :return: all nodes that for which there is defined a callback
         """
-        return list(set(chain(*self._waiting_nodes)))
+        return list(set(chain(*self.waiting_nodes)))
 
     def all_fallback_nodes(self):
         """
@@ -90,7 +76,7 @@ class Failures(object):
         """
         # remove True/False flags
         nodes = []
-        for fallback in self._fallback_nodes:
+        for fallback in self.fallback_nodes:
             for node in fallback:
                 if not isinstance(node, bool):
                     nodes.append(node)
@@ -141,20 +127,13 @@ class Failures(object):
         """
         return "_%s_fail_%s" % (flow_name, "_".join(failure_node.traversed))
 
-    @property
-    def raw_definition(self):
-        """
-        :return: raw definition as in config YAML
-        """
-        return self._raw_definition
-
     def fallback_nodes_names(self):
         """
         :return: names of nodes that are started by fallbacks in all failures
         """
         ret = []
 
-        failure_node = self._last_allocated
+        failure_node = self.last_allocated
         while failure_node:
             if isinstance(failure_node.fallback, list):
                 ret.extend(failure_node.fallback)
@@ -166,7 +145,7 @@ class Failures(object):
         """
         :return: names of all nodes that we are expecting to fail for fallbacks
         """
-        return list(self._starting_nodes.keys())
+        return list(self.starting_nodes.keys())
 
     def dump2stream(self, f, flow_name):
         """
@@ -175,7 +154,7 @@ class Failures(object):
         :param f: output stream to dump to
         :param flow_name: a name of a flow that failures belong to
         """
-        fail_node = self._last_allocated
+        fail_node = self.last_allocated
 
         while fail_node:
             next_dict = {}
@@ -201,7 +180,7 @@ class Failures(object):
         f.write("\n%s = {" % self.starting_nodes_name(flow_name))
 
         printed = False
-        for k, v in self._starting_nodes.items():
+        for k, v in self.starting_nodes.items():
             if printed:
                 f.write(",")
             f.write("\n    '%s': %s" % (k, self.failure_node_name(flow_name, v)))

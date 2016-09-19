@@ -74,60 +74,11 @@ class FailureNode(object):
         :param traversed: traversed nodes - also permutation of nodes
         :param failure_link: link to next failure node in failures
         """
-        self._next = {}
-        self._flow = flow
-        self._fallback = []
-        self._traversed = traversed
-        self._failure_link = failure_link
-
-    @property
-    def fallback(self):
-        """
-        :return: fallback of a failure node
-        """
-        return self._fallback
-
-    @fallback.setter
-    def fallback(self, fallback):
-        """
-        :param fallback: fallback for a failure node
-        """
-        self._fallback = fallback
-
-    @property
-    def traversed(self):
-        """
-        :return: traversed tasks/nodes in failure node
-        """
-        return self._traversed
-
-    @property
-    def next(self):
-        """
-        :return: next dict to a failure node
-        """
-        return self._next
-
-    @property
-    def failure_link(self):
-        """
-        :return: failure link
-        """
-        return self._failure_link
-
-    @property
-    def flow(self):
-        """
-        :return: flow to which the failure node corresponds
-        """
-        return self._flow
-
-    @failure_link.setter
-    def failure_link(self, failure_link):
-        """
-        :param failure_link: set failure link
-        """
-        self._failure_link = failure_link
+        self.next = {}
+        self.flow = flow
+        self.fallback = []
+        self.traversed = traversed
+        self.failure_link = failure_link
 
     def to(self, node_name):
         """
@@ -136,14 +87,14 @@ class FailureNode(object):
         :param node_name: a name of the node for next permutation
         :rtype: FailureNode
         """
-        return self._next[node_name]
+        return self.next[node_name]
 
     def has_to(self, node_name):
         """
         :param node_name:
         :return: True if there is a link to next permutation for node of name node_name
         """
-        return node_name in self._next
+        return node_name in self.next
 
     def add_to(self, node_name, failure):
         """
@@ -152,8 +103,8 @@ class FailureNode(object):
         :param node_name: a node for next permutation
         :param failure: FailureNode that should be added
         """
-        assert(node_name not in self._next)
-        self._next[node_name] = failure
+        assert(node_name not in self.next)
+        self.next[node_name] = failure
 
     @staticmethod
     def _add_fallback(failure_node, fallback):
