@@ -108,6 +108,8 @@ class Task(Node):
             storage = system.storage_by_name(d['storage'])
         else:
             storage = None
+
+        # TODO: this looks pretty ugly, refactor this
         return Task(d['name'], d['import'], d.get('classname'), storage, d.get('max_retry', _DEFAULT_MAX_RETRY),
                     d.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN), d.get('time_limit'), d.get('queue'),
                     d.get('output_schema'))
