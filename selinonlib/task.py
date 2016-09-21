@@ -25,7 +25,7 @@ from .globalConfig import GlobalConfig
 _logger = Logger.get_logger(__name__)
 
 _DEFAULT_MAX_RETRY = 0
-_DEFAULT_RETRY_COUNTDOWN = 5
+_DEFAULT_RETRY_COUNTDOWN = 0
 
 
 class Task(Node):
