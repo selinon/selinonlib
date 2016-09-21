@@ -54,7 +54,7 @@ class LeafPredicate(Predicate):
 
     def requires_node_args(self):
         """
-        :return: True if predicate requires a message from a parent node
+        :return: True if predicate requires a node arguments
         """
         return 'node_args' in self._func_args
 
