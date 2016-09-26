@@ -49,6 +49,7 @@ class Task(Node):
         self.queue_name = opts.get('queue', GlobalConfig.default_task_queue)
         self.import_path = import_path
         self.storage = storage
+        self.storage_readonly = opts.get('storage_readonly', False)
 
         # register task usage
         if self.storage:
@@ -88,6 +89,9 @@ class Task(Node):
 
         if self.queue_name is not None and not isinstance(self.queue_name, str):
             raise ValueError("Invalid task queue, should be string, got %s" % self.queue_name)
+
+        if not isinstance(self.storage_readonly, bool):
+            raise ValueError("Storage usage flag readonly should be of type bool")
 
     @staticmethod
     def from_dict(d, system):

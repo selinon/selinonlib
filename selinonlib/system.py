@@ -419,6 +419,21 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
+    def _dump_storage_readonly(self, output):
+        """
+        Dump storage_readonly flow to a stream
+
+        :param output: a stream to write to
+        """
+        output.write('storage_readonly = {')
+        printed = False
+        for task in self.tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': %s" % (task.name, task.storage_readonly))
+            printed = True
+        output.write('\n}\n\n')
+
     def _dump_time_limit(self, output):
         """
         Dump max_retry configuration to a stream
@@ -519,8 +534,8 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_max_retry(f)
         self._dump_retry_countdown(f)
-        f.write('#'*80+'\n\n')
         self._dump_time_limit(f)
+        self._dump_storage_readonly(f)
         f.write('#'*80+'\n\n')
 
         for flow in self.flows:
