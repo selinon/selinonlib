@@ -211,7 +211,7 @@ class System(object):
             output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
 
         for task in self.tasks:
-            output.write("from {} import {}\n".format(task.import_path, task.class_name))
+            output.write("from {} import {} as {}\n".format(task.import_path, task.class_name, task.name))
 
         for storage in self.storages:
             if len(storage.tasks) > 0:
@@ -279,7 +279,7 @@ class System(object):
         for task in self.tasks:
             if printed:
                 output.write(',')
-            output.write("\n    '%s': %s" % (task.name, task.class_name))
+            output.write("\n    '%s': %s" % (task.name, task.name))
             printed = True
         output.write('\n}\n\n')
 
