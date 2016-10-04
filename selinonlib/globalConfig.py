@@ -39,7 +39,7 @@ class GlobalConfig(object):
     strategy_func_args = {'start_retry': 2, 'max_retry': 120}
 
     default_task_queue = _DEFAULT_CELERY_QUEUE
-    config_dispatcher_queue = _DEFAULT_CELERY_QUEUE
+    dispatcher_queue = _DEFAULT_CELERY_QUEUE
 
     _trace_logging = None
     _trace_import = None
