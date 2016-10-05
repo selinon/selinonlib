@@ -57,13 +57,11 @@ class Flow(Node):
         # chicken-egg issues in flows
         raise NotImplementedError()
 
-    @staticmethod
-    def _set_propagate(system, flow_name, flow_def, propagate_type):
+    def _set_propagate(self, system, flow_def, propagate_type):
         """
         Parse propagate_node_args flag and adjust flow accordingly
 
         :param system: system that is used
-        :param flow_name: flow name for which flag is configured
         :param flow_def: flow definition
         :param propagate_type: propagate flag type
         """
@@ -82,7 +80,7 @@ class Flow(Node):
             elif isinstance(flow_def[propagate_type], bool):
                 ret = flow_def[propagate_type]
             else:
-                raise ValueError("Unknown value in '%s' in flow %s" % (flow_name, propagate_type))
+                raise ValueError("Unknown value in '%s' in flow %s" % (self.name, propagate_type))
 
         return ret
 
@@ -114,13 +112,11 @@ class Flow(Node):
                 node = system.node_by_name(node_name)
                 self.add_nowait_node(node)
 
-        self.propagate_node_args = self._set_propagate(system, self.name, flow_def, 'propagate_node_args')
-        self.propagate_finished = self._set_propagate(system, self.name, flow_def, 'propagate_finished')
-        self.propagate_parent = self._set_propagate(system, self.name, flow_def, 'propagate_parent')
-        self.propagate_compound_finished = self._set_propagate(system, self.name, flow_def,
-                                                               'propagate_compound_finished')
-        self.propagate_compound_parent = self._set_propagate(system, self.name, flow_def,
-                                                             'propagate_compound_parent')
+        self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
+        self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
+        self.propagate_parent = self._set_propagate(system, flow_def, 'propagate_parent')
+        self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
+        self.propagate_compound_parent = self._set_propagate(system, flow_def, 'propagate_compound_parent')
 
     def add_edge(self, edge):
         """
