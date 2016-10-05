@@ -18,8 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
+from .edge import Edge
 from .node import Node
 from .logger import Logger
+from .failures import Failures
 
 _logger = Logger.get_logger(__name__)
 
@@ -51,7 +53,74 @@ class Flow(Node):
 
     @staticmethod
     def from_dict(d):
+        # We do not use this method, as we expect flow listings and flow definitions in a separate sections due to
+        # chicken-egg issues in flows
         raise NotImplementedError()
+
+    @staticmethod
+    def _set_propagate(system, flow_name, flow_def, propagate_type):
+        """
+        Parse propagate_node_args flag and adjust flow accordingly
+
+        :param system: system that is used
+        :param flow_name: flow name for which flag is configured
+        :param flow_def: flow definition
+        :param propagate_type: propagate flag type
+        """
+        ret = False
+
+        if propagate_type in flow_def and flow_def[propagate_type] is not None:
+            if not isinstance(flow_def[propagate_type], list) and \
+                    not isinstance(flow_def[propagate_type], bool):
+                flow_def[propagate_type] = [flow_def[propagate_type]]
+
+            if isinstance(flow_def[propagate_type], list):
+                ret = []
+                for node_name in flow_def[propagate_type]:
+                    node = system.flow_by_name(node_name)
+                    ret.append(node)
+            elif isinstance(flow_def[propagate_type], bool):
+                ret = flow_def[propagate_type]
+            else:
+                raise ValueError("Unknown value in '%s' in flow %s" % (flow_name, propagate_type))
+
+        return ret
+
+    def parse_definition(self, flow_def, system):
+        """
+        Parse flow definition (fill flow attributes) from a dictionary
+
+        :param flow_def: dictionary containing flow definition
+        :param system: system in which flow is defined
+        """
+        assert flow_def['name'] == self.name
+
+        if len(self.edges) > 0:
+            raise ValueError("Multiple definitions of flow '%s'" % self.name)
+
+        for edge_def in flow_def['edges']:
+            edge = Edge.from_dict(edge_def, system, self)
+            self.add_edge(edge)
+
+        if 'failures' in flow_def:
+            failures = Failures.construct(system, self, flow_def['failures'])
+            self.failures = failures
+
+        if 'nowait' in flow_def and flow_def['nowait'] is not None:
+            if not isinstance(flow_def['nowait'], list):
+                flow_def['nowait'] = [flow_def['nowait']]
+
+            for node_name in flow_def['nowait']:
+                node = system.node_by_name(node_name)
+                self.add_nowait_node(node)
+
+        self.propagate_node_args = self._set_propagate(system, self.name, flow_def, 'propagate_node_args')
+        self.propagate_finished = self._set_propagate(system, self.name, flow_def, 'propagate_finished')
+        self.propagate_parent = self._set_propagate(system, self.name, flow_def, 'propagate_parent')
+        self.propagate_compound_finished = self._set_propagate(system, self.name, flow_def,
+                                                               'propagate_compound_finished')
+        self.propagate_compound_parent = self._set_propagate(system, self.name, flow_def,
+                                                             'propagate_compound_parent')
 
     def add_edge(self, edge):
         """

@@ -27,12 +27,10 @@ from datetime import datetime
 from .task import Task
 from .storage import Storage
 from .flow import Flow
-from .edge import Edge
 from .version import selinonlib_version
 from .config import Config
 from .logger import Logger
 from .helpers import dict2strkwargs, expr2str
-from .failures import Failures
 from .taskClass import TaskClass
 from .globalConfig import GlobalConfig
 
@@ -815,35 +813,6 @@ class System(object):
                 raise
 
     @staticmethod
-    def _set_propagate(system, flow_name, flow_def, propagate_type):
-        """
-        Parse propagate_node_args flag and adjust flow accordingly
-
-        :param system: system that is used
-        :param flow_name: flow name for which flag is configured
-        :param flow_def: flow definition
-        :param propagate_type: propagate flag type
-        """
-        ret = False
-
-        if propagate_type in flow_def and flow_def[propagate_type] is not None:
-            if not isinstance(flow_def[propagate_type], list) and \
-                    not isinstance(flow_def[propagate_type], bool):
-                flow_def[propagate_type] = [flow_def[propagate_type]]
-
-            if isinstance(flow_def[propagate_type], list):
-                ret = []
-                for node_name in flow_def[propagate_type]:
-                    node = system.flow_by_name(node_name)
-                    ret.append(node)
-            elif isinstance(flow_def[propagate_type], bool):
-                ret = flow_def[propagate_type]
-            else:
-                raise ValueError("Unknown value in '%s' in flow %s" % (flow_name, propagate_type))
-
-        return ret
-
-    @staticmethod
     def from_files(nodes_definition_file, flow_definition_files, no_check=False):
         """
         Construct System from files
@@ -902,33 +871,7 @@ class System(object):
 
             for flow_def in content['flow-definitions']:
                 flow = system.flow_by_name(flow_def['name'])
-
-                if len(flow.edges) > 0:
-                    raise ValueError("Multiple definitions of flow '%s'" % flow.name)
-
-                for edge_def in flow_def['edges']:
-                    edge = Edge.from_dict(edge_def, system, flow)
-                    flow.add_edge(edge)
-
-                if 'failures' in flow_def:
-                    failures = Failures.construct(system, flow, flow_def['failures'])
-                    flow.failures = failures
-
-                if 'nowait' in flow_def and flow_def['nowait'] is not None:
-                    if not isinstance(flow_def['nowait'], list):
-                        flow_def['nowait'] = [flow_def['nowait']]
-
-                    for node_name in flow_def['nowait']:
-                        node = system.node_by_name(node_name)
-                        flow.add_nowait_node(node)
-
-                flow.propagate_node_args = System._set_propagate(system, flow.name, flow_def, 'propagate_node_args')
-                flow.propagate_finished = System._set_propagate(system, flow.name, flow_def, 'propagate_finished')
-                flow.propagate_parent = System._set_propagate(system, flow.name, flow_def, 'propagate_parent')
-                flow.propagate_compound_finished = System._set_propagate(system, flow.name, flow_def,
-                                                                         'propagate_compound_finished')
-                flow.propagate_compound_parent = System._set_propagate(system, flow.name, flow_def,
-                                                                       'propagate_compound_parent')
+                flow.parse_definition(flow_def, system)
 
         system._post_parse_check()
         if not no_check:
