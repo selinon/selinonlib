@@ -41,9 +41,9 @@ class Flow(Node):
         """
         super(Flow, self).__init__(name)
         _logger.debug("Creating flow '{}'".format(name))
-        self.edges = edges if edges else []
-        self.failures = failures if failures else None
-        self.nowait_nodes = nowait_nodes if nowait_nodes else []
+        self.edges = edges or []
+        self.failures = failures or None
+        self.nowait_nodes = nowait_nodes or []
 
         self.propagate_node_args = False
         self.propagate_finished = False

@@ -43,10 +43,10 @@ class System(object):
     The representation of the whole system
     """
     def __init__(self, tasks=None, flows=None, storages=None, task_classes=None):
-        self.flows = flows if flows else []
-        self.tasks = tasks if tasks else []
-        self.storages = storages if storages else []
-        self.task_classes = task_classes if task_classes else []
+        self.flows = flows or []
+        self.tasks = tasks or []
+        self.storages = storages or []
+        self.task_classes = task_classes or []
 
     def _check_name_collision(self, name):
         """
@@ -508,8 +508,8 @@ class System(object):
         """
         f.write('#!/usr/bin/env python3\n')
         f.write('# auto-generated using Selinonlib v{} on {} at {}\n\n'.format(selinonlib_version,
-                                                                            platform.node(),
-                                                                            str(datetime.utcnow())))
+                                                                               platform.node(),
+                                                                               str(datetime.utcnow())))
         self._dump_imports(f)
         self._dump_task_classes(f)
         self._dump_queues(f)

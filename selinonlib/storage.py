@@ -33,7 +33,7 @@ class Storage(object):
         self.name = name
         self.import_path = import_path
         self.configuration = configuration
-        self.class_name = class_name if class_name else name
+        self.class_name = class_name or name
         self.tasks = []
 
     def register_task(self, task):

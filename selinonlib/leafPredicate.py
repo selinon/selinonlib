@@ -43,7 +43,7 @@ class LeafPredicate(Predicate):
         self.flow = flow
 
         self._func = predicate_func
-        self._args = args if args is not None else {}
+        self._args = args or {}
         self._func_args = get_function_arguments(self._func)
 
     def requires_message(self):
