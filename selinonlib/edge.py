@@ -26,7 +26,7 @@ class Edge(object):
     """
     Edge representation
     """
-    def __init__(self, nodes_from, nodes_to, predicate, flow):
+    def __init__(self, nodes_from, nodes_to, predicate, flow, foreach):
         """
         :param nodes_from: nodes from where edge starts
         :type nodes_from: List[Node]
@@ -36,11 +36,14 @@ class Edge(object):
         :type predicate: Predicate
         :param flow: flow to which edge belongs to
         :type flow: Flow
+        :param foreach: foreach defining function and import over which we want to iterate
+        :type foreach: dict
         """
         self.nodes_from = nodes_from
         self.nodes_to = nodes_to
         self.predicate = predicate
         self.flow = flow
+        self.foreach = foreach
 
     @staticmethod
     def from_dict(d, system, flow):
@@ -76,4 +79,20 @@ class Edge(object):
         else:
             predicate = AlwaysTruePredicate(flow=flow)
 
-        return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate, flow=flow)
+        foreach = None
+        if 'foreach' in d:
+            foreach_def = d['foreach']
+            if foreach_def is None or 'function' not in foreach_def or 'import' not in foreach_def:
+                raise ValueError("Specification of 'foreach' requires 'function' and 'import' to be set in flow '%s',"
+                                 " got %s instead" % (flow.name, foreach_def))
+            foreach = {'function': foreach_def['function'], 'import': foreach_def['import']}
+
+            if not isinstance(foreach_def['function'], str):
+                raise ValueError("Wrong function name '%s' supplied in foreach section in flow %s"
+                                 % (foreach_def['function'], flow.name))
+
+            if not isinstance(foreach_def['import'], str):
+                raise ValueError("Wrong import statement '%s' supplied in foreach section in flow %s"
+                                 % (foreach_def['import'], flow.name))
+
+        return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate, flow=flow, foreach=foreach)

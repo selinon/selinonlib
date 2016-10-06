@@ -208,6 +208,12 @@ class System(object):
         if predicates:
             output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
 
+        for flow in self.flows:
+            for idx, edge in enumerate(flow.edges):
+                if edge.foreach:
+                    output.write('from {} import {} as {}\n'.format(edge.foreach['import'],
+                                                                    edge.foreach['function'],
+                                                                    self._dump_foreach_function_name(flow.name, idx)))
         for task in self.tasks:
             output.write("from {} import {} as {}\n".format(task.import_path, task.class_name, task.name))
 
@@ -373,8 +379,22 @@ class System(object):
         :type idx: int
         :return: condition function representation
         """
-        assert(idx >= 0)
+        assert idx >= 0
         return '_condition_{}_{}'.format(flow_name, idx)
+
+    @staticmethod
+    def _dump_foreach_function_name(flow_name, idx):
+        """
+        Create foreach function name for a dump
+
+        :param flow_name: flow name
+        :type flow_name: str
+        :param idx: index of condition within the flow
+        :type idx: int
+        :return: condition function representation
+        """
+        assert idx >= 0
+        return '_foreach_{}_{}'.format(flow_name, idx)
 
     def _dump_condition_functions(self, output):
         """
@@ -493,7 +513,10 @@ class System(object):
                     output.write(' '*(len(flow.name) + 4 + 5)) # align to previous line
                 output.write("{'from': %s" % str([node.name for node in edge.nodes_from]))
                 output.write(", 'to': %s" % str([node.name for node in edge.nodes_to]))
-                output.write(", 'condition': %s}" % self._dump_condition_name(flow.name, idx_edge))
+                output.write(", 'condition': %s" % self._dump_condition_name(flow.name, idx_edge))
+                if edge.foreach:
+                    output.write(", 'foreach': %s" % self._dump_foreach_function_name(flow.name, idx_edge))
+                output.write("}")
             if idx + 1 < len(self.flows):
                 output.write('],\n')
             else:
