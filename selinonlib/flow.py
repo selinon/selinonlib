@@ -44,6 +44,7 @@ class Flow(Node):
         self.edges = edges or []
         self.failures = failures or None
         self.nowait_nodes = nowait_nodes or []
+        self.node_args_from_first = False
 
         self.propagate_node_args = False
         self.propagate_finished = False
@@ -112,6 +113,7 @@ class Flow(Node):
                 node = system.node_by_name(node_name)
                 self.add_nowait_node(node)
 
+        self.node_args_from_first = flow_def.get('node_args_from_first', False)
         self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
         self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
         self.propagate_parent = self._set_propagate(system, flow_def, 'propagate_parent')

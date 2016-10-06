@@ -547,6 +547,7 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')
+        self._dump_dict(f, 'node_args_from_first', [{f.name: f.node_args_from_first} for f in self.flows])
         self._dump_dict(f, 'propagate_node_args', [{f.name: f.propagate_node_args} for f in self.flows])
         self._dump_dict(f, 'propagate_finished', [{f.name: f.propagate_finished} for f in self.flows])
         self._dump_dict(f, 'propagate_parent', [{f.name: f.propagate_parent} for f in self.flows])
@@ -738,11 +739,20 @@ class System(object):
                 all_source_nodes = flow.all_source_nodes()
                 all_destination_nodes = flow.all_destination_nodes()
 
+                starting_edges_count = 0
                 starting_nodes_count = 0
 
                 for edge in flow.edges:
                     if len(edge.nodes_from) == 0:
-                        starting_nodes_count += 1
+                        starting_edges_count += 1
+                        starting_nodes_count += len(edge.nodes_to)
+
+                        if flow.node_args_from_first:
+                            if len(edge.nodes_to) > 1:
+                                raise ValueError("Cannot propagate node arguments from multiple starting nodes")
+
+                            if edge.nodes_to[0].is_flow():
+                                raise ValueError("Cannot propagate node arguments from a sub-flow")
 
                     node_seen = {}
                     for node_from in edge.nodes_from:
@@ -754,8 +764,11 @@ class System(object):
 
                     edge.predicate.check()
 
-                if starting_nodes_count > 1:
+                if starting_edges_count > 1:
                     _logger.warning("Multiple starting nodes defined in flow '%s'" % flow.name)
+
+                    if flow.node_args_from_first:
+                        raise ValueError("Cannot propagate node arguments from multiple starting nodes")
 
                 if starting_nodes_count == 0:
                     raise ValueError("No starting node found in flow '%s'" % flow.name)
