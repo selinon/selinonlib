@@ -516,6 +516,7 @@ class System(object):
                 output.write(", 'condition': %s" % self._dump_condition_name(flow.name, idx_edge))
                 if edge.foreach:
                     output.write(", 'foreach': %s" % self._dump_foreach_function_name(flow.name, idx_edge))
+                    output.write(", 'foreach_propagate_result': %s" % edge.foreach['propagate_result'])
                 output.write("}")
             if idx + 1 < len(self.flows):
                 output.write('],\n')
@@ -616,7 +617,14 @@ class System(object):
 
             for idx, edge in enumerate(flow.edges):
                 condition_node = "%s_%s" % (flow.name, idx)
-                graph.node(name=condition_node, label=str(edge.predicate), _attributes=Config().style_condition())
+                if edge.foreach:
+                    condition_label = "%s\nforeach %s.%s"\
+                                      % (str(edge.predicate), edge.foreach['import'], edge.foreach['function'])
+                    graph.node(name=condition_node, label=condition_label,
+                               _attributes=Config().style_condition_foreach())
+                else:
+                    graph.node(name=condition_node, label=str(edge.predicate),
+                               _attributes=Config().style_condition())
 
                 for node in edge.nodes_to:
                     # Plot storage connection
@@ -743,6 +751,8 @@ class System(object):
                 starting_nodes_count = 0
 
                 for edge in flow.edges:
+                    edge.check()
+
                     if len(edge.nodes_from) == 0:
                         starting_edges_count += 1
                         starting_nodes_count += len(edge.nodes_to)

@@ -98,6 +98,19 @@ class Config(metaclass=_ConfigSingleton):
         ret = self._raw_config['style'].get('condition', default_style)
         return ret if ret is not None else default_style
 
+    def style_condition_foreach(self):
+        """
+        Return style for foreach edges in the graph, see graphviz styling options
+
+        :return: style definition
+        :rtype: dict
+        """
+        default_style = {'shape': 'doubleoctagon'}
+        if self._raw_config is None or 'style' not in self._raw_config:
+            return default_style
+        ret = self._raw_config['style'].get('condition', default_style)
+        return ret if ret is not None else default_style
+
     def style_storage(self):
         """
         Return style for storage in the graph, see graphviz styling options
