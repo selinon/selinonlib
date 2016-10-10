@@ -5,6 +5,9 @@ from .helpers import get_function_arguments
 
 
 class Strategy(object):
+    """
+    Sampling strategy for Dispatcher
+    """
     _DEFAULT_MODULE = 'selinonlib.strategies'
     _DEFAULT_FUNCTION = 'biexponential_increase'
     _DEFAULT_FUNC_ARGS = {'start_retry': 2, 'max_retry': 120}
@@ -13,6 +16,11 @@ class Strategy(object):
                                     'new_started_nodes', 'new_fallback_nodes'}
 
     def __init__(self, module=None, function=None, func_args=None):
+        """
+        :param module: module from which sampling strategy should be imported
+        :param function: sampling function name
+        :param func_args: sampling function arguments
+        """
         self.module = module or self._DEFAULT_MODULE
         self.function = function or self._DEFAULT_FUNCTION
         self.func_args = func_args or self._DEFAULT_FUNC_ARGS
