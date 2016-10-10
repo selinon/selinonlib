@@ -294,8 +294,8 @@ class System(object):
 
         :param output: a stream to write to
         """
-        self._dump_dict(output, 'task_queues', [{f.name: f.queue_name} for f in self.tasks])
-        self._dump_dict(output, 'dispatcher_queues', [{f.name: f.queue_name} for f in self.flows])
+        self._dump_dict(output, 'task_queues', [{f.name: "'%s'" % f.queue_name} for f in self.tasks])
+        self._dump_dict(output, 'dispatcher_queues', [{f.name: "'%s'" % f.queue_name} for f in self.flows])
 
     @staticmethod
     def _dump_get_task_instance(output):
