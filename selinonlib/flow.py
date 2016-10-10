@@ -127,7 +127,7 @@ class Flow(Node):
         self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
         self.propagate_compound_parent = self._set_propagate(system, flow_def, 'propagate_compound_parent')
         self.queue_name = flow_def.get('queue', GlobalConfig.default_dispatcher_queue)
-        self.strategy = Strategy.from_dict(flow_def.get('strategy'))
+        self.strategy = Strategy.from_dict(flow_def.get('sampling'))
 
     def add_edge(self, edge):
         """
