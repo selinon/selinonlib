@@ -92,7 +92,7 @@ class Config(metaclass=_ConfigSingleton):
         :return: style definition
         :rtype: dict
         """
-        default_style = {'shape': 'hexagon'}
+        default_style = {'shape': 'octagon'}
         if self._raw_config is None or 'style' not in self._raw_config:
             return default_style
         ret = self._raw_config['style'].get('condition', default_style)
