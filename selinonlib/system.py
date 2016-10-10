@@ -227,9 +227,6 @@ class System(object):
 
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
-        output.write("from {} import {} as _strategy_function\n".format(GlobalConfig.strategy_module,
-                                                                        GlobalConfig.strategy_function))
-        output.write('\n\n')
 
     def _dump_is_flow(self, output):
         """
@@ -358,16 +355,30 @@ class System(object):
                 printed = True
         output.write("\n}\n\n")
 
-    @staticmethod
-    def _dump_strategy_func(output):
+    def _dump_strategy_func(self, output):
         """
         Dump scheduling strategy function to a stream
 
         :param output: a stream to write to
         """
-        # functools is imported in self._dump_imports() so it is safe to use
-        output.write('strategy_function = functools.partial(_strategy_function, %s)\n\n'
-                     % dict2strkwargs(GlobalConfig.strategy_func_args))
+        def strategy_func_name(flow):
+            return "_strategy_func_%s" % flow.name
+
+        def strategy_func_import_name(flow):
+            return "_raw_strategy_func_%s" % flow.name
+
+        strategy_dict = {}
+        for flow in self.flows:
+            output.write("from %s import %s as %s\n"
+                         % (flow.strategy.module, flow.strategy.function, strategy_func_import_name(flow)))
+            output.write('%s = functools.partial(%s, %s)\n\n'
+                         % (strategy_func_name(flow),
+                            strategy_func_import_name(flow),
+                            dict2strkwargs(flow.strategy.func_args)))
+            strategy_dict[flow.name] = strategy_func_name(flow)
+
+        output.write('\n')
+        self._dump_dict(output, 'strategies', [strategy_dict])
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
@@ -536,6 +547,7 @@ class System(object):
                                                                                platform.node(),
                                                                                str(datetime.utcnow())))
         self._dump_imports(f)
+        self._dump_strategy_func(f)
         self._dump_task_classes(f)
         self._dump_queues(f)
         self._dump_get_task_instance(f)
@@ -545,7 +557,6 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_is_flow(f)
         f.write('#'*80+'\n\n')
-        self._dump_strategy_func(f)
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')

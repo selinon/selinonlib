@@ -18,12 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
-import importlib
-from .helpers import get_function_arguments
-
-_EXPECTED_STRATEGY_FUNC_ARGS = {'previous_retry', 'active_nodes', 'failed_nodes',
-                                'new_started_nodes', 'new_fallback_nodes'}
-
 # Celery's default queue
 _DEFAULT_CELERY_QUEUE = 'celery'
 
@@ -33,10 +27,6 @@ class GlobalConfig(object):
     User global configuration stated in YAML file
     """
     predicates_module = 'selinonlib.predicates'
-
-    strategy_module = 'selinonlib.strategies'
-    strategy_function = 'biexponential_increase'
-    strategy_func_args = {'start_retry': 2, 'max_retry': 120}
 
     default_task_queue = _DEFAULT_CELERY_QUEUE
     default_dispatcher_queue = _DEFAULT_CELERY_QUEUE
@@ -48,42 +38,6 @@ class GlobalConfig(object):
 
     def __init__(self):
         raise NotImplementedError("Cannot instantiate global config")
-
-    @classmethod
-    def _parse_strategy(cls, strategy_dict):
-        """
-        Parse strategy entry
-
-        :param strategy_dict: strategy entry in config to be parsed
-        """
-        if strategy_dict is None:
-            return
-
-        if not strategy_dict:
-            raise ValueError('Strategy not defined properly in global configuration section')
-
-        if 'name' not in strategy_dict:
-            raise ValueError('Sampling strategy stated in global configuration but no strategy name defined')
-
-        if 'import' in strategy_dict:
-            cls.strategy_module = strategy_dict['import']
-
-        module = importlib.import_module(cls.strategy_module)
-
-        strategy_func = getattr(module, strategy_dict['name'])
-
-        if strategy_dict.get('args') is not None and not isinstance(strategy_dict['args'], dict):
-            raise ValueError('Arguments to strategy function should be stated as dict')
-        user_args = strategy_dict.get('args', {})
-
-        user_args_keys = user_args.keys()
-        func_args = set(get_function_arguments(strategy_func))
-
-        if (func_args - user_args_keys) != _EXPECTED_STRATEGY_FUNC_ARGS:
-            raise ValueError('Unknown or invalid arguments supplied to sampling strategy function, expected %s, got %s'
-                             % ((func_args - _EXPECTED_STRATEGY_FUNC_ARGS), set(user_args_keys)))
-        else:
-            cls.strategy_func_args = user_args
 
     @classmethod
     def dump_trace(cls, output, config_name, indent_count=0):
@@ -155,9 +109,6 @@ class GlobalConfig(object):
         """
         if 'predicates_module' in d:
             cls.predicates_module = d['predicates_module']
-
-        if 'strategy' in d:
-            cls._parse_strategy(d['strategy'])
 
         if 'trace' in d:
             cls._parse_trace(system, d['trace'])
