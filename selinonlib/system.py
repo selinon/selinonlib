@@ -139,12 +139,16 @@ class System(object):
 
         return ret
 
-    def dispatcher_queue_name(self):
+    def dispatcher_queue_names(self):
         """
         :return: dispatcher queue name
         """
-        # leave this as method (no static/class), so we know that system is instantiated
-        return GlobalConfig.dispatcher_queue
+        ret = {}
+
+        for flow in self.flows:
+            ret[flow.name] = flow.queue_name
+
+        return ret
 
     def flow_by_name(self, name, graceful=False):
         """
@@ -288,16 +292,13 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_queues(self, output):
-        output.write('task_queues = {')
-        printed = False
-        for task in self.tasks:
-            if printed:
-                output.write(',')
-            output.write("\n    '%s': '%s'" % (task.name, task.queue_name))
-            printed = True
-        output.write('\n}\n\n')
+        """
+        Dump queues for tasks and dispatcher
 
-        output.write("dispatcher_queue = '%s'\n\n" % self.dispatcher_queue_name())
+        :param output: a stream to write to
+        """
+        self._dump_dict(output, 'task_queues', [{f.name: f.queue_name} for f in self.tasks])
+        self._dump_dict(output, 'dispatcher_queues', [{f.name: f.queue_name} for f in self.flows])
 
     @staticmethod
     def _dump_get_task_instance(output):
@@ -850,10 +851,6 @@ class System(object):
 
                 if error:
                     raise ValueError("Dependency on not started node detected in flow '%s'" % flow.name)
-
-                if self.dispatcher_queue_name() in self.task_queue_names().keys():
-                    raise ValueError("Detected collision in queue names - dispatcher queue name %s, "
-                                     "task queue names: %s" % (self.dispatcher_queue_name(), self.task_queue_names()))
             except:
                 _logger.error("Check of flow '%s' failed" % flow.name)
                 raise

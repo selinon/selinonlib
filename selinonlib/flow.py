@@ -22,6 +22,7 @@ from .edge import Edge
 from .node import Node
 from .logger import Logger
 from .failures import Failures
+from .globalConfig import GlobalConfig
 
 _logger = Logger.get_logger(__name__)
 
@@ -30,7 +31,7 @@ class Flow(Node):
     """
     Flow representation
     """
-    def __init__(self, name, edges=None, failures=None, nowait_nodes=None):
+    def __init__(self, name, edges=None, failures=None, nowait_nodes=None, queue_name=None):
         """
         :param name: flow name
         :type name: str
@@ -38,6 +39,8 @@ class Flow(Node):
         :type edges: List[Edge]
         :param nowait_nodes: nodes that should not be waited for
         :type nowait_nodes: List[Node]
+        :param queue_name: queue where the dispatcher should listen on
+        :type queue_name: str
         """
         super(Flow, self).__init__(name)
         _logger.debug("Creating flow '{}'".format(name))
@@ -45,6 +48,7 @@ class Flow(Node):
         self.failures = failures or None
         self.nowait_nodes = nowait_nodes or []
         self.node_args_from_first = False
+        self.queue_name = queue_name
 
         self.propagate_node_args = False
         self.propagate_finished = False
@@ -119,6 +123,7 @@ class Flow(Node):
         self.propagate_parent = self._set_propagate(system, flow_def, 'propagate_parent')
         self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
         self.propagate_compound_parent = self._set_propagate(system, flow_def, 'propagate_compound_parent')
+        self.queue_name = flow_def.get('queue', GlobalConfig.default_dispatcher_queue)
 
     def add_edge(self, edge):
         """

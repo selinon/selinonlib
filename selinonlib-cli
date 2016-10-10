@@ -46,7 +46,7 @@ def main():
                         help='format of the output image for -graph')
     parser.add_argument('-list-task-queues', dest='list_task_queues', action='store_true',
                         help='list all task queues to stdout')
-    parser.add_argument('-list-dispatcher-queue', dest='list_dispatcher_queue', action='store_true',
+    parser.add_argument('-list-dispatcher-queues', dest='list_dispatcher_queue', action='store_true',
                         help='list dispatcher queue to stdout')
 
     args = parser.parse_args()
@@ -68,10 +68,11 @@ def main():
     if args.list_task_queues:
         for task_name, queue_name in system.task_queue_names().items():
             print("%s:%s" % (task_name, queue_name))
-            some_work = True
+        some_work = True
 
     if args.list_dispatcher_queue:
-        print("%s:%s" % ('dispatcher', system.dispatcher_queue_name()))
+        for flow_name, queue_name in system.dispatcher_queue_names().items():
+            print("%s:%s" % (flow_name, queue_name))
         some_work = True
 
     if not some_work:

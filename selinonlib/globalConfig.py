@@ -39,7 +39,7 @@ class GlobalConfig(object):
     strategy_func_args = {'start_retry': 2, 'max_retry': 120}
 
     default_task_queue = _DEFAULT_CELERY_QUEUE
-    dispatcher_queue = _DEFAULT_CELERY_QUEUE
+    default_dispatcher_queue = _DEFAULT_CELERY_QUEUE
 
     _trace_logging = None
     _trace_import = None
@@ -162,5 +162,5 @@ class GlobalConfig(object):
         if 'trace' in d:
             cls._parse_trace(system, d['trace'])
 
-        cls.dispatcher_queue = d.get('dispatcher_queue', _DEFAULT_CELERY_QUEUE)
+        cls.default_dispatcher_queue = d.get('default_dispatcher_queue', _DEFAULT_CELERY_QUEUE)
         cls.default_task_queue = d.get('default_task_queue', _DEFAULT_CELERY_QUEUE)
