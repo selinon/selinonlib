@@ -227,6 +227,8 @@ class System(object):
 
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
+        # we need datetime for timedelta in throttle
+        output.write("\nimport datetime\n")
 
     def _dump_is_flow(self, output):
         """
@@ -419,6 +421,15 @@ class System(object):
                 output.write('def {}(db, node_args):\n'.format(self._dump_condition_name(flow.name, idx)))
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
+    def _dump_throttle(self, output):
+        """
+        Dump throttle configuration
+
+        :param output: a stream to write to
+        """
+        self._dump_dict(output, 'throttle_tasks', [{t.name: repr(t.throttle)} for t in self.tasks])
+        self._dump_dict(output, 'throttle_flows', [{f.name: repr(f.throttle)} for f in self.flows])
+
     def _dump_max_retry(self, output):
         """
         Dump max_retry configuration to a stream
@@ -566,6 +577,7 @@ class System(object):
         self._dump_dict(f, 'propagate_parent', [{f.name: f.propagate_parent} for f in self.flows])
         self._dump_dict(f, 'propagate_compound_finished', [{f.name: f.propagate_compound_finished} for f in self.flows])
         self._dump_dict(f, 'propagate_compound_parent', [{f.name: f.propagate_compound_parent} for f in self.flows])
+        self._dump_throttle(f)
         f.write('#'*80+'\n\n')
         self._dump_max_retry(f)
         self._dump_retry_countdown(f)

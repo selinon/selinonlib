@@ -18,6 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
+import time
 from .edge import Edge
 from .node import Node
 from .logger import Logger
@@ -58,6 +59,7 @@ class Flow(Node):
         self.propagate_parent = False
         self.propagate_compound_finished = False
         self.propagate_compound_parent = False
+        self.throttle = None
 
     @staticmethod
     def from_dict(d):
@@ -120,6 +122,7 @@ class Flow(Node):
                 node = system.node_by_name(node_name)
                 self.add_nowait_node(node)
 
+        self.throttle = self.parse_throttle(flow_def)
         self.node_args_from_first = flow_def.get('node_args_from_first', False)
         self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
         self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')

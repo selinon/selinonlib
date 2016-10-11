@@ -50,6 +50,7 @@ class Task(Node):
         self.import_path = import_path
         self.storage = storage
         self.storage_readonly = opts.get('storage_readonly', False)
+        self.throttle = self.parse_throttle(opts)
 
         # register task usage
         if self.storage:

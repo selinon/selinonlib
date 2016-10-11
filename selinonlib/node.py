@@ -18,8 +18,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
+import datetime
 import abc
 import re
+from .helpers import get_function_arguments
 
 
 class Node(metaclass=abc.ABCMeta):
@@ -72,3 +74,26 @@ class Node(metaclass=abc.ABCMeta):
         """
         r = re.compile(r"^[_a-zA-Z][_a-zA-Z0-9]*$")
         return r.match(name)
+
+    def parse_throttle(self, d):
+        """
+        Parse throttle from a dictionary
+
+        :param d: dictionary from which throttle should be parsed (expected under 'throttle' key)
+        :return: timedelta describing throttle countdown
+        :rtype: time.timedelta
+        """
+        if 'throttle' in d:
+            if not isinstance(d['throttle'], dict):
+                raise ValueError("Definition of throttle expects key value definition, got %s instead in '%s'"
+                                 % (d['throttle'], self.name))
+            try:
+                return datetime.timedelta(**d['throttle'])
+            except TypeError:
+                raise ValueError("Wrong throttle definition in '%s', expected values are %s"
+                                 % (self.name,
+                                    ['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']))
+        else:
+            return None
+
+
