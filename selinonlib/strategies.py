@@ -104,6 +104,25 @@ def biexponential_increase(start_retry, max_retry,
         return start_retry
 
 
+def biexponential_decrease(start_retry, stop_retry,
+                           previous_retry, active_nodes, failed_nodes, new_started_nodes, new_fallback_nodes):
+    """
+    Decrease by div 2 each time if no node started, decrease to stop_retry if a node scheduled
+
+    :param start_retry: starting retry to use
+    :param max_retry: upper limit of scheduling
+    """
+    if previous_retry is None:
+        return start_retry
+
+    if len(active_nodes) == 0:
+        return None
+
+    retry = previous_retry / 2
+    if retry < stop_retry:
+        return stop_retry
+
+
 def biexponential_adopt(start_retry, max_retry,
                         previous_retry, active_nodes, failed_nodes, new_started_nodes, new_fallback_nodes):
     """
@@ -144,4 +163,12 @@ def random(start_retry, max_retry, previous_retry, active_nodes, failed_nodes, n
     return gen_random(start_retry, max_retry)
 
 
+def constant(retry, previous_retry, active_nodes, failed_nodes, new_started_nodes, new_fallback_nodes):
+    """
+    Schedule randomly
+    :param retry: constant retry timeout
+    """
+    if len(active_nodes) == 0:
+        return None
 
+    return retry
