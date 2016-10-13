@@ -602,6 +602,7 @@ class System(object):
         :return: list of file names to which the graph was rendered
         :rtype: List[str]
         """
+        # TODO: this method needs to be refactored
         _logger.debug("Rendering system flows to '%s'" % output_dir)
         ret = []
         image_format = image_format if image_format else 'svg'
@@ -663,6 +664,13 @@ class System(object):
                         graph.node(name=fallback_node_name)
                         graph.edge(failure['nodes'][0], fallback_node_name,
                                    _attributes=Config().style_fallback_edge())
+
+                        node = self.node_by_name(failure['fallback'][0])
+                        if node.is_task() and node.storage:
+                            graph.node(name=node.storage.name, _attributes=Config().style_storage())
+                            if (node.name, node.storage.name) not in storage_connections:
+                                graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
+                                storage_connections.append((node.name, node.storage.name,))
                     else:
                         graph.node(name=str(id(failure)), _attributes=Config().style_fallback_node())
 
@@ -680,10 +688,17 @@ class System(object):
                                        _attributes=Config().style_fallback_edge())
                         else:
                             for node_name in failure['fallback']:
-                                if self.node_by_name(node_name).is_flow():
-                                    graph.node(name=node_name, _attributes=Config().style_flow())
+                                node = self.node_by_name(node_name)
+                                if node.is_flow():
+                                    graph.node(name=node.name, _attributes=Config().style_flow())
                                 else:
-                                    graph.node(name=node_name)
+                                    graph.node(name=node.name)
+                                    if node.storage:
+                                        graph.node(name=node.storage.name, _attributes=Config().style_storage())
+                                        if (node.name, node.storage.name) not in storage_connections:
+                                            graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
+                                            storage_connections.append((node.name, node.storage.name,))
+
                                 graph.edge(str(id(failure)), node_name, _attributes=Config().style_fallback_edge())
 
             file = os.path.join(output_dir, "%s" % flow.name)
