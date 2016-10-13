@@ -26,7 +26,7 @@ class Strategy(object):
         self.func_args = func_args or self._DEFAULT_FUNC_ARGS
 
     @classmethod
-    def from_dict(cls, strategy_dict):
+    def from_dict(cls, strategy_dict, flow_name):
         """
         Parse strategy entry
 
@@ -36,15 +36,16 @@ class Strategy(object):
             return cls()
 
         if not isinstance(strategy_dict, dict):
-            raise ValueError('Strategy not defined properly in global configuration section, expected dict, got {}'
-                             % strategy_dict)
+            raise ValueError('Strategy not defined properly in global configuration section, expected dict, got %s '
+                             'in flow %s' % (strategy_dict, flow_name))
 
         if 'name' not in strategy_dict:
-            raise ValueError('Sampling strategy stated in global configuration but no strategy name defined')
+            raise ValueError('Sampling strategy stated in global configuration but no strategy name defined in flow %s'
+                             % flow_name)
 
         if not isinstance(strategy_dict['args'], dict):
-            raise ValueError('Arguments to strategy function should be stated as dict, got %s instead'
-                             % strategy_dict['args'])
+            raise ValueError('Arguments to strategy function should be stated as dict, got %s instead in flow'
+                             % strategy_dict['args'], flow_name)
 
         strategy_module = strategy_dict.get('import', cls._DEFAULT_MODULE)
 
@@ -56,8 +57,10 @@ class Strategy(object):
         func_args = set(get_function_arguments(raw_func))
 
         if (func_args - user_args_keys) != cls._EXPECTED_STRATEGY_FUNC_ARGS:
-            raise ValueError('Unknown or invalid arguments supplied to sampling strategy function, expected %s, got %s'
-                             % ((func_args - cls._EXPECTED_STRATEGY_FUNC_ARGS), set(user_args_keys)))
+            raise ValueError('Unknown or invalid arguments supplied to sampling strategy function, expected %s, got %s '
+                             'for strategy %s in flow %s'
+                             % ((func_args - cls._EXPECTED_STRATEGY_FUNC_ARGS), set(user_args_keys),
+                                strategy_dict['name'], flow_name))
 
         return cls(strategy_module, strategy_dict['name'], strategy_dict['args'])
 
