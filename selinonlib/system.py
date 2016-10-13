@@ -230,15 +230,6 @@ class System(object):
         # we need datetime for timedelta in throttle
         output.write("\nimport datetime\n")
 
-    def _dump_is_flow(self, output):
-        """
-        Dump is_flow() check to a stream
-
-        :param output: a stream to write to
-        """
-        output.write('def is_flow(name):\n')
-        output.write('    return name in %s\n\n' % str([flow.name for flow in self.flows]))
-
     def _dump_output_schemas(self, output):
         """
         Dump output schema mapping to a stream
@@ -298,19 +289,6 @@ class System(object):
         """
         self._dump_dict(output, 'task_queues', [{f.name: "'%s'" % f.queue_name} for f in self.tasks])
         self._dump_dict(output, 'dispatcher_queues', [{f.name: "'%s'" % f.queue_name} for f in self.flows])
-
-    @staticmethod
-    def _dump_get_task_instance(output):
-        """
-        Dump get_task_instance() function to a stream
-
-        :param output: a stream to write to
-        """
-        output.write('def get_task_instance(task_name, flow_name, parent, finished):\n')
-        output.write("    cls = task_classes.get(task_name)\n")
-        output.write("    if not cls:\n")
-        output.write("        raise ValueError(\"Unknown task with name '%s'\" % flow_name)\n")
-        output.write("    return cls(task_name=task_name, flow_name=flow_name, parent=parent, finished=finished)\n\n")
 
     def _dump_storage2instance_mapping(self, output):
         """
@@ -561,13 +539,9 @@ class System(object):
         self._dump_strategy_func(f)
         self._dump_task_classes(f)
         self._dump_queues(f)
-        self._dump_get_task_instance(f)
         f.write('#'*80+'\n\n')
         self._dump_task2storage_mapping(f)
         self._dump_storage2instance_mapping(f)
-        f.write('#'*80+'\n\n')
-        self._dump_is_flow(f)
-        f.write('#'*80+'\n\n')
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')
