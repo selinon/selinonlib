@@ -117,8 +117,12 @@ class LeafPredicate(Predicate):
 
     def __str__(self):
         if self.requires_message():
-            return "%s(db.get('%s'), %s)"\
-                   % (self._func.__name__, self._task_str_name(), dict2strkwargs(self._args))
+            if self._args:
+                return "%s(db.get('%s'), %s)"\
+                       % (self._func.__name__, self._task_str_name(), dict2strkwargs(self._args))
+            else:
+                return "%s(db.get('%s'))" \
+                       % (self._func.__name__, self._task_str_name())
         else:
             # we hide node_args parameter
             return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
