@@ -527,6 +527,7 @@ class System(object):
                 output.write("{'from': %s" % str([node.name for node in edge.nodes_from]))
                 output.write(", 'to': %s" % str([node.name for node in edge.nodes_to]))
                 output.write(", 'condition': %s" % self._dump_condition_name(flow.name, idx_edge))
+                output.write(", 'condition_str': '%s'" % str(edge.predicate).replace('\'', '\\\''))
                 if edge.foreach:
                     output.write(", 'foreach': %s" % self._dump_foreach_function_name(flow.name, idx_edge))
                     output.write(", 'foreach_str': '%s'" % edge.foreach_str())
