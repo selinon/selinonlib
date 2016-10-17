@@ -18,7 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
-import time
 from .edge import Edge
 from .node import Node
 from .logger import Logger
@@ -58,7 +57,6 @@ class Flow(Node):
         self.propagate_finished = False
         self.propagate_parent = False
         self.propagate_compound_finished = False
-        self.propagate_compound_parent = False
         self.throttle = None
 
     @staticmethod
@@ -128,7 +126,6 @@ class Flow(Node):
         self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
         self.propagate_parent = self._set_propagate(system, flow_def, 'propagate_parent')
         self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
-        self.propagate_compound_parent = self._set_propagate(system, flow_def, 'propagate_compound_parent')
         self.queue_name = flow_def.get('queue', GlobalConfig.default_dispatcher_queue)
         self.strategy = Strategy.from_dict(flow_def.get('sampling'), self.name)
 
@@ -190,3 +187,48 @@ class Flow(Node):
         :return: all used nodes in flow
         """
         return list(set(self.all_destination_nodes()) | set(self.all_source_nodes()))
+
+    @staticmethod
+    def _should_config(dst_node_name, configuration):
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :param configuration: configuration that should be checked
+        :return: true if node_name satisfies configuration
+        """
+        if configuration is True:
+            return True
+
+        if isinstance(configuration, list):
+            return dst_node_name in configuration
+
+        return False
+
+    def should_propagate_finished(self, dst_node_name):
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_finish
+        """
+        return self._should_config(dst_node_name, self.propagate_finished)
+
+    def should_propagate_node_args(self, dst_node_name):
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_node_args
+        """
+        return self._should_config(dst_node_name, self.propagate_node_args)
+
+    def should_propagate_parent(self, dst_node_name):
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_parent
+        """
+        return self._should_config(dst_node_name, self.propagate_parent)
+
+    def should_propagate_compound_finished(self, dst_node_name):
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_compound_finished
+        """
+        return self._should_config(dst_node_name, self.propagate_compound_finished)
+
+

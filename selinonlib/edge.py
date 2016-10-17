@@ -66,6 +66,14 @@ class Edge(object):
                                      " in foreach definition in flow '%s' for node to '%s'"
                                      % (self.flow.name, node_to.name))
 
+    def foreach_str(self):
+        """
+        :return: text representation of foreach
+        """
+        if self.foreach:
+            return "foreach %s.%s" % (self.foreach['import'], self.foreach['function'])
+        else:
+            return None
 
     @staticmethod
     def from_dict(d, system, flow):
