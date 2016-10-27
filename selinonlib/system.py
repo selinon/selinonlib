@@ -347,6 +347,16 @@ class System(object):
                 printed = True
         output.write("\n}\n\n")
 
+    def _dump_storage_conf(self, output):
+        """
+        Dump storage configuration to a stream
+
+        :param output: a stream to write to
+        """
+        self._dump_task2storage_mapping(output)
+        self._dump_storage2instance_mapping(output)
+        self._dump_dict(output, 'storage_cached', [{s.name: s.cached} for s in self.storages])
+
     def _dump_strategy_func(self, output):
         """
         Dump scheduling strategy function to a stream
@@ -554,8 +564,7 @@ class System(object):
         self._dump_task_classes(f)
         self._dump_queues(f)
         f.write('#'*80+'\n\n')
-        self._dump_task2storage_mapping(f)
-        self._dump_storage2instance_mapping(f)
+        self._dump_storage_conf(f)
         f.write('#'*80+'\n\n')
         self._dump_output_schemas(f)
         f.write('#'*80+'\n\n')

@@ -23,18 +23,20 @@ class Storage(object):
     """
     A storage representation
     """
-    def __init__(self, name, import_path, configuration, class_name=None):
+    def __init__(self, name, import_path, configuration, class_name=None, cached=False):
         """
         :param name: storage name
         :param import_path: storage import path
         :param configuration: storage configuration that will be passed
         :param class_name: storage class name
+        :param cached: True if results of tasks could be cached
         """
         self.name = name
         self.import_path = import_path
         self.configuration = configuration
         self.class_name = class_name or name
         self.tasks = []
+        self.cached = cached
 
     def register_task(self, task):
         """
@@ -58,8 +60,11 @@ class Storage(object):
             raise KeyError('Storage import definition is mandatory')
         if 'configuration' not in d or not d['configuration']:
             raise KeyError('Storage configuration definition is mandatory')
+        if 'cached' in d and not isinstance(d['cached'], bool):
+            raise ValueError("Flag 'cached' should be boolean, got '%s' instead, storage '%s'"
+                             % (d['cached'], d['name']))
 
-        return Storage(d['name'], d['import'], d['configuration'], d.get('classname'))
+        return Storage(d['name'], d['import'], d['configuration'], d.get('classname'), d.get('cached', False))
 
     @property
     def var_name(self):
