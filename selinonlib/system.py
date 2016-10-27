@@ -355,7 +355,7 @@ class System(object):
         """
         self._dump_task2storage_mapping(output)
         self._dump_storage2instance_mapping(output)
-        self._dump_dict(output, 'storage_cached', [{s.name: s.cached} for s in self.storages])
+        self._dump_dict(output, 'storage_cache_size', [{s.name: s.cache_size} for s in self.storages])
 
     def _dump_strategy_func(self, output):
         """
