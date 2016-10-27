@@ -44,7 +44,6 @@ class Task(Node):
         self.class_name = opts.get('classname', name)
         self.output_schema = opts.get('output_schema')
         self.max_retry = opts.get('max_retry', _DEFAULT_MAX_RETRY)
-        self.time_limit = opts.get('time_limit')
         self.retry_countdown = opts.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN)
         self.queue_name = opts.get('queue', GlobalConfig.default_task_queue)
         self.import_path = import_path
@@ -79,10 +78,6 @@ class Task(Node):
         if self.max_retry is not None and (not isinstance(self.max_retry, int) or self.max_retry < 0):
             raise ValueError("Error in task '%s' definition - max_retry should be None, zero or positive integer;"
                              " got '%s'" % (self.name, self.max_retry))
-
-        if self.time_limit is not None and (not isinstance(self.time_limit, int) or self.time_limit <= 0):
-            raise ValueError("Error in task '%s' definition - time_limit should be None or positive integer;"
-                             " got '%s'" % (self.name, self.time_limit))
 
         if self.retry_countdown is not None and (not isinstance(self.retry_countdown, int) or self.retry_countdown < 0):
             raise ValueError("Error in task '%s' definition - retry_countdown should be None or positive integer;"

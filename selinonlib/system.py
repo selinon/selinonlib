@@ -475,21 +475,6 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
-    def _dump_time_limit(self, output):
-        """
-        Dump max_retry configuration to a stream
-
-        :param output: a stream to write to
-        """
-        output.write('time_limit = {')
-        printed = False
-        for task in self.tasks:
-            if printed:
-                output.write(',')
-            output.write("\n    '%s': %s" % (task.name, task.time_limit))
-            printed = True
-        output.write('\n}\n\n')
-
     def _dump_nowait_nodes(self, output):
         """
         Dump nowait nodes to a stream
@@ -573,7 +558,6 @@ class System(object):
         f.write('#'*80+'\n\n')
         self._dump_max_retry(f)
         self._dump_retry_countdown(f)
-        self._dump_time_limit(f)
         self._dump_storage_readonly(f)
         f.write('#'*80+'\n\n')
 
@@ -757,11 +741,6 @@ class System(object):
 
                 if task.max_retry != task_ref.max_retry:
                     _logger.warning("Different max_retry to a same task class: %s and %s for class '%s'"
-                                    % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
-                                       task_class.class_name))
-
-                if task.time_limit != task_ref.time_limit:
-                    _logger.warning("Different time_limit to a same task class: %s and %s for class '%s'"
                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
                                        task_class.class_name))
 
