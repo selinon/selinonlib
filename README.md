@@ -2,6 +2,15 @@
 
 A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/fridex/selinon). You can find generated Sphinx documentation [here](https://fridex.github.io/selinonlib). Project is hosted on [Github](https://github.com/fridex/selinon).
 
+![PyPI Current Version](https://img.shields.io/pypi/v/selinonlib.svg)
+![PyPI Implementation](https://img.shields.io/pypi/implementation/selinonlib.svg)
+![PyPI Wheel](https://img.shields.io/pypi/wheel/selinonlib.svg)
+![Travis CI](https://travis-ci.org/selinon/selinonlib.svg?branch=master)
+![GitHub stars](https://img.shields.io/github/stars/selinon/selinonlib.svg)
+![GitHub license](https://img.shields.io/badge/license-GPLv2-blue.svg)
+![Twitter](https://img.shields.io/twitter/url/http/github.com/selinon/selinonlib.svg?style=social)
+
+
 ## The Idea
 
 A system consists of two main parts:
