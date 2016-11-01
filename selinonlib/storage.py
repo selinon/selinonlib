@@ -18,27 +18,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
-_DEFAULT_CACHE_SIZE = 0
+from .cacheConfig import CacheConfig
 
 
 class Storage(object):
     """
     A storage representation
     """
-    def __init__(self, name, import_path, configuration, class_name=None, cache_size=None):
+    def __init__(self, name, import_path, configuration, cache_config, class_name=None):
         """
         :param name: storage name
         :param import_path: storage import path
         :param configuration: storage configuration that will be passed
+        :param cache_config: cache configuration information
         :param class_name: storage class name
-        :param cache_size: size of cache to be used
         """
         self.name = name
         self.import_path = import_path
         self.configuration = configuration
         self.class_name = class_name or name
         self.tasks = []
-        self.cache_size = cache_size
+        self.cache_config = cache_config
 
     def register_task(self, task):
         """
@@ -62,13 +62,18 @@ class Storage(object):
             raise KeyError('Storage import definition is mandatory')
         if 'configuration' not in d or not d['configuration']:
             raise KeyError('Storage configuration definition is mandatory')
-        if 'cache_size' in d:
-            if not isinstance(d['cache_size'], int) or d['cache_size'] < 0:
-                raise ValueError("Storage cache size for storage '%s' should be positive integer, got '%s' instead"
-                                 % (d['name'], d['cache_size']))
+        if 'classname' in d and not isinstance(d['classname'], str):
+            raise ValueError("Storage classname definition should be string, got '%s' instead" % d['classname'])
+        if 'cache' in d:
+            if not isinstance(d['cache'], dict):
+                raise ValueError("Storage cache for storage '%s' should be a dict with configuration, got '%s' instead"
+                                 % (d['name'], d['cache']))
 
-        return Storage(d['name'], d['import'], d['configuration'], d.get('classname'),
-                       d.get('cache_size', _DEFAULT_CACHE_SIZE))
+            cache_config = CacheConfig.from_dict(d['cache'], d['name'])
+        else:
+            cache_config = CacheConfig.get_default(d['name'])
+
+        return Storage(d['name'], d['import'], d['configuration'], cache_config, d.get('classname'))
 
     @property
     def var_name(self):

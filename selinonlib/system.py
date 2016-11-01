@@ -225,6 +225,11 @@ class System(object):
             if len(storage.tasks) > 0:
                 output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
 
+                cache_config = storage.cache_config
+                output.write("from {} import {} as {}".format(cache_config.import_path,
+                                                              cache_config.name,
+                                                              cache_config.var_name))
+
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
         # we need datetime for timedelta in throttle
@@ -355,7 +360,11 @@ class System(object):
         """
         self._dump_task2storage_mapping(output)
         self._dump_storage2instance_mapping(output)
-        self._dump_dict(output, 'storage_cache_size', [{s.name: s.cache_size} for s in self.storages])
+        for storage in self.storages:
+            cache_config = storage.cache_config
+            output.write("%s = %s(%s)\n" % (cache_config.var_name, cache_config.name,
+                                            dict2strkwargs(cache_config.options)))
+        self._dump_dict(output, 'storage2storage_cache', [{s.name: s.cache_config.var_name for s in self.storages}])
 
     def _dump_strategy_func(self, output):
         """

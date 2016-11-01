@@ -12,6 +12,11 @@ uninstall:
 	cat ${TEMPFILE} | xargs rm -rf && \
 	rm -f ${TEMPFILE}
 
+check:
+	@# set timeout so we do not wait in infinite loops and such
+	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
+	py.test -vvl --timeout=2 test -p no:celery
+
 venv:
 	virtualenv -p python3 venv && source venv/bin/activate && pip3 install -r requirements.txt
 	@echo "Run 'source venv/bin/activate' to enter virtual environment and 'deactivate' to return from it"
