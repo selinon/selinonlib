@@ -19,7 +19,7 @@
 # ####################################################################
 
 import pytest
-from selinonlib.cache import (LIFO, CacheMissError)
+from selinonlib.caches import (LIFO, CacheMissError)
 
 
 class TestLIFO(object):

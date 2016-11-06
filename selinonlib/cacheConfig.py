@@ -19,7 +19,7 @@
 # ####################################################################
 
 _DEFAULT_CACHE_NAME = 'LRU'
-_DEFAULT_CACHE_IMPORT = 'selinonlib.cache'
+_DEFAULT_CACHE_IMPORT = 'selinonlib.caches'
 _DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
 
 

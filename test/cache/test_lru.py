@@ -19,7 +19,7 @@
 # ####################################################################
 
 import pytest
-from selinonlib.cache import (LRU, CacheMissError)
+from selinonlib.caches import (LRU, CacheMissError)
 
 
 class TestLRU(object):
