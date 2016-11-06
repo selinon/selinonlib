@@ -35,8 +35,8 @@ class Predicate(metaclass=abc.ABCMeta):
     def __str__(self):
         pass
 
-    @abc.abstractmethod
-    def create(tree, nodes_from, flow):
+    @abc.abstractclassmethod
+    def create(cls, tree, nodes_from, flow):
         """
         Create the predicate
 
