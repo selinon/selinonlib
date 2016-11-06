@@ -18,7 +18,7 @@ check:
 	py.test -vvl --timeout=2 test -p no:celery
 
 venv:
-	virtualenv -p python3 venv && source venv/bin/activate && pip3 install -r requirements.txt
+	python3 -m venv venv && source venv/bin/activate && pip3 install -r requirements.txt
 	@echo "Run 'source venv/bin/activate' to enter virtual environment and 'deactivate' to return from it"
 
 clean:
