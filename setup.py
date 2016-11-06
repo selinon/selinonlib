@@ -3,8 +3,6 @@
 import sys
 from setuptools import setup, find_packages
 
-# Note: We are not distributing examples/ for now
-
 
 def get_requirements():
     with open('requirements.txt') as fd:
