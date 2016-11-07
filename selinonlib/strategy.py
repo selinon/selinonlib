@@ -13,7 +13,7 @@ class Strategy(object):
     _DEFAULT_FUNC_ARGS = {'start_retry': 2, 'max_retry': 120}
 
     _EXPECTED_STRATEGY_FUNC_ARGS = {'previous_retry', 'active_nodes', 'failed_nodes',
-                                    'new_started_nodes', 'new_fallback_nodes'}
+                                    'new_started_nodes', 'new_fallback_nodes', 'finished_nodes'}
 
     def __init__(self, module=None, function=None, func_args=None):
         """
