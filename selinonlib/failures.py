@@ -76,10 +76,17 @@ class Failures(object):
         """
         # remove True/False flags
         nodes = []
+        if isinstance(self.fallback_nodes, bool):
+            return nodes
+
         for fallback in self.fallback_nodes:
+            if isinstance(fallback, bool):
+                continue
+
             for node in fallback:
                 if not isinstance(node, bool):
                     nodes.append(node)
+
         return list(set(nodes))
 
     @staticmethod

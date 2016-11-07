@@ -674,12 +674,13 @@ class System(object):
                         graph.edge(failure['nodes'][0], fallback_node_name,
                                    _attributes=Config().style_fallback_edge())
 
-                        node = self.node_by_name(failure['fallback'][0])
-                        if node.is_task() and node.storage:
-                            graph.node(name=node.storage.name, _attributes=Config().style_storage())
-                            if (node.name, node.storage.name) not in storage_connections:
-                                graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
-                                storage_connections.append((node.name, node.storage.name,))
+                        if not isinstance(failure['fallback'], bool):
+                            node = self.node_by_name(failure['fallback'][0])
+                            if node.is_task() and node.storage:
+                                graph.node(name=node.storage.name, _attributes=Config().style_storage())
+                                if (node.name, node.storage.name) not in storage_connections:
+                                    graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
+                                    storage_connections.append((node.name, node.storage.name,))
                     else:
                         graph.node(name=str(id(failure)), _attributes=Config().style_fallback_node())
 
