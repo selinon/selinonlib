@@ -26,21 +26,25 @@ class Cache(metaclass=abc.ABCMeta):
     Base class for Cache classes
     """
     @abc.abstractmethod
-    def add(self, item_id, item):
+    def add(self, item_id, item, task_name, flow_name):
         """
         Add item to cache
 
         :param item_id: item id under which item should be referenced
         :param item: item itself
+        :param task_name: name of task that result should/shouldn't be cached
+        :param flow_name: name of flow in which task was executed
         """
         pass
 
     @abc.abstractmethod
-    def get(self, item_id):
+    def get(self, item_id, task_name, flow_name):
         """
         Get item from cache
 
         :param item_id: item id under which the item is stored
+        :param task_name: name of task that result should/shouldn't be cached in order to get
+        :param flow_name: name of flow in which task was executed in order to get result
         :return: item itself
         """
         pass

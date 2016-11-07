@@ -29,27 +29,27 @@ class TestRR(object):
     def test_remove(self):
         cache = RR(max_cache_size=1)
 
-        cache.add("item_id1", "item1")
-        assert cache.get("item_id1") == "item1"
+        cache.add("item_id1", "item1", "Task1", "flow1")
+        assert cache.get("item_id1", "Task1", "flow1") == "item1"
 
-        cache.add("item_id2", "item2")
-        assert cache.get("item_id2") == "item2"
+        cache.add("item_id2", "item2", "Task1", "flow1")
+        assert cache.get("item_id2", "Task1", "flow1") == "item2"
 
         with pytest.raises(CacheMissError):
-            cache.get("item_id1")
+            cache.get("item_id1", "Task1", "flow1")
 
     def test_random_remove(self):
         cache = RR(max_cache_size=2)
 
-        cache.add("item_id1", "item1")
-        cache.add("item_id2", "item2")
-        cache.add("item_id3", "item3")
+        cache.add("item_id1", "item1", "Task1", "flow1")
+        cache.add("item_id2", "item2", "Task1", "flow1")
+        cache.add("item_id3", "item3", "Task1", "flow1")
 
         with pytest.raises(CacheMissError):
             # at least one should fail
-            cache.get("item_id1")
-            cache.get("item_id2")
+            cache.get("item_id1", "Task1", "flow1")
+            cache.get("item_id2", "Task1", "flow1")
 
-        assert cache.get("item_id3") == "item3"
+        assert cache.get("item_id3", "Task1", "flow1") == "item3"
         assert cache.current_cache_size == 2
 

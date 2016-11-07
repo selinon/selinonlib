@@ -56,12 +56,14 @@ class FIFO(Cache):
             latest = self._cache_usage.popleft()
             del self._cache[latest]
 
-    def add(self, item_id, item):
+    def add(self, item_id, item, task_name, flow_name):
         """
         Add item to cache
 
         :param item_id: item id under which item should be referenced
         :param item: item itself
+        :param task_name: name of task that result should/shouldn't be cached
+        :param flow_name: name of flow in which task was executed
         """
         if item_id in self._cache:
             return
@@ -72,11 +74,13 @@ class FIFO(Cache):
             self._cache[item_id] = item
             self._cache_usage.append(item_id)
 
-    def get(self, item_id):
+    def get(self, item_id, task_name, flow_name):
         """
         Get item from cache
 
         :param item_id: item id under which the item is stored
+        :param task_name: name of task that result should/shouldn't be cached in order to get
+        :param flow_name: name of flow in which task was executed in order to get result
         :return: item itself
         """
         if item_id not in self._cache:
