@@ -343,12 +343,13 @@ class System(object):
         """
         output.write('task2storage_mapping = {\n')
         printed = False
-        for storage in self.storages:
-            for task in storage.tasks:
-                if printed:
-                    output.write(",\n")
-                output.write("    '%s': '%s'" % (task.name, storage.name))
-                printed = True
+        for task in self.tasks:
+            if printed:
+                output.write(",\n")
+            storage_name = ("'%s'" % task.storage.name) if task.storage else str(None)
+            output.write("    '%s': %s" % (task.name, storage_name))
+            printed = True
+
         output.write("\n}\n\n")
 
     def _dump_storage_conf(self, output):
