@@ -297,6 +297,21 @@ class System(object):
             printed = True
         output.write('\n}\n\n')
 
+    def _dump_storage_task_names(self, output):
+        """
+        Dump mapping for task name in storage (task name alias for storage)
+
+        :param output: a stream to write to
+        """
+        output.write('storage_task_name = {')
+        printed = False
+        for task in self.tasks:
+            if printed:
+                output.write(',')
+            output.write("\n    '%s': '%s'" % (task.name, task.storage_task_name))
+            printed = True
+        output.write('\n}\n\n')
+
     def _dump_queues(self, output):
         """
         Dump queues for tasks and dispatcher
@@ -556,6 +571,7 @@ class System(object):
         self._dump_imports(f)
         self._dump_strategy_func(f)
         self._dump_task_classes(f)
+        self._dump_storage_task_names(f)
         self._dump_queues(f)
         f.write('#'*80+'\n\n')
         self._dump_storage_conf(f)

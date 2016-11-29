@@ -42,6 +42,7 @@ class Task(Node):
         super(Task, self).__init__(name)
 
         self.class_name = opts.get('classname', name)
+        self.storage_task_name = opts.get('storage_task_name', name)
         self.output_schema = opts.get('output_schema')
         self.max_retry = opts.get('max_retry', _DEFAULT_MAX_RETRY)
         self.retry_countdown = opts.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN)
