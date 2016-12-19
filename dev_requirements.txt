@@ -1,4 +1,4 @@
 pytest>=3
 pytest-timeout
 pylint
-
+git+https://github.com/selinon/selinon@master

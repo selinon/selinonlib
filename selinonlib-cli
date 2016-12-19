@@ -19,65 +19,302 @@
 # ####################################################################
 
 
+import sys
+import os
+import json
 import argparse
-from selinonlib import Logger, System
-from selinonlib import selinonlib_version as version
+import logging
+from rainbow_logging_handler import RainbowLoggingHandler
+from selinonlib import System
+from selinonlib import selinonlib_version as version, selinonlib_version_codename as version_codename
 from selinonlib import Config
+from selinonlib.simulator import Simulator
+
+_logger = logging.getLogger(os.path.basename(__file__))
 
 
-def main():
-    parser = argparse.ArgumentParser('selinonlib',
-                                     description='YAML configuration file parser for Selinon; v%s' % version)
-    parser.add_argument('-config', dest='config', action='store', metavar='CONFIG.yml',
-                        help='path to configuration file')
-    parser.add_argument('-nodes-definition', dest='nodes', action='store', metavar='NODES.yml',
-                        help='path to tasks definition file', required=True)
-    parser.add_argument('-flow-definition', dest='flows', action='store', metavar='FLOW.yml',
-                        help='path to flow definition file', required=True, nargs='+')
-    parser.add_argument('-verbose', dest='verbose', action='count')
+class Command(object):
+    """Selinon CLI entrypoint"""
+    VERSION = 'version: %s (%s)' % (version, version_codename)
+    DESCRIPTION = 'developer interaction tool for Selinon config files, %s' % VERSION
+    DEFAULT_PLOT_GRAPH_FORMAT = 'svg'
+    DEFAULT_PLOT_OUTPUT_DIR = '.'
+    DEFAULT_SIMULATE_NODE_ARGS = None
+    DEFAULT_SIMULATE_SLEEP_TIME = 0.5
+    DEFAULT_SIMULATE_CONCURRENCY = 1
 
-    parser.add_argument('-dump', dest='dump', action='store', metavar='DUMP.py',
-                        help='generate Python code of the system')
-    parser.add_argument('-no-check', dest='no_check', action='store_true',
-                        help='do not check system for errors')
-    parser.add_argument('-graph', dest='graph', action='store', metavar='OUTPUT_DIR',
-                        help='construct an image of the system')
-    parser.add_argument('-graph-format', dest='graph_format', action='store', metavar='FORMAT', default='svg',
-                        help='format of the output image for -graph')
-    parser.add_argument('-list-task-queues', dest='list_task_queues', action='store_true',
-                        help='list all task queues to stdout')
-    parser.add_argument('-list-dispatcher-queues', dest='list_dispatcher_queue', action='store_true',
-                        help='list dispatcher queue to stdout')
+    @staticmethod
+    def _require_yaml_configs(parser):
+        """Add arguments for nodes and flows to a command parser
 
-    args = parser.parse_args()
+        :param parser: a command parser that should be enriched with nodes and flows config files
+        """
+        parser.add_argument('--nodes-definition', '-n', dest='nodes_definition',
+                            action='store', metavar='NODES.yml',
+                            help='path to tasks definition file', required=True)
+        parser.add_argument('--flow-definitions', '-f', dest='flow_definitions',
+                            action='store', metavar='FLOW.yml',
+                            help='path to flow definition file', required=True, nargs='+')
 
-    Logger.set_verbosity(args.verbose)
-    Config.set_config(args.config)
+    @classmethod
+    def _get_inspect_args_parser(cls):
+        """Get parser for inspect command
 
-    system = System.from_files(args.nodes, args.flows, args.no_check)
+        :return: inspect command parser
+        """
+        parser = argparse.ArgumentParser(add_help=False)
 
-    some_work = False
-    if args.dump:
-        system.dump2file(args.dump)
-        some_work = True
+        cls._require_yaml_configs(parser)
 
-    if args.graph:
-        system.plot_graph(args.graph, args.graph_format)
-        some_work = True
+        parser.add_argument('--dump', '-d', dest='dump', action='store', metavar='DUMP.py',
+                            help='generate Python code of the system')
+        parser.add_argument('--no-check', dest='no_check', action='store_true',
+                            help='do not check system for errors')
+        parser.add_argument('--list-task-queues', dest='list_task_queues', action='store_true',
+                            help='list all task queues to stdout')
+        parser.add_argument('--list-dispatcher-queues', dest='list_dispatcher_queue', action='store_true',
+                            help='list dispatcher queue to stdout')
 
-    if args.list_task_queues:
-        for task_name, queue_name in system.task_queue_names().items():
-            print("%s:%s" % (task_name, queue_name))
-        some_work = True
+        return parser
 
-    if args.list_dispatcher_queue:
-        for flow_name, queue_name in system.dispatcher_queue_names().items():
-            print("%s:%s" % (flow_name, queue_name))
-        some_work = True
+    @classmethod
+    def _get_plot_args_parser(cls):
+        """Get parser for plot command
 
-    if not some_work:
-        parser.print_help()
-        return 1
+        :return: plot command parser
+        """
+        parser = argparse.ArgumentParser(add_help=False)
 
-if __name__ == "__main__":
-    main()
+        cls._require_yaml_configs(parser)
+
+        parser.add_argument('--config', '-c', dest='config', action='store', metavar='CONFIG.yml',
+                            help='path to configuration file')
+        parser.add_argument('--output-dir', '-o', dest='output_dir', action='store', metavar='OUTPUT_DIR',
+                            default=cls.DEFAULT_PLOT_GRAPH_FORMAT,
+                            help='specify output dir where plotted graphs should be placed (default: current dir)')
+        parser.add_argument('--format', dest='graph_format', action='store', metavar='FORMAT',
+                            default=cls.DEFAULT_PLOT_GRAPH_FORMAT,
+                            help='format of the output image (default: %s)' % cls.DEFAULT_PLOT_GRAPH_FORMAT)
+
+        return parser
+
+    @classmethod
+    def _get_simulate_args_parser(cls):
+        """Get parser for simulate command
+
+        :return: simulate command parser
+        """
+        parser = argparse.ArgumentParser(add_help=False)
+
+        cls._require_yaml_configs(parser)
+
+        parser.add_argument('--flow-name', required=True, action='store', dest='flow_name', metavar='FLOW_NAME',
+                            help='specify flow that should be run by its name')
+
+        parser.add_argument('--node-args', '-a', action='store', dest='node_args', metavar='NODE_ARGS',
+                            default=cls.DEFAULT_SIMULATE_NODE_ARGS,
+                            help='specify arguments that should be passed to a flow (default: %s)'
+                                 % cls.DEFAULT_SIMULATE_NODE_ARGS)
+        parser.add_argument('--node-args-file', action='store', dest='node_args_file', metavar='FILE',
+                            help='specify arguments that should be passed to a flow by a file')
+        parser.add_argument('--node-args-json', '-j', action='store_true', dest='node_args_json',
+                            help='node args are defined by a JSON that should be parsed')
+
+        parser.add_argument('--concurrency', '-c', action='store', dest='concurrency', type=int,
+                            default=cls.DEFAULT_SIMULATE_CONCURRENCY,
+                            help='concurrency for the worker - number of threads that serve tasks in parallel '
+                                 '(default: %s)' % cls.DEFAULT_SIMULATE_CONCURRENCY)
+        parser.add_argument('--sleep-time', '-s', action='store', dest='sleep_time', type=float,
+                            default=cls.DEFAULT_SIMULATE_SLEEP_TIME,
+                            help='accuracy for worker sleeping when a task is scheduled to future (default: %s)'
+                                 % cls.DEFAULT_SIMULATE_SLEEP_TIME)
+
+        parser.add_argument('--config-py', action='store', dest='config_py',
+                            help='path to file where should be generated config.py placed')
+        parser.add_argument('--keep-config-py', action='store_true', dest='keep_config_py',
+                            help='do not remove config.py file after run')
+
+        return parser
+
+    @classmethod
+    def _get_version_args_parser(cls):
+        """Get parser for version command
+
+        :return: version command parser
+        """
+        parser = argparse.ArgumentParser(add_help=False)
+
+        parser.add_argument('--codename', action='store_true', dest='codename',
+                            help='get release codename')
+        parser.add_argument('--number', action='store_true', dest='number',
+                            help='get raw release number')
+
+        return parser
+
+    @classmethod
+    def _get_args_parser(cls):
+        """Get parser that parses commands and their arguments
+
+        :return: top level parser
+        """
+        parser = argparse.ArgumentParser('selinonlib', description=cls.DESCRIPTION)
+
+        # Global configuration for logging
+        parser.add_argument('--verbose', '-v', dest='verbose', action='count', default=0,
+                            help='be verbose about what\'s going on (can be supplied multiple times)')
+        parser.add_argument('--no-color', '-n', dest='no_color', action='store_true',
+                            help='suppress colorized logging output')
+
+        subparsers = parser.add_subparsers(title='sub-commands', dest='subcommand')
+
+        subparsers.add_parser('simulate', parents=[cls._get_simulate_args_parser()],
+                              help='simulate flow locally without Celery')
+        subparsers.add_parser('plot', parents=[cls._get_plot_args_parser()],
+                              help='plot graphs from configuration files')
+        subparsers.add_parser('inspect', parents=[cls._get_inspect_args_parser()],
+                              help='collect useful information from configuration files')
+        subparsers.add_parser('version', parents=[cls._get_version_args_parser()],
+                              help='get version info and exit')
+
+        return parser
+
+    @staticmethod
+    def plot(args):
+        """Plot flows based on YAML configuration - plot command
+
+        :param args: arguments for plot command
+        """
+        Config.set_config(args.config)
+        system = System.from_files(args.nodes_definition, args.flow_definitions)
+        system.plot_graph(args.output_dir, args.graph_format)
+        return 0
+
+    @staticmethod
+    def simulate(args):
+        """Simulate flows based on YAML configuration - simulate command
+
+        :param args: arguments for simulate command
+        """
+        if args.node_args and args.node_args_file:
+            raise ValueError("Node arguments could be specified by command line argument or a file, but not from both")
+
+        node_args = args.node_args
+        if args.node_args_file:
+            with open(args.node_args_file, 'r') as f:
+                node_args = f.read()
+
+        if args.node_args_json:
+            node_args = json.loads(node_args)
+
+        if args.concurrency <= 0:
+            raise ValueError("Concurrency has to be positive number")
+
+        opts = {
+            'concurrency': args.concurrency,
+            'sleep_time': args.sleep_time,
+            'config_py': args.config_py,
+            'keep_config_py': args.keep_config_py
+        }
+
+        simulator = Simulator(args.nodes_definition, args.flow_definitions, **opts)
+        simulator.run(args.flow_name, node_args)
+
+        return 0
+
+    @classmethod
+    def inspect(cls, args):
+        """Inspect configuration - inspect command
+
+        :param args: arguments for inspect command
+        """
+        system = System.from_files(args.nodes_definition, args.flow_definitions, args.no_check)
+        some_work = False
+
+        if args.list_task_queues:
+            for task_name, queue_name in system.task_queue_names().items():
+                print('%s:%s' % (task_name, queue_name))
+            some_work = True
+
+        if args.list_dispatcher_queue:
+            for flow_name, queue_name in system.dispatcher_queue_names().items():
+                print('%s:%s' % (flow_name, queue_name))
+            some_work = True
+
+        if args.dump:
+            system.dump2file(args.dump)
+            some_work = True
+
+        if not some_work:
+            _logger.error('Nothing to do')
+            cls._get_inspect_args_parser().print_usage()
+            return 2
+
+        return 0
+
+    @classmethod
+    def version(cls, args):
+        """Get version information - version command
+
+        :param args: arguments for version command
+        """
+        if args.codename:
+            print(version_codename)
+        elif args.number:
+            print(version)
+        else:
+            print(cls.VERSION)
+        return 0
+
+    @classmethod
+    def _setup_logging(cls, verbose, no_color):
+        """Set up Python logging based
+
+        :param verbose: verbosity level
+        :param no_color: do not use colorized output
+        """
+        level = logging.WARNING
+        if verbose == 0:
+            level = logging.WARNING
+        elif verbose == 1:
+            level = logging.INFO
+        elif verbose > 1:
+            level = logging.DEBUG
+
+        logger = logging.getLogger()
+        logger.setLevel(level)
+
+        if not no_color:
+            formatter = logging.Formatter("%(process)d: [%(asctime)s] %(name)s %(funcName)s:%(lineno)d: %(message)s")
+            # setup `RainbowLoggingHandler`
+            handler = RainbowLoggingHandler(sys.stderr)
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+
+    @classmethod
+    def main(cls):
+        """
+        :return: nonzero for an error
+        """
+        parser = cls._get_args_parser()
+        args = parser.parse_args()
+
+        cls._setup_logging(args.verbose, args.no_color)
+
+        if args.subcommand is None:
+            parser.print_usage(file=sys.stderr)
+            return 1
+
+        _logger.debug("Arguments supplied: %s", str(args))
+        command = getattr(cls, args.subcommand, None)
+        if command is None:
+            raise RuntimeError('Unhandled sub-command provided: %s' % str(args))
+
+        return command(args)
+
+
+if __name__ == '__main__':
+    try:
+        sys.exit(Command.main())
+    except Exception as exc:
+        _logger.exception(exc)
+        sys.exit(3)

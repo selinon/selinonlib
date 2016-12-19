@@ -18,11 +18,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
+import logging
 from .node import Node
-from .logger import Logger
 from .globalConfig import GlobalConfig
 
-_logger = Logger.get_logger(__name__)
+_logger = logging.getLogger(__name__)
 
 _DEFAULT_MAX_RETRY = 0
 _DEFAULT_RETRY_COUNTDOWN = 0

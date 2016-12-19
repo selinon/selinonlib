@@ -23,19 +23,19 @@ import graphviz
 import os
 import yaml
 import platform
+import logging
 from datetime import datetime
 from .task import Task
 from .storage import Storage
 from .flow import Flow
 from .version import selinonlib_version
 from .config import Config
-from .logger import Logger
 from .helpers import dict2strkwargs, expr2str
 from .taskClass import TaskClass
 from .globalConfig import GlobalConfig
 
 
-_logger = Logger.get_logger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class System(object):
@@ -766,7 +766,7 @@ class System(object):
                                        task_ref.output_schema, task.output_schema))
 
                 if task.max_retry != task_ref.max_retry:
-                    _logger.warning("Different max_retry to a same task class: %s and %s for class '%s'"
+                    _logger.warning("Different max_retry assigned to a same task class: %s and %s for class '%s'"
                                     % ((task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
                                        task_class.class_name))
 

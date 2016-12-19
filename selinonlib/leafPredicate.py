@@ -20,12 +20,12 @@
 
 import ast
 import importlib
+import logging
 from .predicate import Predicate
 from .helpers import dict2strkwargs, get_function_arguments
-from .logger import Logger
 from .globalConfig import GlobalConfig
 
-_logger = Logger.get_logger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class LeafPredicate(Predicate):

@@ -18,14 +18,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
+import logging
 from .edge import Edge
 from .node import Node
-from .logger import Logger
 from .failures import Failures
 from .strategy import Strategy
 from .globalConfig import GlobalConfig
 
-_logger = Logger.get_logger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class Flow(Node):

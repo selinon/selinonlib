@@ -6,3 +6,6 @@ pymongo
 SQLAlchemy
 SQLAlchemy-Utils
 redis
+celery>=4
+flexmock
+rainbow_logging_handler

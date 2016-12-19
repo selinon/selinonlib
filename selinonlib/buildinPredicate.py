@@ -18,14 +18,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
 
-
 import ast
+import logging
 from functools import reduce
-from .logger import Logger
 from .predicate import Predicate
 
 
-_logger = Logger.get_logger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class BuildinPredicate(Predicate):
