@@ -25,8 +25,10 @@ import json
 import argparse
 import logging
 from rainbow_logging_handler import RainbowLoggingHandler
+from selinon import selinon_version
+from celery import __version__ as celery_version
+from selinonlib import selinonlib_version, selinonlib_version_codename
 from selinonlib import System
-from selinonlib import selinonlib_version as version, selinonlib_version_codename as version_codename
 from selinonlib import Config
 from selinonlib.simulator import Simulator
 
@@ -35,8 +37,7 @@ _logger = logging.getLogger(os.path.basename(__file__))
 
 class Command(object):
     """Selinon CLI entrypoint"""
-    VERSION = 'version: %s (%s)' % (version, version_codename)
-    DESCRIPTION = 'developer interaction tool for Selinon config files, %s' % VERSION
+    DESCRIPTION = 'developer interaction tool for Selinon config files'
     DEFAULT_PLOT_GRAPH_FORMAT = 'svg'
     DEFAULT_PLOT_OUTPUT_DIR = '.'
     DEFAULT_SIMULATE_NODE_ARGS = None
@@ -146,8 +147,6 @@ class Command(object):
 
         parser.add_argument('--codename', action='store_true', dest='codename',
                             help='get release codename')
-        parser.add_argument('--number', action='store_true', dest='number',
-                            help='get raw release number')
 
         return parser
 
@@ -259,10 +258,10 @@ class Command(object):
         """
         if args.codename:
             print(version_codename)
-        elif args.number:
-            print(version)
         else:
-            print(cls.VERSION)
+            print('Selinonlib version: %s' % selinonlib_version)
+            print('Selinon version: %s' % selinon_version)
+            print('Celery version: %s' % celery_version)
         return 0
 
     @classmethod
