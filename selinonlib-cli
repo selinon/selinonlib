@@ -208,6 +208,9 @@ class Command(object):
         if args.concurrency <= 0:
             raise ValueError("Concurrency has to be positive number")
 
+        if args.concurrency != 1:
+            raise NotImplementedError("Concurrency is currently not implemented")
+
         opts = {
             'concurrency': args.concurrency,
             'sleep_time': args.sleep_time,
