@@ -14,7 +14,7 @@ uninstall:
 
 devenv:
 	@echo "Installing latest development requirements"
-	pip3 install -U -r dev_requirements.txt
+	pip3 install -U --force-reinstall -r dev_requirements.txt
 
 check:
 	@# set timeout so we do not wait in infinite loops and such
