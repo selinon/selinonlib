@@ -20,7 +20,11 @@ check:
 	@# set timeout so we do not wait in infinite loops and such
 	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
 	@# TODO: remove true once we make pylint happy
-	py.test -vvl --timeout=2 test -p no:celery && ( pylint selinonlib || true )
+	py.test -vvl --timeout=2 test -p no:celery && pylint selinonlib
+
+devenv:
+	@echo "Installing latest development requirements"
+	pip3 install -U -r dev_requirements.txt
 
 venv:
 	python3 -m venv venv && source venv/bin/activate && pip3 install -r requirements.txt
