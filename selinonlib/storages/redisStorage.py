@@ -22,7 +22,10 @@ Selinon adapter for Redis database
 """
 
 import json
-import redis
+try:
+    import redis
+except ImportError:
+    raise ImportError("Please install redis using `pip3 install redis` in order to use RedisStorage")
 from .dataStorage import DataStorage
 
 

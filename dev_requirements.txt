@@ -1,4 +1,9 @@
 pytest>=3
 pytest-timeout
 pylint
+# Storage implementations requirements
+pymongo
+SQLAlchemy
+SQLAlchemy-Utils
+#redis
 git+https://github.com/selinon/selinon@master

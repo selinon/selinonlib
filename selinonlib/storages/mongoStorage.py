@@ -21,7 +21,10 @@
 MongoDB database adapter
 """
 
-from pymongo import MongoClient
+try:
+    from pymongo import MongoClient
+except ImportError:
+    raise ImportError("Please install pymongo using `pip3 install pymongo` in order to use MongoStorage")
 from .dataStorage import DataStorage
 
 

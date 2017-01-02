@@ -21,11 +21,17 @@
 Selinon SQL Database adapter - Postgres
 """
 
-from sqlalchemy import (create_engine, Column, Integer, Sequence, String)
+try:
+    from sqlalchemy import (create_engine, Column, Integer, Sequence, String)
+except ImportError:
+    raise ImportError("Please install SQLAlchemy using `pip3 install SQLAlchemy` in order to use SQLStorage")
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import create_database, database_exists
+try:
+    from sqlalchemy_utils import create_database, database_exists
+except ImportError:
+    raise ImportError("Please install SQLAlchemy-Utils using `pip3 install SQLAlchemy-Utils in order to use SQLStorage")
 from .dataStorage import DataStorage
 
 _Base = declarative_base()  # pylint: disable=invalid-name
