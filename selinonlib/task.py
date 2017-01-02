@@ -44,19 +44,20 @@ class Task(Node):
         super(Task, self).__init__(name)
 
         self.class_name = opts.get('classname', name)
+        self.storage = storage
+
+        if 'storage_task_name' in opts and not self.storage:
+            raise ValueError("Unable to assign storage_task_name for task '%s', task has no storage assigned"
+                             % self.name)
+
         self.storage_task_name = opts.get('storage_task_name', name)
         self.output_schema = opts.get('output_schema')
         self.max_retry = opts.get('max_retry', _DEFAULT_MAX_RETRY)
         self.retry_countdown = opts.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN)
         self.queue_name = opts.get('queue', GlobalConfig.default_task_queue)
         self.import_path = import_path
-        self.storage = storage
         self.storage_readonly = opts.get('storage_readonly', False)
         self.throttle = self.parse_throttle(opts)
-
-        if self.storage_task_name and not self.storage:
-            raise ValueError("Unable to assign storage_task_name for task '%s', task has no storage assigned"
-                             % self.name)
 
         # register task usage
         if self.storage:
