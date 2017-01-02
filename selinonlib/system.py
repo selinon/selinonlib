@@ -793,9 +793,10 @@ class System(object):
                                          task_ref.output_schema, task.output_schema)
 
                 if task.max_retry != task_ref.max_retry:
-                    self._logger.warning("Different max_retry assigned to a same task class: %s and %s for class '%s'",
+                    self._logger.warning("Different max_retry assigned to a same task class: %s and %s for class '%s' "
+                                         "(import '%s')",
                                          (task.name, task.max_retry), (task_ref.name, task_ref.max_retry),
-                                         task_class.class_name)
+                                         task_class.class_name, task_class.import_path)
 
         for storage in self.storages:
             if len(storage.tasks) == 0:
