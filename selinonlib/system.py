@@ -236,8 +236,8 @@ class System(object):
                 output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
 
                 cache_config = storage.cache_config
-                output.write("from {} import {}".format(cache_config.import_path,
-                                                        cache_config.name))
+                output.write("from {} import {}\n".format(cache_config.import_path,
+                                                          cache_config.name))
 
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
