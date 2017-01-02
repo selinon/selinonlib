@@ -54,9 +54,14 @@ class Task(Node):
         self.storage_readonly = opts.get('storage_readonly', False)
         self.throttle = self.parse_throttle(opts)
 
+        if self.storage_task_name and not self.storage:
+            raise ValueError("Unable to assign storage_task_name for task '%s', task has no storage assigned"
+                             % self.name)
+
         # register task usage
         if self.storage:
             storage.register_task(self)
+
         self._logger.debug("Creating task with name '%s' import path '%s', class name '%s'",
                            self.name, self.import_path, self.class_name)
 
