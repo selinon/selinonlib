@@ -12,10 +12,6 @@ uninstall:
 	cat ${TEMPFILE} | xargs rm -rf && \
 	rm -f ${TEMPFILE}
 
-devenv:
-	@echo "Installing latest development requirements"
-	pip3 install -U --force-reinstall -r dev_requirements.txt
-
 check:
 	@# set timeout so we do not wait in infinite loops and such
 	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
