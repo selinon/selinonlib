@@ -61,16 +61,17 @@ class Storage(object):
         if 'name' not in dict_ or not dict_['name']:
             raise KeyError('Storage name definition is mandatory')
         if 'import' not in dict_ or not dict_['import']:
-            raise KeyError('Storage import definition is mandatory')
+            raise KeyError("Storage import definition is mandatory, storage '%s'" % dict_['name'])
         if 'configuration' not in dict_ or not dict_['configuration']:
-            raise KeyError('Storage configuration definition is mandatory')
+            raise KeyError("Storage configuration definition is mandatory, storage '%s'" % dict_['name'])
         if 'classname' in dict_ and not isinstance(dict_['classname'], str):
-            raise ValueError("Storage classname definition should be string, got '%s' instead" % dict_['classname'])
+            raise ValueError("Storage classname definition should be string, got '%s' instead, storage '%s'"
+                             % (dict_['classname'], dict_['name']))
         if 'cache' in dict_:
             if not isinstance(dict_['cache'], dict):
-                raise ValueError("Storage cache for storage '%s' should be a dict with configuration, got '%s' instead"
-                                 % (dict_['name'], dict_['cache']))
-
+                raise ValueError("Storage cache for storage '%s' should be a dict with configuration, "
+                                 "got '%s' instead, storage '%s'"
+                                 % (dict_['name'], dict_['cache'], dict_['name']))
             cache_config = CacheConfig.from_dict(dict_['cache'], dict_['name'])
         else:
             cache_config = CacheConfig.get_default(dict_['name'])
