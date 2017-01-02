@@ -168,14 +168,14 @@ class LeafPredicate(Predicate):
         :return: list of predicates that are used
         :rtype: List[Predicate]
         """
-        return [self._func]
+        return [self._func] if self._func else []
 
     def nodes_used(self):
         """
         :return: list of nodes that are used
         :rtype: List[Node]
         """
-        return [self.node]
+        return [self.node] if self.node else []
 
     @classmethod
     def create(cls, name, node, flow, args=None):  # pylint: disable=arguments-differ

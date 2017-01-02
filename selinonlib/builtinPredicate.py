@@ -78,14 +78,14 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
         """
         :return: used predicates by children
         """
-        return reduce(lambda x, y: x.extend(y.predicates_used()), self._children, [])
+        return reduce(lambda x, y: x + y.predicates_used(), self._children, [])
 
     def nodes_used(self):
         """
         :return: list of nodes that are used
         :rtype: List[Node]
         """
-        return reduce(lambda x, y: x.extend(y.nodes_used()), self._children, [])
+        return reduce(lambda x, y: x + y.nodes_used(), self._children, [])
 
     def check(self):
         """
