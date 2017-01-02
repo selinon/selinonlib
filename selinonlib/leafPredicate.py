@@ -107,7 +107,9 @@ class LeafPredicate(Predicate):
         if self.requires_message() and not self.node:
             raise ValueError("Cannot inspect results in starting edge in predicate '%s'" % self._func.__name__)
         if self.requires_message() and not self.node.storage:
-            raise ValueError("Cannot use predicate that requires a message without storage '%s'" % self._func.__name__)
+            raise ValueError("Cannot use predicate '%s' that requires a results of node '%s' (import: %s) since "
+                             "this node has no storage assigned"
+                             % (self._func.__name__, self.node.name, self.node.import_path))
 
     def check(self):
         """
