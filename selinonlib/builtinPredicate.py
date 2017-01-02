@@ -80,6 +80,13 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
         """
         return reduce(lambda x, y: x + y.predicates_used(), self._children, [])
 
+    def nodes_used(self):
+        """
+        :return: list of nodes that are used
+        :rtype: List[Node]
+        """
+        return reduce(lambda x, y: x.extend(y.nodes_used()), self._children, [])
+
     def check(self):
         """
         Check predicate for consistency
@@ -117,6 +124,13 @@ class UnaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disabl
         :return: used predicates by children
         """
         return self._child.predicates_used()
+
+    def nodes_used(self):
+        """
+        :return: list of nodes that are used
+        :rtype: List[Node]
+        """
+        return self._child.nodes.used()
 
     def check(self):
         """
@@ -221,6 +235,9 @@ class AlwaysTruePredicate(BuiltinPredicate):
         return "True"
 
     def predicates_used(self):
+        return []
+
+    def nodes_used(self):
         return []
 
     def check(self):

@@ -65,6 +65,14 @@ class Predicate(metaclass=abc.ABCMeta):
         """
         pass
 
+    @abc.abstractmethod
+    def nodes_used(self):
+        """
+        :return: list of nodes that are used
+        :rtype: List[Node]
+        """
+        pass
+
     @staticmethod
     def construct(tree, nodes_from, flow):  # pylint: disable=too-many-branches
         """

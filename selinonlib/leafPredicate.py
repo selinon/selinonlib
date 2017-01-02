@@ -109,7 +109,7 @@ class LeafPredicate(Predicate):
         if self.requires_message() and not self.node.storage:
             raise ValueError("Cannot use predicate '%s' that requires a results of node '%s' (import: %s) since "
                              "this node has no storage assigned"
-                             % (self._func.__name__, self.node.name, self.node.import_path))
+                             % (str(self), self.node.name, self.node.import_path))
 
     def check(self):
         """
@@ -169,6 +169,13 @@ class LeafPredicate(Predicate):
         :rtype: List[Predicate]
         """
         return [self._func]
+
+    def nodes_used(self):
+        """
+        :return: list of nodes that are used
+        :rtype: List[Node]
+        """
+        return [self.node]
 
     @classmethod
     def create(cls, name, node, flow, args=None):  # pylint: disable=arguments-differ

@@ -67,6 +67,15 @@ class Edge(object):
                                      " in foreach definition in flow '%s' for node to '%s'"
                                      % (self.flow.name, node_to.name))
 
+        for node in self.predicate.nodes_used():
+            if not node.is_task():
+                continue
+
+            if node.storage_readonly:
+                raise ValueError("Cannot inspect results of node '%s' in flow '%s' as this node is configured "
+                                 "with readonly storage, condition: %s"
+                                 % (node.name, self.flow.name, str(self.predicate)))
+
     def foreach_str(self):
         """
         :return: text representation of foreach

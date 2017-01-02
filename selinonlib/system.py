@@ -814,8 +814,6 @@ class System(object):
                 starting_nodes_count = 0
 
                 for edge in flow.edges:
-                    edge.check()
-
                     if len(edge.nodes_from) == 0:
                         starting_edges_count += 1
                         starting_nodes_count += len(edge.nodes_to)
@@ -835,7 +833,9 @@ class System(object):
                             raise ValueError("Nodes cannot be dependent on a node of a same type mode than once; "
                                              "node from '%s' more than once in flow '%s'" % (node_from.name, flow.name))
 
+                    # do not change order of checks as they depend on each other
                     edge.predicate.check()
+                    edge.check()
 
                 if starting_edges_count > 1:
                     self._logger.warning("Multiple starting nodes defined in flow '%s'", flow.name)
