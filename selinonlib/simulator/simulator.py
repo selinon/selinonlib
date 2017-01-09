@@ -39,6 +39,7 @@ documentation if you are a Celery-newbie.
 """
 
 import logging
+import traceback
 from datetime import datetime, timedelta
 from flexmock import flexmock
 from celery import Task as CeleryTask
@@ -113,8 +114,9 @@ class Simulator(object):
                 if 'exc' in selinon_exc.celery_kwargs and selinon_exc.celery_kwargs.get('max_retries', 1) == 0:
                     # log only user exception as we do not want SimulateRetry in our exception traceback
                     user_exc = selinon_exc.celery_kwargs['exc']
-                    self._logger.exception(str(user_exc), exc_info=(user_exc, user_exc, user_exc.__traceback__))
-                    SimulateAsyncResult.set_failed(task.request.id, user_exc)
+                    user_exc_info = (user_exc, user_exc, user_exc.__traceback__)
+                    self._logger.exception(str(user_exc), exc_info=user_exc_info)
+                    SimulateAsyncResult.set_failed(task.request.id, traceback.format_exception(*user_exc_info))
                 else:
                     # reschedule if there was an exception and we did not hit max_retries when doing retry
                     Simulator.schedule(task, selinon_exc.celery_kwargs)

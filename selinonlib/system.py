@@ -960,6 +960,7 @@ class System(object):
         :return: System instance
         :rtype: System
         """
+        # pylint: disable=too-many-branches
         system = System()
 
         with open(nodes_definition_file, 'r') as nodes_file:

@@ -36,8 +36,9 @@ class SimulateAsyncResult(object):
     task_failures = {}
     task_successes = {}
 
-    def __init__(self, id):  # pylint: disable=redefined-builtin,invalid-name
+    def __init__(self, node_name, id):  # pylint: disable=redefined-builtin,invalid-name
         self.task_id = str(id)
+        self.node_id = node_name
 
     @classmethod
     def set_successful(cls, task_id, result):
@@ -70,6 +71,14 @@ class SimulateAsyncResult(object):
         return self.task_id in self.task_failures
 
     @property
+    def traceback(self):
+        """Traceback as returned by Celery's AsyncResult
+
+        :return: traceback returned by a task
+        """
+        return self.task_failures[self.task_id]
+
+    @property
     def result(self):
         """
         :return: retrieve result of the task or exception that was raised
@@ -95,7 +104,9 @@ def simulate_apply_async(instance, **celery_kwargs):
 
     flexmock(instance, request=SimulateRequest(instance))
     Simulator.schedule(instance, celery_kwargs)
-    return SimulateAsyncResult(id=id(instance))
+    selinon_kwargs = celery_kwargs['kwargs']
+    return SimulateAsyncResult(selinon_kwargs.get('task_name', selinon_kwargs['flow_name']),
+                               id=id(instance))
 
 
 def simulate_retry(instance, **celery_kwargs):
