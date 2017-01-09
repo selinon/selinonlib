@@ -70,8 +70,7 @@ class Storage(object):
         if 'cache' in dict_:
             if not isinstance(dict_['cache'], dict):
                 raise ValueError("Storage cache for storage '%s' should be a dict with configuration, "
-                                 "got '%s' instead, storage '%s'"
-                                 % (dict_['name'], dict_['cache'], dict_['name']))
+                                 "got '%s' instead" % (dict_['name'], dict_['cache']))
             cache_config = CacheConfig.from_dict(dict_['cache'], dict_['name'])
         else:
             cache_config = CacheConfig.get_default(dict_['name'])

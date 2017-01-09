@@ -51,7 +51,7 @@ class Strategy(object):
 
         :param strategy_dict: strategy entry in config to be parsed
         """
-        if strategy_dict is None:
+        if not strategy_dict:
             return cls()
 
         if not isinstance(strategy_dict, dict):

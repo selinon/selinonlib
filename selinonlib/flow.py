@@ -20,6 +20,7 @@
 """A flow representation"""
 
 import logging
+from .cacheConfig import CacheConfig
 from .edge import Edge
 from .node import Node
 from .failures import Failures
@@ -36,36 +37,36 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
     _DEFAULT_RETRY_COUNTDOWN = 0
     _logger = logging.getLogger(__name__)
 
-    def __init__(self, name, edges=None, failures=None, nowait_nodes=None, queue_name=None, strategy=None,
-                 max_retry=None, retry_countdown=None):
+    def __init__(self, name, **opts):
         """
         :param name: flow name
         :type name: str
-        :param edges: edges in the flow
-        :type edges: List[Edge]
-        :param nowait_nodes: nodes that should not be waited for
-        :type nowait_nodes: List[Node]
-        :param queue_name: queue where the dispatcher should listen on
-        :type queue_name: str
-        :param strategy: a strategy to be used for scheduling dispatcher
+        :param opts: additional flow options as provided in YAML configuration, see implementation for more details
         """
         super().__init__(name)
 
         self._logger.debug("Creating flow '%s'", name)
-        self.edges = edges or []
-        self.failures = failures or None
-        self.nowait_nodes = nowait_nodes or []
-        self.node_args_from_first = False
-        self.queue_name = queue_name
-        self.strategy = strategy
-        self.max_retry = max_retry or self._DEFAULT_MAX_RETRY
-        self.retry_countdown = retry_countdown or self._DEFAULT_RETRY_COUNTDOWN
+        self.edges = opts.pop('edges', [])
+        self.failures = opts.pop('failures', None)
+        self.nowait_nodes = opts.pop('nowait_nodes', [])
+        self.node_args_from_first = opts.pop('node_args_from_dict', False)
+        self.queue_name = opts.pop('queue', GlobalConfig.default_dispatcher_queue)
+        self.strategy = Strategy.from_dict(opts.pop('sampling', {}), self.name)
 
-        self.propagate_node_args = False
-        self.propagate_finished = False
-        self.propagate_parent = False
-        self.propagate_compound_finished = False
-        self.throttling = None
+        self.propagate_node_args = opts.pop('propagate_node_args', False)
+        self.propagate_finished = opts.pop('propagate_finished', False)
+        self.propagate_parent = opts.pop('propagate_parent', False)
+        self.propagate_compound_finished = opts.pop('propagate_compound_finished', False)
+        self.throttling = opts.pop('throttling', self.parse_throttling({}))
+        self.cache_config = opts.pop('cache_config', CacheConfig.get_default(self.name))
+        self.max_retry = opts.pop('max_retry', self._DEFAULT_MAX_RETRY)
+        self.retry_countdown = opts.pop('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
+
+        # disjoint config options
+        assert self.propagate_finished is not True and self.propagate_compound_finished is not True
+
+        if opts:
+            raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
 
     @staticmethod
     def from_dict(d):
@@ -128,6 +129,16 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
                 node = system.node_by_name(node_name)
                 self.add_nowait_node(node)
 
+        if 'cache' in flow_def:
+            if not isinstance(flow_def['cache'], dict):
+                raise ValueError("Flow cache for flow '%s' should be a dict with configuration, "
+                                 "got '%s' instead"
+                                 % (self.name, flow_def['cache']))
+            self.cache_config = CacheConfig.from_dict(flow_def['cache'], self.name)
+
+        if 'sampling' in flow_def:
+            self.strategy = Strategy.from_dict(flow_def.get('sampling'), self.name)
+
         self.throttling = self.parse_throttling(flow_def)
         self.node_args_from_first = flow_def.get('node_args_from_first', False)
         self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
@@ -135,7 +146,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.propagate_parent = self._set_propagate(system, flow_def, 'propagate_parent')
         self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
         self.queue_name = flow_def.get('queue', GlobalConfig.default_dispatcher_queue)
-        self.strategy = Strategy.from_dict(flow_def.get('sampling'), self.name)
+        self.max_retry = flow_def.get('max_retry', self._DEFAULT_MAX_RETRY)
+        self.retry_countdown = flow_def.get('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
 
     def add_edge(self, edge):
         """

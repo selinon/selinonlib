@@ -268,23 +268,23 @@ class System(object):
         """
         self._dump_dict(stream,
                         'node_args_from_first',
-                        [{f.name: f.node_args_from_first} for f in self.flows])
+                        {f.name: f.node_args_from_first for f in self.flows})
 
         self._dump_dict(stream,
                         'propagate_node_args',
-                        [{f.name: f.propagate_node_args} for f in self.flows])
+                        {f.name: f.propagate_node_args for f in self.flows})
 
         self._dump_dict(stream,
                         'propagate_finished',
-                        [{f.name: f.propagate_finished} for f in self.flows])
+                        {f.name: f.propagate_finished for f in self.flows})
 
         self._dump_dict(stream,
                         'propagate_parent',
-                        [{f.name: f.propagate_parent} for f in self.flows])
+                        {f.name: f.propagate_parent for f in self.flows})
 
         self._dump_dict(stream,
                         'propagate_compound_finished',
-                        [{f.name: f.propagate_compound_finished} for f in self.flows])
+                        {f.name: f.propagate_compound_finished for f in self.flows})
 
     @staticmethod
     def _dump_dict(output, dict_name, dict_items):
@@ -295,16 +295,15 @@ class System(object):
         """
         output.write('%s = {' % dict_name)
         printed = False
-        for item in dict_items:
-            for key, value in item.items():
-                if printed:
-                    output.write(",")
-                if isinstance(value, list):
-                    string = [item.name for item in value]
-                else:
-                    string = str(value)
-                output.write("\n    '%s': %s" % (key, string))
-                printed = True
+        for key, value in dict_items.items():
+            if printed:
+                output.write(",")
+            if isinstance(value, list):
+                string = [item.name for item in value]
+            else:
+                string = str(value)
+            output.write("\n    '%s': %s" % (key, string))
+            printed = True
         output.write('\n}\n\n')
 
     def _dump_task_classes(self, output):
@@ -343,8 +342,8 @@ class System(object):
 
         :param output: a stream to write to
         """
-        self._dump_dict(output, 'task_queues', [{f.name: "'%s'" % f.queue_name} for f in self.tasks])
-        self._dump_dict(output, 'dispatcher_queues', [{f.name: "'%s'" % f.queue_name} for f in self.flows])
+        self._dump_dict(output, 'task_queues', {f.name: "'%s'" % f.queue_name for f in self.tasks})
+        self._dump_dict(output, 'dispatcher_queues', {f.name: "'%s'" % f.queue_name for f in self.flows})
 
     def _dump_storage2instance_mapping(self, output):
         """
@@ -404,7 +403,18 @@ class System(object):
             cache_config = storage.cache_config
             output.write("%s = %s(%s)\n" % (cache_config.var_name, cache_config.name,
                                             dict2strkwargs(cache_config.options)))
-        self._dump_dict(output, 'storage2storage_cache', [{s.name: s.cache_config.var_name for s in self.storages}])
+        self._dump_dict(output, 'storage2storage_cache', {s.name: s.cache_config.var_name for s in self.storages})
+
+    def _dump_async_result_cache(self, output):
+        """Dump Celery AsyncResult caching configuration
+
+        :param output: a stream to write to
+        """
+        for flow in self.flows:
+            cache_config = flow.cache_config
+            output.write("%s = %s(%s)\n" % (cache_config.var_name, cache_config.name,
+                                            dict2strkwargs(cache_config.options)))
+        self._dump_dict(output, 'async_result_cache', {f.name: f.cache_config.var_name for f in self.flows})
 
     def _dump_strategy_func(self, output):
         """
@@ -429,7 +439,7 @@ class System(object):
             strategy_dict[flow.name] = strategy_func_name(flow)
 
         output.write('\n')
-        self._dump_dict(output, 'strategies', [strategy_dict])
+        self._dump_dict(output, 'strategies', strategy_dict)
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
@@ -476,8 +486,8 @@ class System(object):
 
         :param output: a stream to write to
         """
-        self._dump_dict(output, 'throttle_tasks', [{t.name: repr(t.throttling)} for t in self.tasks])
-        self._dump_dict(output, 'throttle_flows', [{f.name: repr(f.throttling)} for f in self.flows])
+        self._dump_dict(output, 'throttle_tasks', {t.name: repr(t.throttling) for t in self.tasks})
+        self._dump_dict(output, 'throttle_flows', {f.name: repr(f.throttling) for f in self.flows})
 
     def _dump_max_retry(self, output):
         """
@@ -600,6 +610,7 @@ class System(object):
         self._dump_queues(stream)
         stream.write('#'*80+'\n\n')
         self._dump_storage_conf(stream)
+        self._dump_async_result_cache(stream)
         stream.write('#'*80+'\n\n')
         self._dump_output_schemas(stream)
         stream.write('#'*80+'\n\n')
@@ -935,8 +946,8 @@ class System(object):
         # this check could be written more optimal by storing only tasks, but keep it this way for now
         never_started_nodes = set(self.tasks) - set(t for t in all_used_nodes if t.is_task())
         for node in never_started_nodes:
-            self._logger.warning("Task '%s' (class '%s' from '%s') stated in the YAML configuration file, but it "
-                                 "is never run", node.name, node.class_name, node.import_path)
+            self._logger.warning("Task '%s' (class '%s' from '%s') stated in the YAML configuration file, but "
+                                 "never run in any flow", node.name, node.class_name, node.import_path)
 
     @classmethod
     def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
