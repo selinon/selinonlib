@@ -35,7 +35,7 @@ from .helpers import dict2strkwargs, expr2str
 from .taskClass import TaskClass
 from .globalConfig import GlobalConfig
 
-# pylint: disable=too-many-locals,too-many-nested-blocks,too-many-boolean-expressions
+# pylint: disable=too-many-locals,too-many-nested-blocks,too-many-boolean-expressions,too-many-lines
 
 
 class System(object):
@@ -935,7 +935,7 @@ class System(object):
             # this check could be written more optimal by storing only tasks, but keep it this way for now
             never_started_nodes = set(self.tasks) - set(t for t in all_used_nodes if t.is_task())
             for node in never_started_nodes:
-                self._logger.warning("Task '%s' stated in YAML configuration file, but it is never run" % node.name)
+                self._logger.warning("Task '%s' stated in YAML configuration file, but it is never run", node.name)
 
     @classmethod
     def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
