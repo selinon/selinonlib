@@ -57,7 +57,7 @@ class Task(Node):
         self.queue_name = opts.get('queue', GlobalConfig.default_task_queue)
         self.import_path = import_path
         self.storage_readonly = opts.get('storage_readonly', False)
-        self.throttle = self.parse_throttle(opts)
+        self.throttling = self.parse_throttling(opts)
 
         # register task usage
         if self.storage:

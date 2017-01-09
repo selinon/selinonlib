@@ -75,22 +75,22 @@ class Node(metaclass=abc.ABCMeta):
         regexp = re.compile(r"^[_a-zA-Z][_a-zA-Z0-9]*$")
         return regexp.match(name)
 
-    def parse_throttle(self, dict_):
+    def parse_throttling(self, dict_):
         """
-        Parse throttle from a dictionary
+        Parse throttling from a dictionary
 
-        :param dict_: dictionary from which throttle should be parsed (expected under 'throttle' key)
-        :return: timedelta describing throttle countdown
+        :param dict_: dictionary from which throttling should be parsed (expected under 'throttling' key)
+        :return: timedelta describing throttling countdown
         :rtype: time.timedelta
         """
-        if 'throttle' in dict_:
-            if not isinstance(dict_['throttle'], dict):
-                raise ValueError("Definition of throttle expects key value definition, got %s instead in '%s'"
-                                 % (dict_['throttle'], self.name))
+        if 'throttling' in dict_:
+            if not isinstance(dict_['throttling'], dict):
+                raise ValueError("Definition of throttling expects key value definition, got %s instead in '%s'"
+                                 % (dict_['throttling'], self.name))
             try:
-                return datetime.timedelta(**dict_['throttle'])
+                return datetime.timedelta(**dict_['throttling'])
             except TypeError:
-                raise ValueError("Wrong throttle definition in '%s', expected values are %s"
+                raise ValueError("Wrong throttling definition in '%s', expected values are %s"
                                  % (self.name,
                                     ['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']))
         else:

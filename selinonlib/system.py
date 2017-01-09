@@ -241,7 +241,7 @@ class System(object):
 
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
-        # we need datetime for timedelta in throttle
+        # we need datetime for timedelta in throttling
         output.write("\nimport datetime\n")
 
     def _dump_output_schemas(self, output):
@@ -470,14 +470,14 @@ class System(object):
                 output.write('def {}(db, node_args):\n'.format(self._dump_condition_name(flow.name, idx)))
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
-    def _dump_throttle(self, output):
+    def _dump_throttling(self, output):
         """
-        Dump throttle configuration
+        Dump throttling configuration
 
         :param output: a stream to write to
         """
-        self._dump_dict(output, 'throttle_tasks', [{t.name: repr(t.throttle)} for t in self.tasks])
-        self._dump_dict(output, 'throttle_flows', [{f.name: repr(f.throttle)} for f in self.flows])
+        self._dump_dict(output, 'throttle_tasks', [{t.name: repr(t.throttling)} for t in self.tasks])
+        self._dump_dict(output, 'throttle_flows', [{f.name: repr(f.throttling)} for f in self.flows])
 
     def _dump_max_retry(self, output):
         """
@@ -604,7 +604,7 @@ class System(object):
         self._dump_output_schemas(stream)
         stream.write('#'*80+'\n\n')
         self._dump_flow_flags(stream)
-        self._dump_throttle(stream)
+        self._dump_throttling(stream)
         stream.write('#'*80+'\n\n')
         self._dump_max_retry(stream)
         self._dump_retry_countdown(stream)

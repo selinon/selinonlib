@@ -60,7 +60,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.propagate_finished = False
         self.propagate_parent = False
         self.propagate_compound_finished = False
-        self.throttle = None
+        self.throttling = None
 
     @staticmethod
     def from_dict(d):
@@ -123,7 +123,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
                 node = system.node_by_name(node_name)
                 self.add_nowait_node(node)
 
-        self.throttle = self.parse_throttle(flow_def)
+        self.throttling = self.parse_throttling(flow_def)
         self.node_args_from_first = flow_def.get('node_args_from_first', False)
         self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
         self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
