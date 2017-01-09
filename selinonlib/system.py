@@ -802,6 +802,7 @@ class System(object):
             if len(storage.tasks) == 0:
                 self._logger.warning("Storage '%s' not used in any flow", storage.name)
 
+        all_used_nodes = set()
         # We want to check that if we depend on a node, that node is being started at least once in the flow
         # This also covers check for starting node definition
         for flow in self.flows:
@@ -914,6 +915,7 @@ class System(object):
                                          " please specify configuration for each node separately in flow '%s'"
                                          % flow.name)
 
+                all_used_nodes = set(all_used_nodes) | set(all_source_nodes) | set(all_destination_nodes)
                 not_started = list(set(all_source_nodes) - set(all_destination_nodes))
 
                 error = False
@@ -928,6 +930,12 @@ class System(object):
             except:
                 self._logger.error("Check of flow '%s' failed", flow.name)
                 raise
+
+            # we report only tasks that are not run from any flow, running a flow is based on the user
+            # this check could be written more optimal by storing only tasks, but keep it this way for now
+            never_started_nodes = set(self.tasks) - set(t for t in all_used_nodes if t.is_task())
+            for node in never_started_nodes:
+                self._logger.warning("Task '%s' stated in YAML configuration file, but it is never run" % node.name)
 
     @classmethod
     def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
