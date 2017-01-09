@@ -487,10 +487,10 @@ class System(object):
         """
         output.write('max_retry = {')
         printed = False
-        for task in self.tasks:
+        for node in self.tasks + self.flows:
             if printed:
                 output.write(',')
-            output.write("\n    '%s': %d" % (task.name, task.max_retry))
+            output.write("\n    '%s': %d" % (node.name, node.max_retry))
             printed = True
         output.write('\n}\n\n')
 
@@ -502,10 +502,10 @@ class System(object):
         """
         output.write('retry_countdown = {')
         printed = False
-        for task in self.tasks:
+        for node in self.tasks + self.flows:
             if printed:
                 output.write(',')
-            output.write("\n    '%s': %d" % (task.name, task.retry_countdown))
+            output.write("\n    '%s': %d" % (node.name, node.retry_countdown))
             printed = True
         output.write('\n}\n\n')
 

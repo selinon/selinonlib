@@ -32,9 +32,12 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
     Flow representation
     """
 
+    _DEFAULT_MAX_RETRY = 0
+    _DEFAULT_RETRY_COUNTDOWN = 0
     _logger = logging.getLogger(__name__)
 
-    def __init__(self, name, edges=None, failures=None, nowait_nodes=None, queue_name=None, strategy=None):
+    def __init__(self, name, edges=None, failures=None, nowait_nodes=None, queue_name=None, strategy=None,
+                 max_retry=None, retry_countdown=None):
         """
         :param name: flow name
         :type name: str
@@ -55,6 +58,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.node_args_from_first = False
         self.queue_name = queue_name
         self.strategy = strategy
+        self.max_retry = max_retry or self._DEFAULT_MAX_RETRY
+        self.retry_countdown = retry_countdown or self._DEFAULT_RETRY_COUNTDOWN
 
         self.propagate_node_args = False
         self.propagate_finished = False
