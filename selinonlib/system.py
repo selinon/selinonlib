@@ -1006,6 +1006,9 @@ class System(object):
                     cls._logger.error("Bad YAML file, unable to load flow from '%s'", flow_file)
                     raise
 
+            flow_definitions = content.get('flow-definitions')
+            if flow_definitions is None:
+                raise ValueError("No flow definitions provided in file '%s'" % flow_file)
             for flow_def in content['flow-definitions']:
                 flow = system.flow_by_name(flow_def['name'])
                 flow.parse_definition(flow_def, system)
