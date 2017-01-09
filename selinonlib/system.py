@@ -931,11 +931,11 @@ class System(object):
                 self._logger.error("Check of flow '%s' failed", flow.name)
                 raise
 
-            # we report only tasks that are not run from any flow, running a flow is based on the user
-            # this check could be written more optimal by storing only tasks, but keep it this way for now
-            never_started_nodes = set(self.tasks) - set(t for t in all_used_nodes if t.is_task())
-            for node in never_started_nodes:
-                self._logger.warning("Task '%s' stated in YAML configuration file, but it is never run", node.name)
+        # we report only tasks that are not run from any flow, running a flow is based on the user
+        # this check could be written more optimal by storing only tasks, but keep it this way for now
+        never_started_nodes = set(self.tasks) - set(t for t in all_used_nodes if t.is_task())
+        for node in never_started_nodes:
+            self._logger.warning("Task '%s' stated in YAML configuration file, but it is never run", node.name)
 
     @classmethod
     def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
