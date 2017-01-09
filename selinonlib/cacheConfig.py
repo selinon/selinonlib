@@ -62,7 +62,7 @@ class CacheConfig(object):
         """
         name = dict_.get('name', _DEFAULT_CACHE_NAME)
         import_path = dict_.get('import', _DEFAULT_CACHE_IMPORT)
-        options = dict_.options('options', _DEFAULT_CACHE_OPTIONS)
+        options = dict_.get('options', _DEFAULT_CACHE_OPTIONS)
 
         if not isinstance(name, str):
             raise ValueError("Cache configuration for '%s' expects name to be a string, got '%s' instead"
