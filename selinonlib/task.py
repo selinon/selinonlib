@@ -23,15 +23,15 @@ import logging
 from .node import Node
 from .globalConfig import GlobalConfig
 
-_DEFAULT_MAX_RETRY = 0
-_DEFAULT_RETRY_COUNTDOWN = 0
-
 
 class Task(Node):
     # pylint: disable=too-many-instance-attributes,arguments-differ
     """
     A task representation within the system
     """
+
+    _DEFAULT_MAX_RETRY = 0
+    _DEFAULT_RETRY_COUNTDOWN = 0
     _logger = logging.getLogger(__name__)
 
     def __init__(self, name, import_path, storage, opts):
@@ -52,8 +52,8 @@ class Task(Node):
 
         self.storage_task_name = opts.get('storage_task_name', name)
         self.output_schema = opts.get('output_schema')
-        self.max_retry = opts.get('max_retry', _DEFAULT_MAX_RETRY)
-        self.retry_countdown = opts.get('retry_countdown', _DEFAULT_RETRY_COUNTDOWN)
+        self.max_retry = opts.get('max_retry', self._DEFAULT_MAX_RETRY)
+        self.retry_countdown = opts.get('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
         self.queue_name = opts.get('queue', GlobalConfig.default_task_queue)
         self.import_path = import_path
         self.storage_readonly = opts.get('storage_readonly', False)
