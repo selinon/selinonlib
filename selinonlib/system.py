@@ -848,8 +848,12 @@ class System(object):
 
                 for nowait_node in flow.nowait_nodes:
                     if nowait_node in all_source_nodes:
-                        raise ValueError("Node '%s' marked as 'nowait' but dependency in the flow found"
-                                         % nowait_node.name)
+                        raise ValueError("Node '%s' marked as 'nowait' but dependency in the flow '%s' found"
+                                         % (nowait_node.name, flow.name))
+
+                    if nowait_node not in flow.all_destination_nodes():
+                        raise ValueError("Node '%s' marked as 'nowait' but this node is never started in flow '%s'"
+                                         % (nowait_node.name, flow.name))
 
                 if isinstance(flow.propagate_finished, list):
                     for node in flow.propagate_finished:
