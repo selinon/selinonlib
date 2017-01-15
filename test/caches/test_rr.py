@@ -19,7 +19,8 @@
 # ####################################################################
 
 import pytest
-from selinonlib.caches import (RR, CacheMissError)
+from selinon import CacheMissError
+from selinonlib.caches import RR
 
 
 class TestRR(object):

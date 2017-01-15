@@ -32,7 +32,7 @@ try:
     from sqlalchemy_utils import create_database, database_exists
 except ImportError:
     raise ImportError("Please install SQLAlchemy-Utils using `pip3 install SQLAlchemy-Utils in order to use SQLStorage")
-from .dataStorage import DataStorage
+from selinon import DataStorage
 
 _Base = declarative_base()  # pylint: disable=invalid-name
 

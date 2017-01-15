@@ -26,7 +26,7 @@ try:
     import botocore
 except ImportError:
     raise ImportError("Please install boto3 using `pip3 install boto3` in order to use S3 storage")
-from .dataStorage import DataStorage
+from selinon import DataStorage
 
 
 class S3(DataStorage):

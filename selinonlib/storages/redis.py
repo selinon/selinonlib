@@ -26,7 +26,7 @@ try:
     import redis
 except ImportError:
     raise ImportError("Please install redis using `pip3 install redis` in order to use RedisStorage")
-from .dataStorage import DataStorage
+from selinon import DataStorage
 
 
 class RedisStorage(DataStorage):  # pylint: disable=too-many-instance-attributes

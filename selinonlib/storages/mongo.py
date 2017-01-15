@@ -25,7 +25,7 @@ try:
     from pymongo import MongoClient
 except ImportError:
     raise ImportError("Please install pymongo using `pip3 install pymongo` in order to use MongoStorage")
-from .dataStorage import DataStorage
+from selinon import DataStorage
 
 
 class MongoStorage(DataStorage):

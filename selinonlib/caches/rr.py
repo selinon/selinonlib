@@ -22,8 +22,7 @@ Random replacement cache implementation
 """
 
 import random
-from .cache import Cache
-from .cacheMissError import CacheMissError
+from selinon import Cache, CacheMissError
 
 
 class RR(Cache):

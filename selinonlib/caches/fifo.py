@@ -22,8 +22,7 @@ First-In-First-Out cache implementation
 """
 
 from collections import deque
-from .cache import Cache
-from .cacheMissError import CacheMissError
+from selinon import Cache, CacheMissError
 
 
 class FIFO(Cache):

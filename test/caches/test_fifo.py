@@ -19,7 +19,8 @@
 # ####################################################################
 
 import pytest
-from selinonlib.caches import (FIFO, CacheMissError)
+from selinon import CacheMissError
+from selinonlib.caches import FIFO
 
 
 class TestFIFO(object):

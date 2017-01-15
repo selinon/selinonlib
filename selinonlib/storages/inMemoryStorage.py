@@ -23,7 +23,7 @@ In memory storage implementation
 
 import sys
 import json as jsonlib
-from .dataStorage import DataStorage
+from selinon import DataStorage
 
 
 class InMemoryStorage(DataStorage):

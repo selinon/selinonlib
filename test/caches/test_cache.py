@@ -19,7 +19,8 @@
 # ####################################################################
 
 import pytest
-from selinonlib.caches import (FIFO, LIFO, LRU, MRU, RR, CacheMissError)
+from selinon import CacheMissError
+from selinonlib.caches import (FIFO, LIFO, LRU, MRU, RR)
 
 # Available caches that should be tested
 _CACHE_TYPES = [

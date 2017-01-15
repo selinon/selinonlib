@@ -19,7 +19,8 @@
 # ####################################################################
 
 import pytest
-from selinonlib.caches import (MRU, CacheMissError)
+from selinon import CacheMissError
+from selinonlib.caches import MRU
 
 
 class TestMRU(object):

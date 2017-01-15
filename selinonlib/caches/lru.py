@@ -21,8 +21,7 @@
 Least-Recently-Used cache implementation
 """
 
-from .cache import Cache
-from .cacheMissError import CacheMissError
+from selinon import Cache, CacheMissError
 
 
 class _Record(object):
