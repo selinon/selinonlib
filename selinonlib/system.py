@@ -850,8 +850,6 @@ class System(object):
                     edge.check()
 
                 if starting_edges_count > 1:
-                    self._logger.warning("Multiple starting nodes defined in flow '%s'", flow.name)
-
                     if flow.node_args_from_first:
                         raise ValueError("Cannot propagate node arguments from multiple starting nodes")
 
