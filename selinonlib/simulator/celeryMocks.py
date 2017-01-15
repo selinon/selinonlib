@@ -36,8 +36,8 @@ class SimulateAsyncResult(object):
     task_failures = {}
     task_successes = {}
 
-    def __init__(self, node_name, id):  # pylint: disable=redefined-builtin,invalid-name
-        self.task_id = str(id)
+    def __init__(self, node_name, node_id):  # pylint: disable=redefined-builtin,invalid-name
+        self.task_id = str(node_id)
         self.node_id = node_name
 
     @classmethod
@@ -106,7 +106,7 @@ def simulate_apply_async(instance, **celery_kwargs):
     Simulator.schedule(instance, celery_kwargs)
     selinon_kwargs = celery_kwargs['kwargs']
     return SimulateAsyncResult(selinon_kwargs.get('task_name', selinon_kwargs['flow_name']),
-                               id=id(instance))
+                               node_id=id(instance))
 
 
 def simulate_retry(instance, **celery_kwargs):
