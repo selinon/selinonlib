@@ -130,7 +130,7 @@ class UnaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disabl
         :return: list of nodes that are used
         :rtype: List[Node]
         """
-        return self._child.nodes.used()
+        return self._child.nodes_used()
 
     def check(self):
         """
