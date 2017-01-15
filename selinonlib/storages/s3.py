@@ -68,7 +68,7 @@ class S3(DataStorage):
             del self._s3
             self._s3 = None
 
-    def retrieve(self, task_name, task_id):
+    def retrieve(self, flow_name, task_name, task_id):
         assert self.is_connected()
         return self._s3.Object(self._bucket_name, task_id).get()['Body'].read()
 

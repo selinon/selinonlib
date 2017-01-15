@@ -58,7 +58,7 @@ class InMemoryStorage(DataStorage):
     def disconnect(self):
         pass
 
-    def retrieve(self, task_name, task_id):
+    def retrieve(self, flow_name, task_name, task_id):
         try:
             result = self.database[task_id]['result']
             if self.echo_file and self.echo_json:
