@@ -21,6 +21,7 @@
 
 from itertools import chain
 from .failureNode import FailureNode
+from .helpers import check_conf_keys
 
 
 class Failures(object):
@@ -117,6 +118,10 @@ class Failures(object):
                     and failure['fallback'][0] == failure['nodes'][0]:
                 raise ValueError("Detect cyclic fallback dependency in flow %s, failure on %s"
                                  % (flow.name, failure['nodes'][0]))
+
+            unknown_conf = check_conf_keys(failure, known_conf_opts=('nodes', 'fallback'))
+            if unknown_conf:
+                raise ValueError("Unknown configuration option supplied in fallback definition: %s" % unknown_conf)
 
         last_allocated, starting_nodes = FailureNode.construct(flow, failures_dict)
         return Failures(failures_dict, system, flow, last_allocated, starting_nodes)

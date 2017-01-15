@@ -20,6 +20,7 @@
 """Storage configuration and abstraction from YAML config file"""
 
 from .cacheConfig import CacheConfig
+from .helpers import check_conf_keys
 
 
 class Storage(object):
@@ -74,6 +75,12 @@ class Storage(object):
             cache_config = CacheConfig.from_dict(dict_['cache'], dict_['name'])
         else:
             cache_config = CacheConfig.get_default(dict_['name'])
+
+        # check supplied configuration options
+        unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import', 'configuration', 'cache', 'classname'))
+        if unknown_conf:
+            raise ValueError("Unknown configuration options for storage '%s' supplied: %s"
+                             % (dict_['name'], unknown_conf.keys()))
 
         return Storage(dict_['name'], dict_['import'], dict_['configuration'], cache_config, dict_.get('classname'))
 

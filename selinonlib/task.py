@@ -34,7 +34,7 @@ class Task(Node):
     _DEFAULT_RETRY_COUNTDOWN = 0
     _logger = logging.getLogger(__name__)
 
-    def __init__(self, name, import_path, storage, opts):
+    def __init__(self, name, import_path, storage, **opts):
         """
         :param name: name of the task
         :param import_path: tasks's import
@@ -43,7 +43,7 @@ class Task(Node):
         """
         super(Task, self).__init__(name)
 
-        self.class_name = opts.get('classname', name)
+        self.class_name = opts.pop('classname', name)
         self.storage = storage
         self.import_path = import_path
 
@@ -51,19 +51,23 @@ class Task(Node):
             raise ValueError("Unable to assign storage_task_name for task '%s' (class '%s' from '%s'), task has "
                              "no storage assigned" % (self.name, self.class_name, self.import_path))
 
-        self.storage_task_name = opts.get('storage_task_name', name)
-        self.output_schema = opts.get('output_schema')
+        self.storage_task_name = opts.pop('storage_task_name', name)
+        self.output_schema = opts.pop('output_schema', None)
 
         if opts.get('retry_countdown') is not None and opts.get('max_retry', 0) == 0:
             self._logger.warning("Retry countdown set for task '%s' (class '%s' from '%s') but this task has"
                                  "retry set to 0", self.name, self.class_name, self.import_path)
 
-        self.max_retry = opts.get('max_retry', self._DEFAULT_MAX_RETRY)
-        self.retry_countdown = opts.get('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
+        self.max_retry = opts.pop('max_retry', self._DEFAULT_MAX_RETRY)
+        self.retry_countdown = opts.pop('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
 
-        self.queue_name = opts.get('queue', GlobalConfig.default_task_queue)
-        self.storage_readonly = opts.get('storage_readonly', False)
-        self.throttling = self.parse_throttling(opts)
+        self.queue_name = opts.pop('queue', GlobalConfig.default_task_queue)
+        self.storage_readonly = opts.pop('storage_readonly', False)
+        self.throttling = self.parse_throttling(opts.pop('throttling', {}))
+
+        if opts:
+            raise ValueError("Unknown task option provided for task '%s' (class '%s' from '%s'): %s"
+                             % (name, self.class_name, self.import_path, opts))
 
         # register task usage
         if self.storage:
@@ -121,10 +125,10 @@ class Task(Node):
         if 'import' not in d or not d['import']:
             raise KeyError('Task import definition is mandatory')
         if 'storage' in d:
-            storage = system.storage_by_name(d['storage'])
+            storage = system.storage_by_name(d.pop('storage'))
         else:
             storage = None
 
-        instance = Task(d['name'], d['import'], storage, d)
+        instance = Task(d.pop('name'), d.pop('import'), storage, **d)
         instance.check()
         return instance

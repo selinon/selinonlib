@@ -19,6 +19,8 @@
 # ####################################################################
 """User's global configuration section parsed from YAML config file"""
 
+from .helpers import check_conf_keys
+
 
 class GlobalConfig(object):
     """
@@ -87,6 +89,12 @@ class GlobalConfig(object):
                 cls._trace_function = 'trace'
 
             storage = system.storage_by_name(trace_record['storage'])
+
+            unknown_conf = check_conf_keys(trace_record, known_conf_opts=('method', 'storage'))
+            if unknown_conf:
+                raise ValueError("Unknown configuration for trace storage '%s' supplied: %s"
+                                 % (trace_record['storage'], unknown_conf))
+
             cls._trace_storage = storage
         else:
             if 'import' not in trace_record:
@@ -94,6 +102,11 @@ class GlobalConfig(object):
 
             if 'function' not in trace_record:
                 raise ValueError('Expected function definition if trace is not logging nor storage')
+
+            unknown_conf = check_conf_keys(trace_record, known_conf_opts=('import', 'function'))
+            if unknown_conf:
+                raise ValueError("Unknown configuration for trace function '%s' from '%s' supplied: %s"
+                                 % (trace_record['function'], trace_record['import'], unknown_conf))
 
             cls._trace_import = trace_record['import']
             cls._trace_function = trace_record['function']
@@ -114,3 +127,8 @@ class GlobalConfig(object):
 
         cls.default_dispatcher_queue = dict_.get('default_dispatcher_queue', cls.DEFAULT_CELERY_QUEUE)
         cls.default_task_queue = dict_.get('default_task_queue', cls.DEFAULT_CELERY_QUEUE)
+
+        unknown_conf = check_conf_keys(dict_, ('predicates_modules', 'trace'))
+        if unknown_conf:
+            raise ValueError("Unknown configuration options supplied in global configuration section: %s"
+                             % unknown_conf)

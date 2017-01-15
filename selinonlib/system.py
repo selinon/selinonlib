@@ -31,7 +31,7 @@ from .storage import Storage
 from .flow import Flow
 from .version import selinonlib_version
 from .config import Config
-from .helpers import dict2strkwargs, expr2str
+from .helpers import dict2strkwargs, expr2str, check_conf_keys
 from .taskClass import TaskClass
 from .globalConfig import GlobalConfig
 
@@ -961,6 +961,10 @@ class System(object):
         :rtype: System
         """
         # pylint: disable=too-many-branches
+
+        # known top-level YAML keys for YAML config files (note flows.yml could be merged to nodes.yml)
+        known_yaml_keys = ('tasks', 'flows', 'storages', 'global', 'flow-definitions')
+
         system = System()
 
         with open(nodes_definition_file, 'r') as nodes_file:
@@ -970,6 +974,11 @@ class System(object):
             except:
                 cls._logger.error("Bad YAML file, unable to load tasks from '%s'", nodes_definition_file)
                 raise
+
+        unknown_conf = check_conf_keys(content, known_conf_opts=known_yaml_keys)
+        if unknown_conf:
+            cls._logger.warning("Unknown configuration keys in file '%s', will be skipped: %s",
+                                nodes_definition_file, list(unknown_conf.keys()))
 
         for storage_dict in content.get('storages', []):
             storage = Storage.from_dict(storage_dict)
@@ -1006,6 +1015,11 @@ class System(object):
                 except:
                     cls._logger.error("Bad YAML file, unable to load flow from '%s'", flow_file)
                     raise
+
+            unknown_conf = check_conf_keys(content, known_conf_opts=known_yaml_keys)
+            if unknown_conf:
+                cls._logger.warning("Unknown configuration keys in file '%s', will be skipped: %s",
+                                    flow_file, list(unknown_conf.keys()))
 
             flow_definitions = content.get('flow-definitions')
             if flow_definitions is None:

@@ -79,19 +79,19 @@ class Node(metaclass=abc.ABCMeta):
         """
         Parse throttling from a dictionary
 
-        :param dict_: dictionary from which throttling should be parsed (expected under 'throttling' key)
-        :return: timedelta describing throttling countdown
+        :param dict_: dictionary from which throttling should be parsed
+        :return: timedelta describing throttling countdown or None if not throttling applied
         :rtype: time.timedelta
         """
-        if 'throttling' in dict_:
-            if not isinstance(dict_['throttling'], dict):
-                raise ValueError("Definition of throttling expects key value definition, got %s instead in '%s'"
-                                 % (dict_['throttling'], self.name))
-            try:
-                return datetime.timedelta(**dict_['throttling'])
-            except TypeError:
-                raise ValueError("Wrong throttling definition in '%s', expected values are %s"
-                                 % (self.name,
-                                    ['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']))
-        else:
+        if not dict_:
             return None
+
+        if not isinstance(dict_, dict):
+            raise ValueError("Definition of throttling expects key value definition, got %s instead in '%s'"
+                             % (dict_['throttling'], self.name))
+        try:
+            return datetime.timedelta(**dict_)
+        except TypeError:
+            raise ValueError("Wrong throttling definition in '%s', expected values are %s"
+                             % (self.name,
+                                ['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']))

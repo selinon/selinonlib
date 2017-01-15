@@ -121,3 +121,13 @@ def get_function_arguments(function):
             ret.append(arg.arg)
 
     return ret
+
+
+def check_conf_keys(dict_, known_conf_opts):
+    """Check supplied configuration options against known configuration options
+
+    :param dict_: dict with configuration options
+    :param known_conf_opts: known configuration options
+    :return: configuration options that are now known with their values
+    """
+    return {k: v for k, v in dict_.items() if k not in known_conf_opts}

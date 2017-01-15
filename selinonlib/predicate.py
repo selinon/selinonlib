@@ -22,7 +22,7 @@ Predicate interface - predicate for building conditions
 """
 
 import abc
-from .helpers import dict2json
+from .helpers import dict2json, check_conf_keys
 
 
 class Predicate(metaclass=abc.ABCMeta):
@@ -109,6 +109,11 @@ class Predicate(metaclass=abc.ABCMeta):
                 else:
                     # e.g. starting edge has no nodes_from
                     node = None
+
+            unknown_conf = check_conf_keys(tree, known_conf_opts=('name', 'node', 'args'))
+            if unknown_conf:
+                raise ValueError("Unknown configuration option for predicate '%s' in flow '%s': %s"
+                                 % (tree['name'], flow.name, unknown_conf.keys()))
 
             return LeafPredicate.create(tree['name'], node, flow, tree.get('args'))
         elif 'or' in tree:

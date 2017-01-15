@@ -19,6 +19,9 @@
 # ####################################################################
 """Configuration for caching"""
 
+from .helpers import check_conf_keys
+
+
 _DEFAULT_CACHE_NAME = 'LRU'
 _DEFAULT_CACHE_IMPORT = 'selinonlib.caches'
 _DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
@@ -75,5 +78,11 @@ class CacheConfig(object):
         if not isinstance(options, dict):
             raise ValueError("Cache configuration for '%s' expects options to be a dict of cache options, "
                              "got '%s' instead" % (entity_name, options))
+
+        # check supplied configuration options
+        unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import', 'options'))
+        if unknown_conf:
+            raise ValueError("Unknown configuration options for cache '%s' supplied: %s"
+                             % (name, unknown_conf))
 
         return CacheConfig(name, import_path, options, entity_name)

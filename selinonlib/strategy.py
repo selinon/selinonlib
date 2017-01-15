@@ -20,7 +20,7 @@
 """Strategy for scheduling dispatcher - system state sampling"""
 
 import importlib
-from .helpers import get_function_arguments
+from .helpers import get_function_arguments, check_conf_keys
 
 
 class Strategy(object):
@@ -79,5 +79,10 @@ class Strategy(object):
                              'for strategy %s in flow %s'
                              % ((func_args - cls._EXPECTED_STRATEGY_FUNC_ARGS), set(user_args_keys),
                                 strategy_dict['name'], flow_name))
+
+        unknown_conf = check_conf_keys(strategy_dict, known_conf_opts=('name', 'import', 'args'))
+        if unknown_conf:
+            raise ValueError("Unknown configuration for sampling strategy '%s' supplied: '%s'"
+                             % (strategy_dict['name'], unknown_conf))
 
         return cls(strategy_module, strategy_dict['name'], strategy_dict['args'])

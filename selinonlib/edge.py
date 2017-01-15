@@ -21,6 +21,7 @@
 
 from .predicate import Predicate
 from .builtinPredicate import AlwaysTruePredicate
+from .helpers import check_conf_keys
 
 
 class Edge(object):
@@ -150,5 +151,10 @@ class Edge(object):
             if not isinstance(foreach_def['import'], str):
                 raise ValueError("Wrong import statement '%s' supplied in foreach section in flow %s"
                                  % (foreach_def['import'], flow.name))
+
+        unknown_conf = check_conf_keys(dict_, known_conf_opts=('from', 'to', 'foreach', 'condition'))
+        if unknown_conf:
+            raise ValueError("Unknown configuration options supplied for edge in flow '%s': %s"
+                             % (flow.name, unknown_conf))
 
         return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate, flow=flow, foreach=foreach)

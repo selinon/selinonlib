@@ -26,6 +26,7 @@ from .node import Node
 from .failures import Failures
 from .strategy import Strategy
 from .globalConfig import GlobalConfig
+from .helpers import check_conf_keys
 
 
 class Flow(Node):  # pylint: disable=too-many-instance-attributes
@@ -57,7 +58,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.propagate_finished = opts.pop('propagate_finished', False)
         self.propagate_parent = opts.pop('propagate_parent', False)
         self.propagate_compound_finished = opts.pop('propagate_compound_finished', False)
-        self.throttling = opts.pop('throttling', self.parse_throttling({}))
+        self.throttling = self.parse_throttling(opts.pop('throttling', {}))
         self.cache_config = opts.pop('cache_config', CacheConfig.get_default(self.name))
         self.max_retry = opts.pop('max_retry', self._DEFAULT_MAX_RETRY)
         self.retry_countdown = opts.pop('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
@@ -101,6 +102,21 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
 
         return ret
 
+    def _check_conf_keys(self, flow_def):
+        """Check configuration keys so no unknown and unwanted configuration is supplied
+
+        :param flow_def: dictionary containing flow definition
+        :raises: ValueError on wrong configuration
+        """
+        known_conf_keys = ('name', 'failures', 'nowait', 'cache', 'sampling', 'throttling', 'node_args_from_first',
+                           'propagate_node_args', 'propagate_finished', 'propagate_parent', 'edges',
+                           'propagate_compound_finished', 'queue', 'max_retry', 'retry_countdown')
+
+        unknown_conf = check_conf_keys(flow_def, known_conf_keys)
+        if unknown_conf:
+            raise ValueError("Unknown configuration option for flow '%s' supplied: %s"
+                             % (self.name, unknown_conf))
+
     def parse_definition(self, flow_def, system):
         """
         Parse flow definition (fill flow attributes) from a dictionary
@@ -109,6 +125,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         :param system: system in which flow is defined
         """
         assert flow_def['name'] == self.name
+        self._check_conf_keys(flow_def)
 
         if len(self.edges) > 0:
             raise ValueError("Multiple definitions of flow '%s'" % self.name)
@@ -139,7 +156,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         if 'sampling' in flow_def:
             self.strategy = Strategy.from_dict(flow_def.get('sampling'), self.name)
 
-        self.throttling = self.parse_throttling(flow_def)
+        self.throttling = self.parse_throttling(flow_def.pop('throttling', {}))
         self.node_args_from_first = flow_def.get('node_args_from_first', False)
         self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
         self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
