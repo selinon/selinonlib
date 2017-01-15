@@ -62,7 +62,7 @@ _STRATEGIES_ALL_ARG = _STRATEGIES_ONE_ARG + _STRATEGIES_TWO_ARG + _STRATEGIES_TH
 @pytest.mark.parametrize("strategy", _STRATEGIES_ALL_ARG)
 class TestStrategies(object):
     def test_start(self, strategy):
-        args = {
+        status = {
             'previous_retry': None,
             'active_nodes': ['Task1', 'Task2'],
             'failed_nodes': [],
@@ -71,11 +71,11 @@ class TestStrategies(object):
             'finished_nodes': []
         }
 
-        retry = strategy(**args)
+        retry = strategy(status)
         assert retry is not None and retry > 0
 
     def test_only_active(self, strategy):
-        args = {
+        status = {
             'previous_retry': _TEST_PREV_RETRY,
             'active_nodes': ['Task1', 'Task2'],
             'failed_nodes': [],
@@ -84,11 +84,11 @@ class TestStrategies(object):
             'finished_nodes': []
         }
 
-        retry = strategy(**args)
+        retry = strategy(status)
         assert retry is not None and retry > 0
 
     def test_active_and_started(self, strategy):
-        args = {
+        status = {
             'previous_retry': _TEST_PREV_RETRY,
             'active_nodes': ['Task1', 'Task2'],
             'failed_nodes': [],
@@ -97,11 +97,11 @@ class TestStrategies(object):
             'finished_nodes': []
         }
 
-        retry = strategy(**args)
+        retry = strategy(status)
         assert retry is not None and retry > 0
 
     def test_finish(self, strategy):
-        args = {
+        status = {
             'previous_retry': _TEST_PREV_RETRY,
             'active_nodes': [],
             'failed_nodes': [],
@@ -110,6 +110,6 @@ class TestStrategies(object):
             'finished_nodes': []
         }
 
-        retry = strategy(**args)
+        retry = strategy(status)
         assert retry is None
 
