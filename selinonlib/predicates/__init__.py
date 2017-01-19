@@ -35,6 +35,8 @@ from .argsIsList import argsIsList
 from .argsIsNone import argsIsNone
 from .argsIsStr import argsIsStr
 from .empty import empty
+from .envEqual import envEqual
+from .envExist import envExist
 from .fieldBool import fieldBool
 from .fieldContain import fieldContain
 from .fieldDict import fieldDict
