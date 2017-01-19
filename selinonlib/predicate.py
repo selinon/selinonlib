@@ -102,9 +102,7 @@ class Predicate(metaclass=abc.ABCMeta):
                     raise ValueError("Node listed node '%s' in predicate '%s' is not requested in 'nodes_from'"
                                      % (tree['node'], tree['name']))
             else:
-                if len(nodes_from) > 1:
-                    raise ValueError("Expected task name for predicate '%s'" % tree['name'])
-                elif len(nodes_from) == 1:
+                if len(nodes_from) == 1:
                     node = nodes_from[0]
                 else:
                     # e.g. starting edge has no nodes_from
@@ -131,5 +129,14 @@ class Predicate(metaclass=abc.ABCMeta):
         Recursively check predicate correctness
 
         :raises ValueError: if predicate is not correct
+        """
+        pass
+
+    @abc.abstractmethod
+    def requires_message(self):
+        """
+        Recursively check if one of the predicates require message from storage (result of previous task)
+
+        :return: True if a result from storage is required
         """
         pass

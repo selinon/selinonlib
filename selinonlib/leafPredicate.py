@@ -49,6 +49,9 @@ class LeafPredicate(Predicate):
         self._args = args or {}
         self._func_args = get_function_arguments(self._func)
 
+        if self.requires_message() and not self.node:
+            raise ValueError("Expected task name for predicate '%s'" % self._func)
+
     def requires_message(self):
         """
         :return: True if predicate requires a message from a parent node

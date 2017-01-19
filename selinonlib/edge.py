@@ -72,7 +72,7 @@ class Edge(object):
             if not node.is_task():
                 continue
 
-            if node.storage_readonly:
+            if node.storage_readonly and self.predicate.requires_message():
                 raise ValueError("Cannot inspect results of node '%s' in flow '%s' as this node is configured "
                                  "with readonly storage, condition: %s"
                                  % (node.name, self.flow.name, str(self.predicate)))

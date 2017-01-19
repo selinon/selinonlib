@@ -94,6 +94,12 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
         for child in self._children:
             child.check()
 
+    def requires_message(self):
+        """
+        :return: True if any of the children require results of parent task
+        """
+        return any(child.requires_message() for child in self._children)
+
 
 class UnaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable=abstract-method
     """
@@ -137,6 +143,12 @@ class UnaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disabl
         Check predicate for consistency
         """
         self._child.check()
+
+    def requires_message(self):
+        """
+        :return: True if the child requires results of parent task
+        """
+        return self._child.requires_message()
 
 
 class AndPredicate(NaryPredicate):
@@ -258,3 +270,6 @@ class AlwaysTruePredicate(BuiltinPredicate):
     @staticmethod
     def create(tree, nodes_from, flow):
         return AlwaysTruePredicate(flow)
+
+    def requires_message(self):
+        return False
