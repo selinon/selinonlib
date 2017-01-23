@@ -55,9 +55,12 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.strategy = Strategy.from_dict(opts.pop('sampling', {}), self.name)
 
         self.propagate_node_args = opts.pop('propagate_node_args', False)
-        self.propagate_finished = opts.pop('propagate_finished', False)
         self.propagate_parent = opts.pop('propagate_parent', False)
+        self.propagate_parent_failures = opts.pop('propagate_parent_failures', False)
+        self.propagate_finished = opts.pop('propagate_finished', False)
         self.propagate_compound_finished = opts.pop('propagate_compound_finished', False)
+        self.propagate_failures = opts.pop('propagate_failures', False)
+        self.propagate_compound_failures = opts.pop('propagate_compound_failures', False)
         self.throttling = self.parse_throttling(opts.pop('throttling', {}))
         self.cache_config = opts.pop('cache_config', CacheConfig.get_default(self.name))
         self.max_retry = opts.pop('max_retry', self._DEFAULT_MAX_RETRY)
@@ -65,6 +68,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
 
         # disjoint config options
         assert self.propagate_finished is not True and self.propagate_compound_finished is not True
+        assert self.propagate_failures is not True and self.propagate_compound_failures is not True
 
         if opts:
             raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
@@ -109,8 +113,9 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         :raises: ValueError on wrong configuration
         """
         known_conf_keys = ('name', 'failures', 'nowait', 'cache', 'sampling', 'throttling', 'node_args_from_first',
-                           'propagate_node_args', 'propagate_finished', 'propagate_parent', 'edges',
-                           'propagate_compound_finished', 'queue', 'max_retry', 'retry_countdown')
+                           'propagate_node_args', 'propagate_finished', 'propagate_parent', 'propagate_parent_failures',
+                           'edges', 'propagate_compound_finished', 'queue', 'max_retry', 'retry_countdown',
+                           'propagate_failures', 'propagate_compound_failures')
 
         unknown_conf = check_conf_keys(flow_def, known_conf_keys)
         if unknown_conf:
@@ -134,7 +139,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
             edge = Edge.from_dict(edge_def, system, self)
             self.add_edge(edge)
 
-        if 'failures' in flow_def:
+        if 'failures' in flow_def and flow_def['failures']:
             failures = Failures.construct(system, self, flow_def['failures'])
             self.failures = failures
 
@@ -159,9 +164,12 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.throttling = self.parse_throttling(flow_def.pop('throttling', {}))
         self.node_args_from_first = flow_def.get('node_args_from_first', False)
         self.propagate_node_args = self._set_propagate(system, flow_def, 'propagate_node_args')
-        self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
         self.propagate_parent = self._set_propagate(system, flow_def, 'propagate_parent')
+        self.propagate_parent_failures = self._set_propagate(system, flow_def, 'propagate_parent_failures')
+        self.propagate_finished = self._set_propagate(system, flow_def, 'propagate_finished')
         self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
+        self.propagate_failures = self._set_propagate(system, flow_def, 'propagate_failures')
+        self.propagate_compound_failures = self._set_propagate(system, flow_def, 'propagate_compound_failures')
         self.queue_name = flow_def.get('queue', GlobalConfig.default_dispatcher_queue)
         self.max_retry = flow_def.get('max_retry', self._DEFAULT_MAX_RETRY)
         self.retry_countdown = flow_def.get('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
@@ -243,9 +251,16 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
     def should_propagate_finished(self, dst_node_name):
         """
         :param dst_node_name: destination node to which configuration should be propagated
-        :return: True if should propagate_finish
+        :return: True if should propagate_finished
         """
         return self._should_config(dst_node_name, self.propagate_finished)
+
+    def should_propagate_failures(self, dst_node_name):
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_failures
+        """
+        return self._should_config(dst_node_name, self.propagate_failures)
 
     def should_propagate_node_args(self, dst_node_name):
         """
@@ -261,9 +276,23 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         """
         return self._should_config(dst_node_name, self.propagate_parent)
 
+    def should_propagate_parent_failures(self, dst_node_name):  # pylint: disable=invalid-name
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_parent_failures
+        """
+        return self._should_config(dst_node_name, self.propagate_parent_failures)
+
     def should_propagate_compound_finished(self, dst_node_name):  # pylint: disable=invalid-name
         """
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_compound_finished
         """
         return self._should_config(dst_node_name, self.propagate_compound_finished)
+
+    def should_propagate_compound_failures(self, dst_node_name):  # pylint: disable=invalid-name
+        """
+        :param dst_node_name: destination node to which configuration should be propagated
+        :return: True if should propagate_compound_failures
+        """
+        return self._should_config(dst_node_name, self.propagate_compound_failures)

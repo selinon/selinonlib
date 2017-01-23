@@ -99,7 +99,6 @@ class Failures(object):
         :param failures_dict: construct failures from failures dict
         :rtype: Failures
         """
-
         for failure in failures_dict:
             if 'nodes' not in failure or failure['nodes'] is None:
                 raise ValueError("Failure should state nodes for state 'nodes' to fallback from in flow '%s'"

@@ -275,16 +275,28 @@ class System(object):
                         {f.name: f.propagate_node_args for f in self.flows})
 
         self._dump_dict(stream,
-                        'propagate_finished',
-                        {f.name: f.propagate_finished for f in self.flows})
-
-        self._dump_dict(stream,
                         'propagate_parent',
                         {f.name: f.propagate_parent for f in self.flows})
 
         self._dump_dict(stream,
+                        'propagate_parent_failures',
+                        {f.name: f.propagate_parent_failures for f in self.flows})
+
+        self._dump_dict(stream,
+                        'propagate_finished',
+                        {f.name: f.propagate_finished for f in self.flows})
+
+        self._dump_dict(stream,
                         'propagate_compound_finished',
                         {f.name: f.propagate_compound_finished for f in self.flows})
+
+        self._dump_dict(stream,
+                        'propagate_failures',
+                        {f.name: f.propagate_failures for f in self.flows})
+
+        self._dump_dict(stream,
+                        'propagate_compound_failures',
+                        {f.name: f.propagate_compound_failures for f in self.flows})
 
     @staticmethod
     def _dump_dict(output, dict_name, dict_items):
@@ -786,13 +798,122 @@ class System(object):
             if len(flow.edges) == 0:
                 raise ValueError("Empty flow: %s" % flow.name)
 
+    def _check_propagate(self, flow):  # pylint: disable=too-many-branches
+        """
+
+        :param flow:
+        :return:
+        """
+        all_source_nodes = flow.all_source_nodes()
+        #
+        # checks on propagate_{compound_,}finished
+        #
+        if isinstance(flow.propagate_finished, list):
+            for node in flow.propagate_finished:
+                if node not in all_source_nodes:
+                    raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
+                                     "in flow '%s' to which should be parent nodes propagated"
+                                     % (node.name, flow.name))
+
+                # propagate_finished set to a flow but these arguments are not passed due
+                # to propagate_parent
+                if node.is_flow():
+                    affected_edges = [edge for edge in flow.edges if node in edge.nodes_from]
+                    for affected_edge in affected_edges:
+                        f = [n for n in affected_edge.nodes_to if n.is_flow()]  # pylint: disable=invalid-name
+                        if len(f) == 1 and not flow.should_propagate_parent(f[0]):
+                            self._logger.warning("Flow '%s' marked in propagate_finished, but calculated "
+                                                 "finished nodes are not passed to sub-flow '%s' due to not "
+                                                 "propagating parent, in flow '%s'",
+                                                 node.name, f[0].name, flow.name)
+
+        if isinstance(flow.propagate_compound_finished, list):
+            for node in flow.propagate_compound_finished:
+                if node not in all_source_nodes:
+                    raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
+                                     "in flow '%s' to which should be parent nodes propagated"
+                                     % (node.name, flow.name))
+
+                # propagate_compound_finished set to a flow but these arguments are not passed due
+                # to propagate_parent
+                if node.is_flow():
+                    affected_edges = [edge for edge in flow.edges if node in edge.nodes_from]
+                    for affected_edge in affected_edges:
+                        f = [n for n in affected_edge.nodes_to if n.is_flow()]  # pylint: disable=invalid-name
+                        if len(f) == 1 and not flow.should_propagate_parent(f[0]):
+                            self._logger.warning("Flow '%s' marked in propagate_compound_finished, but "
+                                                 "calculated finished nodes are not passed to sub-flow '%s' "
+                                                 "due to not propagating parent, in flow '%s'",
+                                                 node.name, f[0].name, flow.name)
+        #
+        # checks on propagate_{compound_,}failures
+        #
+        # TODO: check there is set propagate_parent_failures and there is a fallback subflow to handle flow failures
+        all_waiting_failure_nodes = flow.failures.all_waiting_nodes() if flow.failures else []
+        if isinstance(flow.propagate_failures, list):
+            for node in flow.propagate_failures:
+                if node not in all_source_nodes:
+                    raise ValueError("Node '%s' stated in propagate_failures but this node is not started "
+                                     "in flow '%s'"
+                                     % (node.name, flow.name))
+                if node not in all_waiting_failure_nodes:
+                    raise ValueError("Node '%s' stated in propagate_failures but there is no such fallback "
+                                     "defined that would handle node's failure in flow '%s'"
+                                     % (node.name, flow.name))
+
+        if isinstance(flow.propagate_compound_failures, list):
+            for node in flow.propagate_compound_failures:
+                if node not in all_source_nodes:
+                    raise ValueError("Node '%s' stated in propagate_compound_failures but this node is not started "
+                                     "in flow '%s'"
+                                     % (node.name, flow.name))
+                if node not in all_waiting_failure_nodes:
+                    raise ValueError("Node '%s' stated in propagate_compound_failures but there is no such fallback "
+                                     "defined that would handle node's failure in flow '%s'"
+                                     % (node.name, flow.name))
+
+        if isinstance(flow.propagate_parent, list):
+            for node in flow.propagate_parent:
+                if node not in all_source_nodes:
+                    raise ValueError("Subflow '%s' should receive parent, but there is no dependency "
+                                     "in flow '%s' to which should be parent nodes propagated"
+                                     % (node.name, flow.name))
+
+        if isinstance(flow.propagate_finished, list) and isinstance(flow.propagate_compound_finished, list):
+            for node in flow.propagate_finished:
+                if node in flow.propagate_compound_finished:
+                    raise ValueError("Cannot mark node '%s' for propagate_finished and "
+                                     "propagate_compound_finished at the same time in flow '%s'"
+                                     % (node.name, flow.name))
+        else:
+            if (flow.propagate_finished is True and flow.propagate_compound_finished is True)  \
+                  or (flow.propagate_finished is True and isinstance(flow.propagate_compound_finished, list)) \
+                  or (isinstance(flow.propagate_finished, list) and flow.propagate_compound_finished is True):
+                raise ValueError("Flags propagate_compound_finished and propagate_finished are disjoint,"
+                                 " please specify configuration for each node separately in flow '%s'"
+                                 % flow.name)
+
+        if isinstance(flow.propagate_failures, list) and isinstance(flow.propagate_compound_failures, list):
+            for node in flow.propagate_failures:
+                if node in flow.propagate_compound_failures:
+                    raise ValueError("Cannot mark node '%s' for propagate_failures and "
+                                     "propagate_compound_failures at the same time in flow '%s'"
+                                     % (node.name, flow.name))
+        else:
+            if (flow.propagate_failures is True and flow.propagate_compound_failures is True)  \
+                  or (flow.propagate_failures is True and isinstance(flow.propagate_compound_failures, list)) \
+                  or (isinstance(flow.propagate_failures, list) and flow.propagate_compound_failures is True):
+                raise ValueError("Flags propagate_compound_failures and propagate_failures are disjoint,"
+                                 " please specify configuration for each node separately in flow '%s'"
+                                 % flow.name)
+
     def _check(self):  # pylint: disable=too-many-statements,too-many-branches
         """
         Check system for consistency
 
         :raises: ValueError
         """
-        self._logger.info("Checking system for consistency")
+        self._logger.info("Checking system consistency")
 
         for task_class in self.task_classes:
             task_ref = task_class.tasks[0]
@@ -865,64 +986,7 @@ class System(object):
                         raise ValueError("Node '%s' marked as 'nowait' but this node is never started in flow '%s'"
                                          % (nowait_node.name, flow.name))
 
-                if isinstance(flow.propagate_finished, list):
-                    for node in flow.propagate_finished:
-                        if node not in all_source_nodes:
-                            raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
-                                             "in flow '%s' to which should be parent nodes propagated"
-                                             % (node.name, flow.name))
-
-                        # propagate_finished set to a flow but these arguments are not passed due
-                        # to propagate_parent
-                        if node.is_flow():
-                            affected_edges = [edge for edge in flow.edges if node in edge.nodes_from]
-                            for affected_edge in affected_edges:
-                                f = [n for n in affected_edge.nodes_to if n.is_flow()]  # pylint: disable=invalid-name
-                                if len(f) == 1 and not flow.should_propagate_parent(f[0]):
-                                    self._logger.warning("Flow '%s' marked in propagate_finished, but calculated "
-                                                         "finished nodes are not passed to sub-flow '%s' due to not "
-                                                         "propagating parent, in flow '%s'",
-                                                         node.name, f[0].name, flow.name)
-
-                if isinstance(flow.propagate_compound_finished, list):
-                    for node in flow.propagate_compound_finished:
-                        if node not in all_source_nodes:
-                            raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
-                                             "in flow '%s' to which should be parent nodes propagated"
-                                             % (node.name, flow.name))
-
-                        # propagate_compound_finished set to a flow but these arguments are not passed due
-                        # to propagate_parent
-                        if node.is_flow():
-                            affected_edges = [edge for edge in flow.edges if node in edge.nodes_from]
-                            for affected_edge in affected_edges:
-                                f = [n for n in affected_edge.nodes_to if n.is_flow()]  # pylint: disable=invalid-name
-                                if len(f) == 1 and not flow.should_propagate_parent(f[0]):
-                                    self._logger.warning("Flow '%s' marked in propagate_compound_finished, but "
-                                                         "calculated finished nodes are not passed to sub-flow '%s' "
-                                                         "due to not propagating parent, in flow '%s'",
-                                                         node.name, f[0].name, flow.name)
-
-                if isinstance(flow.propagate_parent, list):
-                    for node in flow.propagate_parent:
-                        if node not in all_source_nodes:
-                            raise ValueError("Subflow '%s' should receive parent, but there is no dependency "
-                                             "in flow '%s' to which should be parent nodes propagated"
-                                             % (node.name, flow.name))
-
-                if isinstance(flow.propagate_finished, list) and isinstance(flow.propagate_compound_finished, list):
-                    for node in flow.propagate_finished:
-                        if node in flow.propagate_compound_finished:
-                            raise ValueError("Cannot mark node '%s' for propagate_finished and "
-                                             "propagate_compound_finished at the same time in flow '%s'"
-                                             % (node.name, flow.name))
-                else:
-                    if (flow.propagate_finished is True and flow.propagate_compound_finished is True)  \
-                          or (flow.propagate_finished is True and isinstance(flow.propagate_compound_finished, list)) \
-                          or (isinstance(flow.propagate_finished, list) and flow.propagate_compound_finished is True):
-                        raise ValueError("Flags propagate_compound_finished and propagate_finished are disjoint,"
-                                         " please specify configuration for each node separately in flow '%s'"
-                                         % flow.name)
+                self._check_propagate(flow)
 
                 all_used_nodes = set(all_used_nodes) | set(all_source_nodes) | set(all_destination_nodes)
                 not_started = list(set(all_source_nodes) - set(all_destination_nodes))
