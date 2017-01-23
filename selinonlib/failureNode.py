@@ -80,6 +80,7 @@ class FailureNode(object):
         self.fallback = []
         self.traversed = traversed
         self.failure_link = failure_link
+        self.propagate_failure = False
 
     def to(self, node_name):  # pylint: disable=invalid-name
         """
@@ -108,16 +109,34 @@ class FailureNode(object):
         self.next[node_name] = failure
 
     @staticmethod
-    def _add_fallback(failure_node, fallback):
+    def _add_failure_info(failure_node, failure_info):
+        """Add failure specific info to a failure node
+
+        :param failure_node: a failure node where the failure info should be added
+        :param failure_info: additional information as passed from configuration file
+        :return:
+        """
+        # fallback parsing
         if len(failure_node.fallback) > 0:
             raise ValueError("Multiple definitions of a failure in flow '%s' with failure of %s"
                              % (failure_node.flow.name, failure_node.traversed))
 
-        if not isinstance(fallback, list) and fallback is not True:
-            fallback = [fallback]
+        if not isinstance(failure_info['fallback'], list) and failure_info['fallback'] is not True:
+            failure_info['fallback'] = [failure_info['fallback']]
 
-        # additional checks are done by System
-        failure_node.fallback = fallback
+        # propagate_failure parsing
+        if not isinstance(failure_info.get('propagate_failure', False), bool):
+            raise ValueError("Configuration option 'propagate_failure' for failure '%s' in flow '%s' should be "
+                             "boolean, got '%s' instead"
+                             % (failure_node.traversed, failure_node.flow.name, failure_info['propagate_failure']))
+
+        if failure_info['fallback'] is True and failure_info.get('propagate_failure') is True:
+            raise ValueError("Configuration is misleading for failure '%s' in flow '%s' - cannot set "
+                             "propagate_failure and fallback to true at the same time"
+                             % (failure_node.traversed, failure_node.flow.name))
+
+        failure_node.fallback = failure_info['fallback']
+        failure_node.propagate_failure = failure_info.get('propagate_failure', False)
 
     @classmethod
     def construct(cls, flow, failures):  # pylint: disable=too-many-locals,too-many-branches
@@ -179,7 +198,7 @@ class FailureNode(object):
             failure_node = reduce(lambda x, y: x.to(y),
                                   failure['nodes'][1:],
                                   used_starting_failures[failure['nodes'][0]])
-            cls._add_fallback(failure_node, failure['fallback'])
+            cls._add_failure_info(failure_node, failure)
 
         # we could make enumerable and avoid last_allocated (it would be cleaner), but let's stick with
         # this one for now

@@ -119,7 +119,7 @@ class Failures(object):
                 raise ValueError("Detect cyclic fallback dependency in flow %s, failure on %s"
                                  % (flow.name, failure['nodes'][0]))
 
-            unknown_conf = check_conf_keys(failure, known_conf_opts=('nodes', 'fallback'))
+            unknown_conf = check_conf_keys(failure, known_conf_opts=('nodes', 'fallback', 'propagate_failure'))
             if unknown_conf:
                 raise ValueError("Unknown configuration option supplied in fallback definition: %s" % unknown_conf)
 
@@ -187,7 +187,8 @@ class Failures(object):
             stream.write('}, ')
 
             # now list of nodes that should be started in case of failure (fallback)
-            stream.write("'fallback': %s}\n" % fail_node.fallback)
+            stream.write("'fallback': %s, 'propagate_failure': %s}\n"
+                         % (fail_node.fallback, fail_node.propagate_failure))
             fail_node = fail_node.failure_link
 
         stream.write("\n%s = {" % self.starting_nodes_name(flow_name))
