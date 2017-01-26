@@ -242,7 +242,7 @@ class System(object):
                 cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
 
         for import_path, cache_name in cache_imports:
-                output.write("from {} import {}\n".format(import_path, cache_name))
+            output.write("from {} import {}\n".format(import_path, cache_name))
 
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
