@@ -19,14 +19,12 @@
 # ####################################################################
 """A flow representation"""
 
-import os
 import logging
 from .cacheConfig import CacheConfig
 from .edge import Edge
 from .node import Node
 from .failures import Failures
 from .strategy import Strategy
-from .globalConfig import GlobalConfig
 from .helpers import check_conf_keys
 
 
@@ -52,7 +50,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.failures = opts.pop('failures', None)
         self.nowait_nodes = opts.pop('nowait_nodes', [])
         self.node_args_from_first = opts.pop('node_args_from_dict', False)
-        self.queue_name = opts.pop('queue', GlobalConfig.default_dispatcher_queue)
+        self.queue_name = self._expand_queue_name(opts.pop('queue', None))
         self.strategy = Strategy.from_dict(opts.pop('sampling', {}), self.name)
 
         self.propagate_node_args = opts.pop('propagate_node_args', False)
@@ -70,12 +68,6 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         # disjoint config options
         assert self.propagate_finished is not True and self.propagate_compound_finished is not True
         assert self.propagate_failures is not True and self.propagate_compound_failures is not True
-
-        try:
-            self.queue_name = self.queue_name.format(**os.environ)
-        except KeyError:
-            raise ValueError("Expansion of queue name based on environment variables failed for flow '%s', queue: '%s'"
-                             % (self.name, self.queue_name))
 
         if opts:
             raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
@@ -177,7 +169,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.propagate_compound_finished = self._set_propagate(system, flow_def, 'propagate_compound_finished')
         self.propagate_failures = self._set_propagate(system, flow_def, 'propagate_failures')
         self.propagate_compound_failures = self._set_propagate(system, flow_def, 'propagate_compound_failures')
-        self.queue_name = flow_def.get('queue', GlobalConfig.default_dispatcher_queue)
+        self.queue_name = self._expand_queue_name(flow_def.get('queue'))
         self.max_retry = flow_def.get('max_retry', self._DEFAULT_MAX_RETRY)
         self.retry_countdown = flow_def.get('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
 

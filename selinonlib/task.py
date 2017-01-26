@@ -19,10 +19,8 @@
 # ####################################################################
 """A task representation from YAML config file"""
 
-import os
 import logging
 from .node import Node
-from .globalConfig import GlobalConfig
 
 
 class Task(Node):
@@ -62,20 +60,13 @@ class Task(Node):
         self.max_retry = opts.pop('max_retry', self._DEFAULT_MAX_RETRY)
         self.retry_countdown = opts.pop('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
 
-        self.queue_name = opts.pop('queue', GlobalConfig.default_task_queue)
+        self.queue_name = self._expand_queue_name(opts.pop('queue', None))
         self.storage_readonly = opts.pop('storage_readonly', False)
         self.throttling = self.parse_throttling(opts.pop('throttling', {}))
 
         if opts:
             raise ValueError("Unknown task option provided for task '%s' (class '%s' from '%s'): %s"
                              % (name, self.class_name, self.import_path, opts))
-
-        try:
-            self.queue_name = self.queue_name.format(**os.environ)
-        except KeyError:
-            raise ValueError("Expansion of queue name based on environment variables failed for task '%s' "
-                             "(class '%s' from '%s'), queue: '%s'"
-                             % (self.name, self.class_name, self.import_path, self.queue_name))
 
         # register task usage
         if self.storage:
