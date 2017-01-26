@@ -19,6 +19,7 @@
 # ####################################################################
 """A flow representation"""
 
+import os
 import logging
 from .cacheConfig import CacheConfig
 from .edge import Edge
@@ -69,6 +70,12 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         # disjoint config options
         assert self.propagate_finished is not True and self.propagate_compound_finished is not True
         assert self.propagate_failures is not True and self.propagate_compound_failures is not True
+
+        try:
+            self.queue_name = self.queue_name.format(**os.environ)
+        except KeyError:
+            raise ValueError("Expansion of queue name based on environment variables failed for flow '%s', queue: '%s'"
+                             % (self.name, self.queue_name))
 
         if opts:
             raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))

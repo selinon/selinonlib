@@ -19,6 +19,7 @@
 # ####################################################################
 """A task representation from YAML config file"""
 
+import os
 import logging
 from .node import Node
 from .globalConfig import GlobalConfig
@@ -68,6 +69,13 @@ class Task(Node):
         if opts:
             raise ValueError("Unknown task option provided for task '%s' (class '%s' from '%s'): %s"
                              % (name, self.class_name, self.import_path, opts))
+
+        try:
+            self.queue_name = self.queue_name.format(**os.environ)
+        except KeyError:
+            raise ValueError("Expansion of queue name based on environment variables failed for task '%s' "
+                             "(class '%s' from '%s'), queue: '%s'"
+                             % (self.name, self.class_name, self.import_path, self.queue_name))
 
         # register task usage
         if self.storage:
