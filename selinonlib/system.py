@@ -215,10 +215,14 @@ class System(object):
 
         :param output: a stream to write to
         """
-        predicates = set([])
+        predicates = set()
+        cache_imports = set()
+
         for flow in self.flows:
             for edge in flow.edges:
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
+            cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
+
         if predicates:
             output.write('from %s import %s\n' % (GlobalConfig.predicates_module, ", ".join(predicates)))
 
@@ -235,9 +239,10 @@ class System(object):
             if len(storage.tasks) > 0:
                 output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
 
-                cache_config = storage.cache_config
-                output.write("from {} import {}\n".format(cache_config.import_path,
-                                                          cache_config.name))
+                cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
+
+        for import_path, cache_name in cache_imports:
+                output.write("from {} import {}\n".format(import_path, cache_name))
 
         # we need partial for strategy function and for using storage as trace destination
         output.write("\nimport functools\n")
