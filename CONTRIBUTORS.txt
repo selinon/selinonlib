@@ -1,0 +1,2 @@
+Fridolin Pokorny <fridolin.pokorny@gmail.com>
+Slavek Kabrda <slavek@redhat.com>
