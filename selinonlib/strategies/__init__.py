@@ -105,7 +105,7 @@ def biexponential_decrease(status, start_retry, stop_retry):
         return start_retry
 
     retry = status['previous_retry'] / 2
-    return retry if retry < stop_retry else stop_retry
+    return retry if retry > stop_retry else stop_retry
 
 
 def biexponential_adapt(status, start_retry, max_retry):
