@@ -8,7 +8,6 @@
 
 from .helpers import check_conf_keys
 
-
 _DEFAULT_CACHE_NAME = 'LRU'
 _DEFAULT_CACHE_IMPORT = 'selinonlib.caches'
 _DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
@@ -16,6 +15,7 @@ _DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
 
 class CacheConfig(object):
     """Configuration for Caching"""
+
     def __init__(self, name, import_path, options, entity_name):
         self.name = name
         self.import_path = import_path

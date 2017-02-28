@@ -10,5 +10,3 @@ def argsFieldUrlPath(node_args, key, path):
         return urlparse(val).path == path
     except:
         return False
-
-

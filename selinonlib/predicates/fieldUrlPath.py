@@ -10,5 +10,3 @@ def fieldUrlPath(message, key, path):
         return urlparse(val).path == path
     except:
         return False
-
-

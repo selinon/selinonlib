@@ -9,17 +9,20 @@ Selinon adapter for Redis database
 """
 
 import json
+
+from selinon import DataStorage
+
 try:
     import redis
 except ImportError:
     raise ImportError("Please install redis using `pip3 install redis` in order to use RedisStorage")
-from selinon import DataStorage
 
 
 class RedisStorage(DataStorage):  # pylint: disable=too-many-instance-attributes
     """
     Selinon adapter for Redis database
     """
+
     def __init__(self, host="localhost", port=6379, db=0, password=None, socket_timeout=None, connection_pool=None,
                  charset='utf-8', errors='strict', unix_socket_path=None):
         super().__init__()
@@ -48,7 +51,7 @@ class RedisStorage(DataStorage):  # pylint: disable=too-many-instance-attributes
             self.conn = None
 
     def retrieve(self, flow_name, task_name, task_id):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
 
         ret = self.conn.get(task_id)
 
@@ -57,11 +60,11 @@ class RedisStorage(DataStorage):  # pylint: disable=too-many-instance-attributes
 
         record = json.loads(ret.decode(self.charset))
 
-        assert record.get('task_name') == task_name
+        assert record.get('task_name') == task_name  # nosec
         return record.get('result')
 
     def store(self, node_args, flow_name, task_name, task_id, result):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
 
         record = {
             'node_args': node_args,

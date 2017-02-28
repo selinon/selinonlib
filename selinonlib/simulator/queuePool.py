@@ -13,6 +13,7 @@ class QueuePool(object):
     """Pool of all queues in the system"""
     class _QueueWrapper(object):
         """Wrap a queue so we carry additional info needed for QueuePool - cyclic double linked list"""
+
         def __init__(self, previous_wrapper, next_wrapper, queue_name):
             self.queue_name = queue_name
             self.queue = TimeQueue()
@@ -112,7 +113,7 @@ class QueuePool(object):
         :return: (time, record) tuple -  time of record and record itself (see self.push for more info)
         """
         # TODO: add lock per queue
-        assert self._last_used is not None
+        assert self._last_used is not None  # nosec
 
         exit_loop = False
         result_time, result_record = self._last_used.queue.top()

@@ -7,6 +7,7 @@
 """Task and flow failure handling"""
 
 from itertools import chain
+
 from .failureNode import FailureNode
 from .helpers import check_conf_keys
 
@@ -15,6 +16,7 @@ class Failures(object):
     """
     Node failures and fallback handling
     """
+
     def __init__(self, raw_definition, system, flow, last_allocated=None, starting_nodes=None):
         """
         :param raw_definition: raw definition of failures

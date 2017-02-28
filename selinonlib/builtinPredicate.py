@@ -8,9 +8,10 @@
 Built-in predicates used as core building blocks to build predicates
 """
 
-import ast
 import abc
+import ast
 from functools import reduce
+
 from .predicate import Predicate
 
 
@@ -25,6 +26,7 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
     """
     N-ary predicate abstract class
     """
+
     def __init__(self, children):
         super().__init__()
         self._children = children
@@ -92,6 +94,7 @@ class UnaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disabl
     """
     Unary predicate abstract class
     """
+
     def __init__(self, child):
         super().__init__()
         self._child = child
@@ -142,6 +145,7 @@ class AndPredicate(NaryPredicate):
     """
     And predicate representation
     """
+
     def __str__(self):
         return "(" + reduce(lambda x, y: str(x) + ' and ' + str(y), self._children) + ")"
 
@@ -170,6 +174,7 @@ class OrPredicate(NaryPredicate):
     """
     And predicate representation
     """
+
     def __str__(self):
         return "(" + reduce(lambda x, y: str(x) + ' or ' + str(y), self._children) + ")"
 
@@ -198,6 +203,7 @@ class NotPredicate(UnaryPredicate):
     """
     Unary or predicate representation
     """
+
     def __str__(self):
         return "(not %s)" % str(self._child)
 
@@ -226,6 +232,7 @@ class AlwaysTruePredicate(BuiltinPredicate):
     """
     Predicate used if condition in config file is omitted
     """
+
     def __init__(self, flow):
         super().__init__()
         self.flow = flow

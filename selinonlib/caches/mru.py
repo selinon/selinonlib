@@ -15,6 +15,7 @@ class MRU(LRU):
     """
     Most-Recently-Used - based on LRU
     """
+
     def _clean_cache(self):
         """
         Trim cache size

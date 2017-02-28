@@ -9,4 +9,3 @@ def fieldFloat(message, key):
         return isinstance(val, float)
     except:
         return False
-

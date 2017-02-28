@@ -21,6 +21,7 @@ class S3(DataStorage):
     Amazon S3 storage adapter, for credentials configuration see boto3 library configuration
     https://github.com/boto/boto3
     """
+
     def __init__(self, bucket, location, endpoint_url=None, use_ssl=None,
                  aws_access_key_id=None, aws_secret_access_key=None, region_name=None):
         # AWS access key and access id are handled by Boto - place them to config or use env variables
@@ -63,9 +64,9 @@ class S3(DataStorage):
             self._s3 = None
 
     def retrieve(self, flow_name, task_name, task_id):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
         return self._s3.Object(self._bucket_name, task_id).get()['Body'].read()
 
     def store(self, node_args, flow_name, task_name, task_id, result):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
         self._s3.Object(self._bucket_name, task_id).put(Body=result)

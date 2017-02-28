@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """Supportive and handling library for Selinon"""
 
-from .builtinPredicate import AndPredicate, NotPredicate, OrPredicate, BuiltinPredicate, NaryPredicate, UnaryPredicate
+from .builtinPredicate import AndPredicate
+from .builtinPredicate import BuiltinPredicate
+from .builtinPredicate import NaryPredicate
+from .builtinPredicate import NotPredicate
+from .builtinPredicate import OrPredicate
+from .builtinPredicate import UnaryPredicate
+from .codename import selinonlib_version_codename
 from .config import Config
 from .edge import Edge
 from .flow import Flow
 from .leafPredicate import LeafPredicate
 from .node import Node
 from .predicate import Predicate
+from .storage import Storage
 from .system import System
 from .task import Task
-from .storage import Storage
 from .version import selinonlib_version
-from .codename import selinonlib_version_codename

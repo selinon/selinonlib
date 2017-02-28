@@ -7,6 +7,7 @@
 """A task representation from YAML config file"""
 
 import logging
+
 from .node import Node
 
 

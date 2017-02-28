@@ -9,15 +9,18 @@ Random replacement cache implementation
 """
 
 import random
-from selinon import Cache, CacheMissError
+
+from selinon import Cache
+from selinon import CacheMissError
 
 
 class RR(Cache):
     """
     Random replacement cache
     """
+
     def __init__(self, max_cache_size):
-        assert max_cache_size >= 0
+        assert max_cache_size >= 0  # nosec
 
         self.max_cache_size = max_cache_size
         self._cache = {}
@@ -45,7 +48,7 @@ class RR(Cache):
             return
 
         while self.current_cache_size + 1 > self.max_cache_size and self.current_cache_size > 0:
-            to_remove = random.choice(list(self._cache.keys()))
+            to_remove = random.choice(list(self._cache.keys()))  # nosec
             del self._cache[to_remove]
 
         if self.max_cache_size > 0:

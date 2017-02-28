@@ -9,18 +9,21 @@ First-In-First-Out cache implementation
 """
 
 from collections import deque
-from selinon import Cache, CacheMissError
+
+from selinon import Cache
+from selinon import CacheMissError
 
 
 class FIFO(Cache):
     """
     First-In-First-Out cache
     """
+
     def __init__(self, max_cache_size):
         """
         :param max_cache_size: maximum number of items in the cache
         """
-        assert max_cache_size >= 0
+        assert max_cache_size >= 0  # nosec
 
         self.max_cache_size = max_cache_size
         self._cache = {}

@@ -8,18 +8,19 @@
 Selinon SQL Database adapter - Postgres
 """
 
+from selinon import DataStorage
+
 try:
     from sqlalchemy import (create_engine, Column, Integer, Sequence, String)
+    from sqlalchemy.dialects.postgresql import JSONB
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import sessionmaker
 except ImportError:
     raise ImportError("Please install SQLAlchemy using `pip3 install SQLAlchemy` in order to use SQLStorage")
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
 try:
     from sqlalchemy_utils import create_database, database_exists
 except ImportError:
     raise ImportError("Please install SQLAlchemy-Utils using `pip3 install SQLAlchemy-Utils in order to use SQLStorage")
-from selinon import DataStorage
 
 _Base = declarative_base()  # pylint: disable=invalid-name
 
@@ -50,6 +51,7 @@ class SqlStorage(DataStorage):
     """
     Selinon SQL Database adapter - Postgres
     """
+
     def __init__(self, connection_string, encoding='utf-8', echo=False):
         super(SqlStorage, self).__init__()
 
@@ -72,15 +74,15 @@ class SqlStorage(DataStorage):
             self.session = None
 
     def retrieve(self, flow_name, task_name, task_id):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
 
         record = self.session.query(Result).filter_by(task_id=task_id).one()
 
-        assert record.task_name == task_name
+        assert record.task_name == task_name  # nosec
         return record.result
 
     def store(self, node_args, flow_name, task_name, task_id, result):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
 
         record = Result(node_args, flow_name, task_name, task_id, result)
         try:

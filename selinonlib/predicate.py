@@ -9,7 +9,9 @@ Predicate interface - predicate for building conditions
 """
 
 import abc
-from .helpers import dict2json, check_conf_keys
+
+from .helpers import check_conf_keys
+from .helpers import dict2json
 
 
 class Predicate(metaclass=abc.ABCMeta):

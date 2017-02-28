@@ -10,5 +10,3 @@ def fieldUrlNetloc(message, key, netloc):
         return urlparse(val).netloc == netloc
     except:
         return False
-
-

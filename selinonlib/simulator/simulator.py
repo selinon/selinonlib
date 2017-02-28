@@ -25,17 +25,24 @@ In order to understand how Simulator works, you need to understand how Celery wo
 documentation if you are a Celery-newbie.
 """
 
+from datetime import datetime
+from datetime import timedelta
 import logging
 import traceback
-from datetime import datetime, timedelta
-from flexmock import flexmock
+
 from celery import Task as CeleryTask
-from selinon import Config, run_flow
+from flexmock import flexmock
+from selinon import Config
+from selinon import run_flow
 from selinon.systemState import SystemState
 from selinonlib.globalConfig import GlobalConfig
-from .celeryMocks import SimulateRetry, simulate_apply_async, simulate_retry, SimulateAsyncResult
-from .queuePool import QueuePool
+
+from .celeryMocks import simulate_apply_async
+from .celeryMocks import simulate_retry
+from .celeryMocks import SimulateAsyncResult
+from .celeryMocks import SimulateRetry
 from .progress import Progress
+from .queuePool import QueuePool
 
 
 class Simulator(object):

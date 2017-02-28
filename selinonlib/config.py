@@ -29,7 +29,7 @@ class _ConfigSingleton(type):
         :type: dict
         """
         # set _config before the singleton is instantiated
-        assert mcs._instance is None
+        assert mcs._instance is None  # nosec
         mcs._config = config
 
 

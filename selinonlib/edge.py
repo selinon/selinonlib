@@ -6,15 +6,16 @@
 # ######################################################################
 """Edge representation in task/flow dependency graph"""
 
-from .predicate import Predicate
 from .builtinPredicate import AlwaysTruePredicate
 from .helpers import check_conf_keys
+from .predicate import Predicate
 
 
 class Edge(object):
     """
     Edge representation
     """
+
     def __init__(self, nodes_from, nodes_to, predicate, flow, foreach):
         """
         :param nodes_from: nodes from where edge starts
@@ -49,8 +50,8 @@ class Edge(object):
                                      % (self.flow.name, node_to.name))
 
                 if (isinstance(self.flow.propagate_node_args, bool) and self.flow.propagate_node_args) \
-                        or (isinstance(self.flow.propagate_node_args, list)
-                                and node_to.name in self.flow.propagate_node_args):
+                        or \
+                    (isinstance(self.flow.propagate_node_args, list) and node_to.name in self.flow.propagate_node_args):
                     raise ValueError("Cannot propagate node arguments to subflow when propagate_result is set"
                                      " in foreach definition in flow '%s' for node to '%s'"
                                      % (self.flow.name, node_to.name))

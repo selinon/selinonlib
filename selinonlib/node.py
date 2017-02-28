@@ -6,10 +6,11 @@
 # ######################################################################
 """Abstract representation of nodes in task/flow dependencies - a node is either a task or a flow"""
 
-import os
-import datetime
 import abc
+import datetime
+import os
 import re
+
 from .globalConfig import GlobalConfig
 
 
@@ -17,6 +18,7 @@ class Node(metaclass=abc.ABCMeta):
     """
     An abstract class for node representation
     """
+
     def __init__(self, name):
         if not self.check_name(name):
             raise ValueError("Invalid node name '%s'" % name)

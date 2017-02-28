@@ -15,8 +15,9 @@ uninstall:
 check:
 	@# set timeout so we do not wait in infinite loops and such
 	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
-	@# TODO: remove true once we make pylint happy
-	py.test -rxsvvl --timeout=2 test -p no:celery && pylint selinonlib
+	PYTHONPATH="test/:${PYTHONPATH}" python3 -m pytest -s -vvl --timeout=2 -p no:celery test/
+	@[ -n "${NOPYLINT}" ] || { echo ">>> Running PyLint"; pylint selinonlib; }
+	@[ -n "${NOCOALA}" ] || { echo ">>> Running Coala bears"; coala --non-interactive; }
 
 devenv:
 	@echo "Installing latest development requirements"

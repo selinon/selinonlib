@@ -7,12 +7,13 @@
 """A flow representation"""
 
 import logging
+
 from .cacheConfig import CacheConfig
 from .edge import Edge
-from .node import Node
 from .failures import Failures
-from .strategy import Strategy
 from .helpers import check_conf_keys
+from .node import Node
+from .strategy import Strategy
 
 
 class Flow(Node):  # pylint: disable=too-many-instance-attributes
@@ -53,8 +54,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.retry_countdown = opts.pop('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
 
         # disjoint config options
-        assert self.propagate_finished is not True and self.propagate_compound_finished is not True
-        assert self.propagate_failures is not True and self.propagate_compound_failures is not True
+        assert self.propagate_finished is not True and self.propagate_compound_finished is not True  # nosec
+        assert self.propagate_failures is not True and self.propagate_compound_failures is not True  # nosec
 
         if opts:
             raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
@@ -115,7 +116,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         :param flow_def: dictionary containing flow definition
         :param system: system in which flow is defined
         """
-        assert flow_def['name'] == self.name
+        assert flow_def['name'] == self.name  # nosec
         self._check_conf_keys(flow_def)
 
         if len(self.edges) > 0:

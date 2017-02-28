@@ -9,4 +9,3 @@ def argsFieldLenEqual(node_args, key, length):
         return len(val) == length
     except:
         return False
-

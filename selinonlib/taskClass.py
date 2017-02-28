@@ -11,6 +11,7 @@ class TaskClass(object):
     """
     Task's class abstraction
     """
+
     def __init__(self, class_name, import_path):
         self.class_name = class_name
         self.import_path = import_path
@@ -29,5 +30,5 @@ class TaskClass(object):
 
         :param task: task to be added
         """
-        assert self.task_of_class(task)
+        assert self.task_of_class(task)  # nosec
         self.tasks.append(task)

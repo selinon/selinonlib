@@ -6,21 +6,26 @@
 # ######################################################################
 """Core Selinonlib logic - system representation, parsing and handling actions"""
 
-import os
 import datetime
-import platform
 import logging
+import os
+import platform
+
 import codegen
 import graphviz
 import yaml
-from .task import Task
-from .storage import Storage
-from .flow import Flow
-from .version import selinonlib_version
+
 from .config import Config
-from .helpers import dict2strkwargs, expr2str, check_conf_keys
-from .taskClass import TaskClass
+from .flow import Flow
 from .globalConfig import GlobalConfig
+from .helpers import check_conf_keys
+from .helpers import dict2strkwargs
+from .helpers import expr2str
+from .storage import Storage
+from .task import Task
+from .taskClass import TaskClass
+from .version import selinonlib_version
+
 
 # pylint: disable=too-many-locals,too-many-nested-blocks,too-many-boolean-expressions,too-many-lines
 
@@ -456,7 +461,7 @@ class System(object):
         :type idx: int
         :return: condition function representation
         """
-        assert idx >= 0
+        assert idx >= 0  # nosec
         return '_condition_{}_{}'.format(flow_name, idx)
 
     @staticmethod
@@ -470,7 +475,7 @@ class System(object):
         :type idx: int
         :return: condition function representation
         """
-        assert idx >= 0
+        assert idx >= 0  # nosec
         return '_foreach_{}_{}'.format(flow_name, idx)
 
     def _dump_condition_functions(self, output):
@@ -581,7 +586,7 @@ class System(object):
             for idx_edge, edge in enumerate(flow.edges):
                 if idx_edge > 0:
                     output.write(',\n')
-                    output.write(' '*(len(flow.name) + 4 + 5)) # align to previous line
+                    output.write(' '*(len(flow.name) + 4 + 5))  # align to previous line
                 output.write("{'from': %s" % str([node.name for node in edge.nodes_from]))
                 output.write(", 'to': %s" % str([node.name for node in edge.nodes_to]))
                 output.write(", 'condition': %s" % self._dump_condition_name(flow.name, idx_edge))

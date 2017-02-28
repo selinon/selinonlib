@@ -9,4 +9,3 @@ def argsFieldFloat(node_args, key):
         return isinstance(val, float)
     except:
         return False
-

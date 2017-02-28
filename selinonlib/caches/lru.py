@@ -8,13 +8,15 @@
 Least-Recently-Used cache implementation
 """
 
-from selinon import Cache, CacheMissError
+from selinon import Cache
+from selinon import CacheMissError
 
 
 class _Record(object):
     """
     Record that is used in a double-linked list in order to track usage
     """
+
     def __init__(self, item_id, item):
         self.item_id = item_id
         self.item = item
@@ -29,9 +31,10 @@ class LRU(Cache):
     """
     Least-Recently-Used cache
     """
+
     def __init__(self, max_cache_size):
         # let's allow zero size
-        assert max_cache_size >= 0
+        assert max_cache_size >= 0  # nosec
 
         self.max_cache_size = max_cache_size
         self._cache = {}

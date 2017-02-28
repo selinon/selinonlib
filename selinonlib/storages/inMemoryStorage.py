@@ -8,8 +8,9 @@
 In memory storage implementation
 """
 
-import sys
 import json as jsonlib
+import sys
+
 from selinon import DataStorage
 
 
@@ -17,6 +18,7 @@ class InMemoryStorage(DataStorage):
     """
     Storage that stores results in memory without persistence
     """
+
     def __init__(self, echo=False, json=False):
         """
         :param echo: echo results to stdout/stderr - provide 'stderr' or 'stdout' to echo data retrieval and storing
@@ -56,7 +58,7 @@ class InMemoryStorage(DataStorage):
             raise FileNotFoundError("Record not found in database")
 
     def store(self, node_args, flow_name, task_name, task_id, result):
-        assert task_id not in self.database
+        assert task_id not in self.database  # nosec
 
         record = {
             'node_args': node_args,

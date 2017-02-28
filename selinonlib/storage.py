@@ -14,6 +14,7 @@ class Storage(object):
     """
     A storage representation
     """
+
     def __init__(self, name, import_path, configuration, cache_config, class_name=None):
         # pylint: disable=too-many-arguments
         """

@@ -6,11 +6,12 @@
 # ######################################################################
 """Selinonlib library helpers"""
 
+import ast
+from contextlib import contextmanager
+import json
 import os
 import sys
-import ast
-import json
-from contextlib import contextmanager
+
 from dill.source import getsource
 
 

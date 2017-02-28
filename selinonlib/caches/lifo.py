@@ -13,6 +13,7 @@ class LIFO(FIFO):
     """
     Last-In-First-Out cache - based on FIFO implementation
     """
+
     def _clean_cache(self):
         """
         Trim cache

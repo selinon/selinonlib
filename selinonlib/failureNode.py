@@ -55,6 +55,7 @@ class FailureNode(object):
     """
     A representation of a failure node permutation
     """
+
     def __init__(self, flow, traversed, failure_link):
         """
         :param flow: flow to which the failure node conforms to
@@ -91,7 +92,7 @@ class FailureNode(object):
         :param node_name: a node for next permutation
         :param failure: FailureNode that should be added
         """
-        assert node_name not in self.next
+        assert node_name not in self.next  # nosec
         self.next[node_name] = failure
 
     @staticmethod

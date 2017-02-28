@@ -9,5 +9,3 @@ def fieldLenGreater(message, key, length):
         return len(val) > length
     except:
         return False
-
-

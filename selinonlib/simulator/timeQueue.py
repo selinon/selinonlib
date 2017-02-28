@@ -13,6 +13,7 @@ class TimeQueue(object):
     """A queue that respect timestamps of records that were pushed into it"""
     class _TimeQueueItem(object):
         """TimeQueue internal item"""
+
         def __init__(self, time, record):
             """
             :param time: timestamp of record

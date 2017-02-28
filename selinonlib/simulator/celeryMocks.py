@@ -13,6 +13,7 @@ from flexmock import flexmock
 class SimulateRequest(object):
     """Simulate Celery's Task.request in order to be able to query task id right inside task by calling
     self.request.id"""
+
     def __init__(self, instance):
         self.id = str(id(instance))  # pylint: disable=redefined-builtin,invalid-name
 
@@ -74,6 +75,7 @@ class SimulateAsyncResult(object):
 
 class SimulateRetry(Exception):
     """Simulate Celery Retry exception raised by self.retry()"""
+
     def __init__(self, instance, **celery_kwargs):
         super().__init__()
         self.instance = instance

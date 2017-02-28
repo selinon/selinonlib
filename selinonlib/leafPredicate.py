@@ -9,9 +9,11 @@
 import ast
 import importlib
 import logging
-from .predicate import Predicate
-from .helpers import dict2strkwargs, get_function_arguments
+
 from .globalConfig import GlobalConfig
+from .helpers import dict2strkwargs
+from .helpers import get_function_arguments
+from .predicate import Predicate
 
 
 class LeafPredicate(Predicate):

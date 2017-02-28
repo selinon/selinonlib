@@ -7,7 +7,9 @@
 """Strategy for scheduling dispatcher - system state sampling"""
 
 import importlib
-from .helpers import get_function_arguments, check_conf_keys
+
+from .helpers import check_conf_keys
+from .helpers import get_function_arguments
 
 
 class Strategy(object):

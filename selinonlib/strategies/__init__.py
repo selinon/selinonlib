@@ -20,6 +20,7 @@ Other parameters are specific for strategy function and are configurable from YA
 
 from random import randint as gen_random
 
+
 # There are done checks on user-defined strategies, so keep args
 # pylint: disable=unused-argument
 
@@ -141,7 +142,7 @@ def random(status, start_retry, max_retry):
     if len(status['active_nodes']) == 0:
         return None
 
-    return gen_random(start_retry, max_retry)
+    return gen_random(start_retry, max_retry)  # nosec
 
 
 def constant(status, retry):

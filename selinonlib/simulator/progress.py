@@ -6,8 +6,8 @@
 # ######################################################################
 """Indicate progress and sleep for given time"""
 
-import sys
 from math import ceil
+import sys
 from time import sleep
 
 

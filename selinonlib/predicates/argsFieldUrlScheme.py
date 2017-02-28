@@ -10,4 +10,3 @@ def argsFieldUrlScheme(node_args, key, scheme):
         return urlparse(val).scheme == scheme
     except:
         return False
-

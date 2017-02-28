@@ -10,4 +10,3 @@ def fieldUrlScheme(message, key, scheme):
         return urlparse(val).scheme == scheme
     except:
         return False
-

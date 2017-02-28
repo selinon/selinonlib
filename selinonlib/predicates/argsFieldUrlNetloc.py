@@ -10,5 +10,3 @@ def argsFieldUrlNetloc(node_args, key, netloc):
         return urlparse(val).netloc == netloc
     except:
         return False
-
-

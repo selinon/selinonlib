@@ -19,6 +19,7 @@ class MongoStorage(DataStorage):
     """
     MongoDB database adapter
     """
+
     def __init__(self, db_name, collection_name, host="localhost", port=27017):
         super(MongoStorage, self).__init__()
         self.client = None
@@ -45,7 +46,7 @@ class MongoStorage(DataStorage):
             self.collection = None
 
     def retrieve(self, flow_name, task_name, task_id):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
 
         filtering = {'_id': 0}
         cursor = self.collection.find({'task_id': task_id}, filtering)
@@ -57,11 +58,11 @@ class MongoStorage(DataStorage):
 
         record = cursor[0]
 
-        assert task_name == record['task_name']
+        assert task_name == record['task_name']  # nosec
         return record.get('result')
 
     def store(self, node_args, flow_name, task_name, task_id, result):
-        assert self.is_connected()
+        assert self.is_connected()  # nosec
 
         record = {
             'flow_name': flow_name,
