@@ -228,10 +228,8 @@ class System(object):
             output.write("from {} import {} as {}\n".format(task.import_path, task.class_name, task.name))
 
         for storage in self.storages:
-            if len(storage.tasks) > 0:
-                output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
-
-                cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
+            output.write("from {} import {}\n".format(storage.import_path, storage.class_name))
+            cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
 
         for import_path, cache_name in cache_imports:
             output.write("from {} import {}\n".format(import_path, cache_name))
@@ -362,16 +360,15 @@ class System(object):
         """
         storage_var_names = []
         for storage in self.storages:
-            if len(storage.tasks) > 0:
-                output.write("%s = %s" % (storage.var_name, storage.class_name))
-                if storage.configuration and isinstance(storage.configuration, dict):
-                    output.write("(%s)\n" % dict2strkwargs(storage.configuration))
-                elif storage.configuration:
-                    output.write("(%s)\n" % expr2str(storage.configuration))
-                else:
-                    output.write("()\n")
+            output.write("%s = %s" % (storage.var_name, storage.class_name))
+            if storage.configuration and isinstance(storage.configuration, dict):
+                output.write("(%s)\n" % dict2strkwargs(storage.configuration))
+            elif storage.configuration:
+                output.write("(%s)\n" % expr2str(storage.configuration))
+            else:
+                output.write("()\n")
 
-                storage_var_names.append((storage.name, storage.var_name,))
+            storage_var_names.append((storage.name, storage.var_name,))
 
         output.write('storage2instance_mapping = {\n')
         printed = False
