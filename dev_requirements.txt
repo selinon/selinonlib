@@ -7,5 +7,6 @@ pymongo
 SQLAlchemy
 SQLAlchemy-Utils
 boto3
+pytest-capturelog
 #redis
 git+https://github.com/selinon/selinon@master
