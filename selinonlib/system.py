@@ -614,6 +614,8 @@ class System(object):
                     output.write(", 'foreach': %s" % self._dump_foreach_function_name(flow.name, idx_edge))
                     output.write(", 'foreach_str': '%s'" % edge.foreach_str())
                     output.write(", 'foreach_propagate_result': %s" % edge.foreach['propagate_result'])
+                if edge.selective:
+                    output.write(", 'selective': %s" % edge.selective)
                 output.write("}")
             if idx + 1 < len(self.flows):
                 output.write('],\n')

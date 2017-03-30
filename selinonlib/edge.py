@@ -15,8 +15,10 @@ class Edge(object):
     """
     Edge representation
     """
+    _DEFAULT_RUN_SUBSEQUENT = False
+    _DEFAULT_FOLLOW_SUBFLOWS = False
 
-    def __init__(self, nodes_from, nodes_to, predicate, flow, foreach):
+    def __init__(self, nodes_from, nodes_to, predicate, flow, foreach, selective):
         """
         :param nodes_from: nodes from where edge starts
         :type nodes_from: List[Node]
@@ -28,12 +30,15 @@ class Edge(object):
         :type flow: Flow
         :param foreach: foreach defining function and import over which we want to iterate
         :type foreach: dict
+        :param selective: selective run flow configuration
+        :type selective: None|dict
         """
         self.nodes_from = nodes_from
         self.nodes_to = nodes_to
         self.predicate = predicate
         self.flow = flow
         self.foreach = foreach
+        self.selective = selective
 
     def check(self):
         """
@@ -65,6 +70,16 @@ class Edge(object):
                                  "with readonly storage, condition: %s"
                                  % (node.name, self.flow.name, str(self.predicate)))
 
+        if self.selective:
+            # TODO: there are no checks whether tasks that we want to run are actually run - this will be runtime error
+            if len(self.nodes_to) > 1:
+                raise ValueError("Cannot run selective flows on edges with more than 1 destination nodes in flow '%s'"
+                                 % self.flow.name)
+
+            if not self.nodes_to[0].is_flow():
+                raise ValueError("Cannot run selective flow in flow '%s', destination node '%s' is not a flow,"
+                                 % (self.flow.name, self.nodes_to[0].name))
+
     def foreach_str(self):
         """
         :return: text representation of foreach
@@ -74,8 +89,52 @@ class Edge(object):
         else:
             return None
 
-    @staticmethod
-    def from_dict(dict_, system, flow):  # pylint: disable=too-many-branches
+    @classmethod
+    def _parse_selective(cls, flow, selective_def):
+        """
+        :param flow: flow in which selective subflow should be run
+        :param selective_def: selective flow definition
+        :return: parsed selective_flow
+        """
+        if not selective_def:
+            return None
+
+        unknown_conf = check_conf_keys(selective_def, known_conf_opts=('tasks', 'run_subsequent', 'follow_subflows'))
+        if unknown_conf:
+            raise ValueError("Unknown configuration options supplied for selective flow run in flow '%s': %s"
+                             % (flow.name, unknown_conf))
+
+        if 'tasks' not in selective_def:
+            raise ValueError("Configuration for selective subflows expects 'tasks' to be defined in flow '%s'"
+                             % flow.name)
+
+        if not isinstance(selective_def['tasks'], list) or not all(isinstance(t, str) for t in selective_def['tasks']):
+            raise ValueError("Configuration for selective subflows expects task names under 'tasks' key in flow '%s', "
+                             "got '%s' instead" % (flow.name, selective_def['tasks']))
+
+        if 'run_subsequent' not in selective_def:
+            selective_def['run_subsequent'] = cls._DEFAULT_RUN_SUBSEQUENT
+
+        if 'follow_subflows' not in selective_def:
+            selective_def['follow_subflows'] = cls._DEFAULT_FOLLOW_SUBFLOWS
+
+        if not isinstance(selective_def['run_subsequent'], bool) and \
+                not isinstance(selective_def['run_subsequent'], list):
+            raise ValueError("Option 'run_subsequent' requires boolean or list of flow names in which subsequent"
+                             "nodes should be run in flow '%s', got '%s'", flow.name, selective_def['run_subsequent'])
+
+        if not isinstance(selective_def['follow_subflows'], bool):
+            raise ValueError("Option 'follow_subflows' expects boolean got '%s' instead in flow '%s'",
+                             selective_def['follow_subflows'], flow.name)
+
+        # So we can use directly selective as **kwargs to run_flow_selective
+        # TODO: unify with run_flow_selective
+        selective_def['task_names'] = selective_def.pop('tasks')
+
+        return selective_def
+
+    @classmethod
+    def from_dict(cls, dict_, system, flow):  # pylint: disable=too-many-branches
         """
         Construct edge from a dict
 
@@ -140,9 +199,18 @@ class Edge(object):
                 raise ValueError("Wrong import statement '%s' supplied in foreach section in flow %s"
                                  % (foreach_def['import'], flow.name))
 
-        unknown_conf = check_conf_keys(dict_, known_conf_opts=('from', 'to', 'foreach', 'condition'))
+        selective = cls._parse_selective(flow, dict_.get('selective'))
+
+        unknown_conf = check_conf_keys(dict_, known_conf_opts=('from', 'to', 'foreach', 'condition', 'selective'))
         if unknown_conf:
             raise ValueError("Unknown configuration options supplied for edge in flow '%s': %s"
                              % (flow.name, unknown_conf))
 
-        return Edge(nodes_from=nodes_from, nodes_to=nodes_to, predicate=predicate, flow=flow, foreach=foreach)
+        return Edge(
+            nodes_from=nodes_from,
+            nodes_to=nodes_to,
+            predicate=predicate,
+            flow=flow,
+            foreach=foreach,
+            selective=selective
+        )
