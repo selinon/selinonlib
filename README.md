@@ -10,6 +10,7 @@ A simple tool to visualize, check dependencies and generate Python code for [Sel
 ![GitHub license](https://img.shields.io/badge/license-GPLv2-blue.svg)
 ![Twitter](https://img.shields.io/twitter/url/http/github.com/selinon/selinonlib.svg?style=social)
 
+Is this project helpful? [Send me a simple warm message](https://saythanks.io/to/fridex)!
 
 ## The Idea
 
