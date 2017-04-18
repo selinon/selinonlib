@@ -29,7 +29,7 @@ devenv:
 	pip3 install -U -r dev_requirements.txt
 
 venv:
-	python3 -m venv venv && source venv/bin/activate && pip3 install -r requirements.txt
+	virtualenv venv && source venv/bin/activate && pip3 install -r requirements.txt
 	@echo "Run 'source venv/bin/activate' to enter virtual environment and 'deactivate' to return from it"
 
 clean:
