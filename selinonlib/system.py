@@ -815,7 +815,7 @@ class System(object):
         # we want to have circular dependencies, so we need to check consistency after parsing since all flows
         # are listed (by names) in a separate definition
         for flow in self.flows:
-            if len(flow.edges) == 0:
+            if not flow.edges:
                 raise ValueError("Empty flow: %s" % flow.name)
 
     def _check_propagate(self, flow):  # pylint: disable=too-many-branches
@@ -951,7 +951,7 @@ class System(object):
                                          task_class.class_name, task_class.import_path)
 
         for storage in self.storages:
-            if len(storage.tasks) == 0:
+            if not storage.tasks:
                 self._logger.warning("Storage '%s' not used in any flow", storage.name)
 
         all_used_nodes = set()
@@ -967,7 +967,7 @@ class System(object):
                 starting_nodes_count = 0
 
                 for edge in flow.edges:
-                    if len(edge.nodes_from) == 0:
+                    if not edge.nodes_from:
                         starting_edges_count += 1
                         starting_nodes_count += len(edge.nodes_to)
 

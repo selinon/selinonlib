@@ -102,26 +102,26 @@ class Task(Node):
             raise ValueError("Storage usage flag readonly should be of type bool")
 
     @staticmethod
-    def from_dict(d, system):
+    def from_dict(dictionary, system):
         """
         Construct task from a dict and check task's definition correctness
 
-        :param d: dictionary to be used to construct the task
+        :param dictionary: dictionary to be used to construct the task
         :return: Task instance
         :param system: system that should be used to for lookup a storage
         :type system: System
         :rtype: Task
         :raises: ValueError
         """
-        if 'name' not in d or not d['name']:
+        if 'name' not in dictionary or not dictionary['name']:
             raise KeyError('Task name definition is mandatory')
-        if 'import' not in d or not d['import']:
+        if 'import' not in dictionary or not dictionary['import']:
             raise KeyError('Task import definition is mandatory')
-        if 'storage' in d:
-            storage = system.storage_by_name(d.pop('storage'))
+        if 'storage' in dictionary:
+            storage = system.storage_by_name(dictionary.pop('storage'))
         else:
             storage = None
 
-        instance = Task(d.pop('name'), d.pop('import'), storage, **d)
+        instance = Task(dictionary.pop('name'), dictionary.pop('import'), storage, **dictionary)
         instance.check()
         return instance

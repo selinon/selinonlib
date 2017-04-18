@@ -93,3 +93,7 @@ class SqlStorage(DataStorage):
             raise
 
         return record.id
+
+    def store_error(self, node_args, flow_name, task_name, task_id, exc_info):
+        # just to make pylint happy
+        raise NotImplementedError()

@@ -70,8 +70,8 @@ class LeafPredicate(Predicate):
             # node_args are implicit as well
             func_args.remove('node_args')
 
-        func_args = set(func_args)  # pylint: disable=redefined-variable-type
-        user_args = set(user_args)  # pylint: disable=redefined-variable-type
+        func_args = set(func_args)
+        user_args = set(user_args)
 
         error = False
 
@@ -117,19 +117,18 @@ class LeafPredicate(Predicate):
             if self._args:
                 return "%s(db.get('%s'), %s)"\
                        % (self._func.__name__, self._task_str_name(), dict2strkwargs(self._args))
-            else:
-                return "%s(db.get('%s'))" \
-                       % (self._func.__name__, self._task_str_name())
-        else:
-            # we hide node_args parameter
-            return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
+
+            return "%s(db.get('%s'))" % (self._func.__name__, self._task_str_name())
+
+        # we hide node_args parameter
+        return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
 
     def _task_str_name(self):
         # task_name can be None if we have starting edge
         if self.node is None:
             return 'None'
-        else:
-            return "%s" % self.node.name
+
+        return "%s" % self.node.name
 
     def ast(self):
         """

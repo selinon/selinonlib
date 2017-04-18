@@ -21,7 +21,7 @@ def dict2strkwargs(dict_):
     """
     ret = ""
     for key, value in dict_.items():
-        if len(ret) > 0:
+        if ret:
             ret += ", "
         ret += "%s=%s" % (key, expr2str(value))
     return ret
@@ -38,9 +38,9 @@ def expr2str(expr):
         return "%s" % expr
     elif isinstance(expr, str):
         return "'%s'" % expr
-    else:
-        # some build in type such as bool/int/...
-        return "%s" % str(expr)
+
+    # some build in type such as bool/int/...
+    return "%s" % str(expr)
 
 
 def keylist2str(keylist):
@@ -83,8 +83,8 @@ def dict2json(dict_, pretty=True):
     """
     if pretty is True:
         return json.dumps(dict_, sort_keys=True, separators=(',', ': '), indent=2)
-    else:
-        return json.dumps(dict_)
+
+    return json.dumps(dict_)
 
 
 def get_function_arguments(function):

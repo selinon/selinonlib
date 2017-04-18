@@ -86,8 +86,8 @@ class Edge(object):
         """
         if self.foreach:
             return "foreach %s.%s" % (self.foreach['import'], self.foreach['function'])
-        else:
-            return None
+
+        return None
 
     @classmethod
     def _parse_selective(cls, flow, selective_def):

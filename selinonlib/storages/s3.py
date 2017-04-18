@@ -70,3 +70,7 @@ class S3(DataStorage):
     def store(self, node_args, flow_name, task_name, task_id, result):
         assert self.is_connected()  # nosec
         self._s3.Object(self._bucket_name, task_id).put(Body=result)
+
+    def store_error(self, node_args, flow_name, task_name, task_id, exc_info):
+        # just to make pylint happy
+        raise NotImplementedError()

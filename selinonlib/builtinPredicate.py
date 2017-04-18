@@ -34,7 +34,7 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
     def _str(self, operator):
         ret = ""
         for child in self._children:
-            if len(ret) > 0:
+            if ret:
                 ret += " %s " % operator
             ret += str(child)
 

@@ -76,3 +76,7 @@ class InMemoryStorage(DataStorage):
 
         # task_id is unique for the record
         return task_id
+
+    def store_error(self, node_args, flow_name, task_name, task_id, exc_info):
+        # just to make pylint happy
+        raise NotImplementedError()

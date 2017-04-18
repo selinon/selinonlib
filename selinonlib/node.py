@@ -24,15 +24,6 @@ class Node(metaclass=abc.ABCMeta):
             raise ValueError("Invalid node name '%s'" % name)
         self._name = name
 
-    @abc.abstractstaticmethod
-    def from_dict(dict_):
-        """
-        Construct node from a dict
-
-        :return: instantiated node
-        """
-        pass
-
     @property
     def name(self):
         """

@@ -51,9 +51,9 @@ class MongoStorage(DataStorage):
         filtering = {'_id': 0}
         cursor = self.collection.find({'task_id': task_id}, filtering)
 
-        if len(cursor) > 0:
+        if len(cursor) > 1:
             raise ValueError("Multiple records with same task_id found")
-        elif len(cursor) == 0:
+        elif not cursor:
             raise FileNotFoundError("Record not found in database")
 
         record = cursor[0]
@@ -77,3 +77,7 @@ class MongoStorage(DataStorage):
 
         # task_id is unique here
         return task_id
+
+    def store_error(self, node_args, flow_name, task_name, task_id, exc_info):
+        # just to make pylint happy
+        raise NotImplementedError()

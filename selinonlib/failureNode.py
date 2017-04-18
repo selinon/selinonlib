@@ -104,7 +104,7 @@ class FailureNode(object):
         :return:
         """
         # fallback parsing
-        if len(failure_node.fallback) > 0:
+        if failure_node.fallback:
             raise ValueError("Multiple definitions of a failure in flow '%s' with failure of %s"
                              % (failure_node.flow.name, failure_node.traversed))
 

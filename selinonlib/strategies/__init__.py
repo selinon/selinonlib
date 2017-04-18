@@ -34,17 +34,17 @@ def linear_increase(status, start_retry, max_retry, step):
     :param max_retry: upper limit of scheduling
     :param step: step to use in linear increase
     """
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
     if status['previous_retry'] is None:
         return start_retry
 
-    if len(status['new_started_nodes']) > 0 or len(status['new_fallback_nodes']) > 0:
+    if status['new_started_nodes'] or status['new_fallback_nodes']:
         retry = status['previous_retry'] + step
         return retry if retry < max_retry else max_retry
-    else:
-        return start_retry
+
+    return start_retry
 
 
 def linear_adapt(status, start_retry, max_retry, step):
@@ -56,18 +56,18 @@ def linear_adapt(status, start_retry, max_retry, step):
     :param max_retry: upper limit of scheduling
     :param step: step to use in linear increase
     """
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
     if status['previous_retry'] is None:
         return start_retry
 
-    if len(status['new_started_nodes']) > 0 or len(status['new_fallback_nodes']) > 0:
+    if status['new_started_nodes'] or status['new_fallback_nodes']:
         retry = status['previous_retry'] + step
         return retry if retry < max_retry else max_retry
-    else:
-        retry = status['previous_retry'] - step
-        return retry if retry > start_retry else start_retry
+
+    retry = status['previous_retry'] - step
+    return retry if retry > start_retry else start_retry
 
 
 def biexponential_increase(status, start_retry, max_retry):
@@ -78,17 +78,17 @@ def biexponential_increase(status, start_retry, max_retry):
     :param start_retry: starting retry to use
     :param max_retry: upper limit of scheduling
     """
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
     if status['previous_retry'] is None:
         return start_retry
 
-    if len(status['new_started_nodes']) > 0 or len(status['new_fallback_nodes']) > 0:
+    if status['new_started_nodes'] or status['new_fallback_nodes']:
         retry = status['previous_retry'] * 2
         return retry if retry < max_retry else max_retry
-    else:
-        return start_retry
+
+    return start_retry
 
 
 def biexponential_decrease(status, start_retry, stop_retry):
@@ -99,7 +99,7 @@ def biexponential_decrease(status, start_retry, stop_retry):
     :param start_retry: starting retry to use
     :param stop_retry: upper limit of scheduling
     """
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
     if status['previous_retry'] is None:
@@ -120,15 +120,15 @@ def biexponential_adapt(status, start_retry, max_retry):
     if status['previous_retry'] is None:
         return start_retry
 
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
-    if len(status['new_started_nodes']) > 0 or len(status['new_fallback_nodes']) > 0:
+    if status['new_started_nodes'] or status['new_fallback_nodes']:
         retry = status['previous_retry'] * 2
         return retry if retry < max_retry else max_retry
-    else:
-        retry = status['previous_retry'] / 2
-        return retry if retry > start_retry else start_retry
+
+    retry = status['previous_retry'] / 2
+    return retry if retry > start_retry else start_retry
 
 
 def random(status, start_retry, max_retry):
@@ -139,7 +139,7 @@ def random(status, start_retry, max_retry):
     :param start_retry: lower limit of scheduling
     :param max_retry: upper limit of scheduling
     """
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
     return gen_random(start_retry, max_retry)  # nosec
@@ -151,7 +151,7 @@ def constant(status, retry):
     :param status: flow status dict
     :param retry: constant retry timeout
     """
-    if len(status['active_nodes']) == 0:
+    if not status['active_nodes']:
         return None
 
     return retry

@@ -60,12 +60,6 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         if opts:
             raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
 
-    @staticmethod
-    def from_dict(d):
-        # We do not use this method, as we expect flow listings and flow definitions in a separate sections due to
-        # chicken-egg issues in flows
-        raise NotImplementedError()
-
     def _set_propagate(self, system, flow_def, propagate_type):
         """
         Parse propagate_node_args flag and adjust flow accordingly
@@ -82,7 +76,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
                 flow_def[propagate_type] = [flow_def[propagate_type]]
 
             if isinstance(flow_def[propagate_type], list):
-                ret = []  # pylint: disable=redefined-variable-type
+                ret = []
                 for node_name in flow_def[propagate_type]:
                     node = system.flow_by_name(node_name)
                     ret.append(node)
@@ -119,7 +113,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         assert flow_def['name'] == self.name  # nosec
         self._check_conf_keys(flow_def)
 
-        if len(self.edges) > 0:
+        if self.edges:
             raise ValueError("Multiple definitions of flow '%s'" % self.name)
 
         for edge_def in flow_def['edges']:
@@ -181,7 +175,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         all_nodes_from = set()
 
         for edge in self.edges:
-            all_nodes_from = all_nodes_from | set(edge.nodes_from)
+            all_nodes_from |= set(edge.nodes_from)
 
         return list(all_nodes_from)
 
@@ -192,7 +186,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         all_nodes_to = set()
 
         for edge in self.edges:
-            all_nodes_to = all_nodes_to | set(edge.nodes_to)
+            all_nodes_to |= set(edge.nodes_to)
 
         return list(all_nodes_to)
 
@@ -202,8 +196,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         """
         if self.failures:
             return list(set(self.all_nodes_from()) | set(self.failures.all_waiting_nodes()))
-        else:
-            return self.all_nodes_from()
+
+        return self.all_nodes_from()
 
     def all_destination_nodes(self):
         """
@@ -211,8 +205,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         """
         if self.failures:
             return list(set(self.all_nodes_to()) | set(self.failures.all_fallback_nodes()))
-        else:
-            return self.all_nodes_to()
+
+        return self.all_nodes_to()
 
     def all_used_nodes(self):
         """
