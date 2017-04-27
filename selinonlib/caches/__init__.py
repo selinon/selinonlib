@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 """Implementation of some well-known caches for Selinon."""
 
-from selinon import CacheMissError
-
 from .fifo import FIFO
 from .lifo import LIFO
 from .lru import LRU
