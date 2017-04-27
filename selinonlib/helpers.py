@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Selinonlib library helpers"""
+"""Selinonlib library helpers."""
 
 import ast
 from contextlib import contextmanager
@@ -16,9 +16,7 @@ from dill.source import getsource
 
 
 def dict2strkwargs(dict_):
-    """
-    Convert a dictionary into arguments to a string representation that can be used as arguments to a function
-    """
+    """Convert a dictionary into arguments to a string representation that can be used as arguments to a function."""
     ret = ""
     for key, value in dict_.items():
         if ret:
@@ -28,9 +26,7 @@ def dict2strkwargs(dict_):
 
 
 def expr2str(expr):
-    """
-    Convert a Python expression into a Python code
-    """
+    """Convert a Python expression into a Python code."""
     if isinstance(expr, dict):
         return str(expr)
     elif isinstance(expr, list):
@@ -44,8 +40,7 @@ def expr2str(expr):
 
 
 def keylist2str(keylist):
-    """
-    Convert keylist to a string representation
+    """Convert keylist to a string representation.
 
     :param keylist: keylist to be converted
     :type keylist: list
@@ -57,8 +52,7 @@ def keylist2str(keylist):
 
 @contextmanager
 def pushd(new_dir):
-    """
-    Traverse directory tree in push/pop manner
+    """Traverse directory tree in push/pop manner.
 
     :param new_dir: new directory to cd to
     :type new_dir: str
@@ -72,8 +66,7 @@ def pushd(new_dir):
 
 
 def dict2json(dict_, pretty=True):
-    """
-    Convert dict to json (string)
+    """Convert dict to json (string).
 
     :param dict_: dictionary to be converted
     :param pretty: if True, nice formatting will be used
@@ -88,8 +81,7 @@ def dict2json(dict_, pretty=True):
 
 
 def get_function_arguments(function):
-    """
-    Get arguments of function
+    """Get arguments of function.
 
     :param function: function to parse arguments
     :return: list of arguments that predicate function expects
@@ -112,7 +104,7 @@ def get_function_arguments(function):
 
 
 def check_conf_keys(dict_, known_conf_opts):
-    """Check supplied configuration options against known configuration options
+    """Check supplied configuration options against known configuration options.
 
     :param dict_: dict with configuration options
     :param known_conf_opts: known configuration options

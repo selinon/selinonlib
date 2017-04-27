@@ -4,8 +4,9 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""
-Functions for scheduling dispatcher - Dispatcher strategy configuration functions. All of them are receiving a dict
+"""Prepared functions for scheduling dispatcher.
+
+Dispatcher strategy configuration functions. All of them are receiving a dict
 as a first argument containing:
 
   * previous_retry - value of previous retry, None if scheduling for the first time
@@ -26,8 +27,7 @@ from random import randint as gen_random
 
 
 def linear_increase(status, start_retry, max_retry, step):
-    """
-    Increase linearly if no node started, decrease drastically to start_retry if no node scheduled
+    """Increase linearly if no node started, decrease drastically to start_retry if no node scheduled.
 
     :param status: flow status dict
     :param start_retry: starting retry to use
@@ -48,8 +48,7 @@ def linear_increase(status, start_retry, max_retry, step):
 
 
 def linear_adapt(status, start_retry, max_retry, step):
-    """
-    Increase linearly if no node started, decrease linearly if a node scheduled
+    """Increase linearly if no node started, decrease linearly if a node scheduled.
 
     :param status: flow status dict
     :param start_retry: starting retry to use
@@ -71,8 +70,7 @@ def linear_adapt(status, start_retry, max_retry, step):
 
 
 def biexponential_increase(status, start_retry, max_retry):
-    """
-    Increase exponentially if no node started, decrease drastically to start_retry if a node scheduled
+    """Increase exponentially if no node started, decrease drastically to start_retry if a node scheduled.
 
     :param status: flow status dict
     :param start_retry: starting retry to use
@@ -92,8 +90,7 @@ def biexponential_increase(status, start_retry, max_retry):
 
 
 def biexponential_decrease(status, start_retry, stop_retry):
-    """
-    Decrease by div 2 each time if no node started, decrease to stop_retry if a node scheduled
+    """Decrease by div 2 each time if no node started, decrease to stop_retry if a node scheduled.
 
     :param status: flow status dict
     :param start_retry: starting retry to use
@@ -110,8 +107,7 @@ def biexponential_decrease(status, start_retry, stop_retry):
 
 
 def biexponential_adapt(status, start_retry, max_retry):
-    """
-    Increase exponentially if no node started, decrease exponentially if a node scheduled
+    """Increase exponentially if no node started, decrease exponentially if a node scheduled.
 
     :param status: flow status dict
     :param start_retry: starting retry to use
@@ -132,8 +128,7 @@ def biexponential_adapt(status, start_retry, max_retry):
 
 
 def random(status, start_retry, max_retry):
-    """
-    Schedule randomly
+    """Schedule randomly.
 
     :param status: flow status dict
     :param start_retry: lower limit of scheduling
@@ -146,8 +141,8 @@ def random(status, start_retry, max_retry):
 
 
 def constant(status, retry):
-    """
-    Schedule randomly
+    """Schedule randomly.
+
     :param status: flow status dict
     :param retry: constant retry timeout
     """

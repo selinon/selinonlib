@@ -4,15 +4,14 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""User's global configuration section parsed from YAML config file"""
+"""User's global configuration section parsed from YAML config file."""
 
 from .helpers import check_conf_keys
 
 
 class GlobalConfig(object):
-    """
-    User global configuration stated in YAML file
-    """
+    """User global configuration stated in YAML file."""
+
     DEFAULT_CELERY_QUEUE = 'celery'
     predicates_module = 'selinonlib.predicates'
 
@@ -25,12 +24,12 @@ class GlobalConfig(object):
     _trace_storage = None
 
     def __init__(self):
+        """Placeholder."""
         raise NotImplementedError("Cannot instantiate global config")
 
     @classmethod
     def dump_trace(cls, output, config_name, indent_count=0):
-        """
-        Dump trace configuration to output stream
+        """Dump trace configuration to output stream.
 
         :param output: output stream to write to
         :param config_name: name of configuration class instance to be referenced when initializing trace
@@ -53,8 +52,7 @@ class GlobalConfig(object):
 
     @classmethod
     def _parse_trace(cls, system, trace_record):
-        """
-        Parse trace configuration entry
+        """Parse trace configuration entry.
 
         @param system: system instance for which the parsing is done (for storage lookup)
         @param trace_record: trace record to be parsed
@@ -100,8 +98,7 @@ class GlobalConfig(object):
 
     @classmethod
     def from_dict(cls, system, dict_):
-        """
-        Parse global configuration from a dictionary
+        """Parse global configuration from a dictionary.
 
         :param system: system instance for storage lookup
         :param dict_: dictionary containing global configuration as stated in YAML config file

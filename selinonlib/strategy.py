@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Strategy for scheduling dispatcher - system state sampling"""
+"""Strategy for scheduling dispatcher - system state sampling."""
 
 import importlib
 
@@ -13,9 +13,8 @@ from .helpers import get_function_arguments
 
 
 class Strategy(object):
-    """
-    Sampling strategy for Dispatcher
-    """
+    """Sampling strategy for Dispatcher."""
+
     _DEFAULT_MODULE = 'selinonlib.strategies'
     _DEFAULT_FUNCTION = 'biexponential_increase'
     _DEFAULT_FUNC_ARGS = {'start_retry': 2, 'max_retry': 120}
@@ -23,7 +22,8 @@ class Strategy(object):
     _EXPECTED_STRATEGY_FUNC_ARGS = {'status'}
 
     def __init__(self, module=None, function=None, func_args=None):
-        """
+        """Instantiate strategy function representation.
+
         :param module: module from which sampling strategy should be imported
         :param function: sampling function name
         :param func_args: sampling function arguments
@@ -34,10 +34,10 @@ class Strategy(object):
 
     @classmethod
     def from_dict(cls, strategy_dict, flow_name):
-        """
-        Parse strategy entry
+        """Parse strategy entry.
 
         :param strategy_dict: strategy entry in config to be parsed
+        :param flow_name: name of the flow for which the strategy function should be used.
         """
         if not strategy_dict:
             return cls()

@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""A task representation from YAML config file"""
+"""A task representation from YAML config file."""
 
 import logging
 
@@ -14,16 +14,15 @@ from .selectiveRunFunction import SelectiveRunFunction
 
 class Task(Node):
     # pylint: disable=too-many-instance-attributes,arguments-differ
-    """
-    A task representation within the system
-    """
+    """A task representation within the system."""
 
     _DEFAULT_MAX_RETRY = 0
     _DEFAULT_RETRY_COUNTDOWN = 0
     _logger = logging.getLogger(__name__)
 
     def __init__(self, name, import_path, storage, **opts):
-        """
+        """Initialize a task node in a flow graph.
+
         :param name: name of the task
         :param import_path: tasks's import
         :param storage: storage that should be used
@@ -70,8 +69,7 @@ class Task(Node):
                            self.name, self.import_path, self.class_name)
 
     def check(self):
-        """
-        Check task definitions for errors
+        """Check task definitions for errors.
 
         :raises: ValueError if an error occurred
         """
@@ -103,13 +101,13 @@ class Task(Node):
 
     @staticmethod
     def from_dict(dictionary, system):
-        """
-        Construct task from a dict and check task's definition correctness
+        """Construct task from a dict and check task's definition correctness.
 
         :param dictionary: dictionary to be used to construct the task
-        :return: Task instance
+        :type dictionary: dict
         :param system: system that should be used to for lookup a storage
         :type system: System
+        :return: Task instance
         :rtype: Task
         :raises: ValueError
         """

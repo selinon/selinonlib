@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Edge representation in task/flow dependency graph"""
+"""Edge representation in task/flow dependency graph."""
 
 from .builtinPredicate import AlwaysTruePredicate
 from .helpers import check_conf_keys
@@ -12,14 +12,14 @@ from .predicate import Predicate
 
 
 class Edge(object):
-    """
-    Edge representation
-    """
+    """Edge representation."""
+
     _DEFAULT_RUN_SUBSEQUENT = False
     _DEFAULT_FOLLOW_SUBFLOWS = False
 
     def __init__(self, nodes_from, nodes_to, predicate, flow, foreach, selective):
-        """
+        """Initialize edge definition.
+
         :param nodes_from: nodes from where edge starts
         :type nodes_from: List[Node]
         :param nodes_to: nodes where edge ends
@@ -41,9 +41,7 @@ class Edge(object):
         self.selective = selective
 
     def check(self):
-        """
-        Check edge consistency
-        """
+        """Check edge consistency."""
         if self.foreach and self.foreach['propagate_result']:
             # We can propagate result of our foreach function only if:
             #  1. all nodes to are flows
@@ -81,7 +79,8 @@ class Edge(object):
                                  % (self.flow.name, self.nodes_to[0].name))
 
     def foreach_str(self):
-        """
+        """Construct string representation for foreach node.
+
         :return: text representation of foreach
         """
         if self.foreach:
@@ -91,7 +90,8 @@ class Edge(object):
 
     @classmethod
     def _parse_selective(cls, flow, selective_def):
-        """
+        """Parse selective edge run definition.
+
         :param flow: flow in which selective subflow should be run
         :param selective_def: selective flow definition
         :return: parsed selective_flow
@@ -135,8 +135,7 @@ class Edge(object):
 
     @classmethod
     def from_dict(cls, dict_, system, flow):  # pylint: disable=too-many-branches
-        """
-        Construct edge from a dict
+        """Construct edge from a dict.
 
         :param dict_: a dictionary from which the system should be created
         :type dict_: dict
@@ -144,7 +143,8 @@ class Edge(object):
         :type system: System
         :param flow: flow to which edge belongs to
         :type flow: Flow
-        :return:
+        :return: edge representation
+        :rtype: Edge
         """
         if 'from' not in dict_:
             raise ValueError("Edge definition requires 'from' explicitly to be specified, use empty for starting edge")

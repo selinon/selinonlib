@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Indicate progress and sleep for given time"""
+"""Indicate progress and sleep for given time."""
 
 from math import ceil
 import sys
@@ -12,13 +12,14 @@ from time import sleep
 
 
 class Progress(object):
-    """Indicate progress and sleep for given time"""
+    """Indicate progress and sleep for given time."""
+
     _indicators = ('-', '\\', '|', '/')
     _current_indicator_idx = 0
 
     @classmethod
     def indicate(cls, iterable, show_progressbar=True, info_text=None):
-        """Indicate progress on iterable
+        """Indicate progress on iterable.
 
         :param iterable: iterable that is used to iterate on progress
         :param show_progressbar: if True, there is shown a simple ASCII art spinning
@@ -39,7 +40,7 @@ class Progress(object):
 
     @classmethod
     def sleep(cls, wait_time, sleep_time, info_text=None, show_progressbar=True):
-        """Wait and sleep for the given amount of time
+        """Wait and sleep for the given amount of time.
 
         :param wait_time: time to wait in this method in total
         :param sleep_time: time between periodic checks (parameter to sleep() function)

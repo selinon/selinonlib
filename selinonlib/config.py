@@ -4,15 +4,14 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""User configuration"""
+"""User configuration."""
 
 import yaml
 
 
 class _ConfigSingleton(type):
-    """
-    Config singleton metaclass
-    """
+    """Config singleton metaclass."""
+
     _instance = None
 
     def __call__(cls, *args, **kwargs):
@@ -22,11 +21,10 @@ class _ConfigSingleton(type):
 
     @classmethod
     def set_config(mcs, config):
-        """
-        Set config which should be used in within Config singleton
+        """Set config which should be used in within Config singleton.
 
         :param config: configuration that should be used
-        :type: dict
+        :type config: dict
         """
         # set _config before the singleton is instantiated
         assert mcs._instance is None  # nosec
@@ -34,12 +32,12 @@ class _ConfigSingleton(type):
 
 
 class Config(metaclass=_ConfigSingleton):
-    """
-    Configuration supplied by user
-    """
+    """Configuration supplied by user."""
+
     _config = None
 
     def __init__(self):
+        """Instantiate configuration."""
         self._raw_config = None
 
         if self._config is None:
@@ -49,8 +47,7 @@ class Config(metaclass=_ConfigSingleton):
             self._raw_config = yaml.load(input_file, Loader=yaml.SafeLoader)
 
     def style_task(self):
-        """
-        Return style for tasks in the graph, see graphviz styling options
+        """Return style for tasks in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -61,8 +58,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else {}
 
     def style_flow(self):
-        """
-        Return style for a flow node in the graph, see graphviz styling options
+        """Return style for a flow node in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -74,8 +70,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else default
 
     def style_condition(self):
-        """
-        Return style for conditions in the graph, see graphviz styling options
+        """Return style for conditions in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -87,8 +82,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else default_style
 
     def style_condition_foreach(self):
-        """
-        Return style for foreach edges in the graph, see graphviz styling options
+        """Return style for foreach edges in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -100,8 +94,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else default_style
 
     def style_storage(self):
-        """
-        Return style for storage in the graph, see graphviz styling options
+        """Return style for storage in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -113,8 +106,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else {}
 
     def style_edge(self):
-        """
-        Return style for edges in the graph, see graphviz styling options
+        """Return style for edges in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -125,8 +117,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else {}
 
     def style_store_edge(self):
-        """
-        Return style for edges that lead to a storage in the graph, see graphviz styling options
+        """Return style for edges that lead to a storage in the graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -138,8 +129,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else default_style
 
     def style_graph(self):
-        """
-        Return style for the whole graph, see graphviz styling options
+        """Return style for the whole graph, see graphviz styling options.
 
         :return: style definition
         :rtype: dict
@@ -150,8 +140,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else {}
 
     def style_fallback_edge(self):
-        """
-        Return style for fallback edges
+        """Return style for fallback edges.
 
         :return: style definition
         :rtype: dict
@@ -163,8 +152,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else default_style
 
     def style_fallback_node(self):
-        """
-        Return style for fallback node
+        """Return style for fallback node.
 
         :return: style definition
         :rtype: dict
@@ -176,8 +164,7 @@ class Config(metaclass=_ConfigSingleton):
         return ret if ret is not None else default_style
 
     def style_fallback_true(self):
-        """
-        Return style for fallback true node
+        """Return style for fallback true node.
 
         :return: style definition
         :rtype: dict

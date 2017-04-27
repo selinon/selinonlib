@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Abstract representation of nodes in task/flow dependencies - a node is either a task or a flow"""
+"""Abstract representation of nodes in task/flow dependencies - a node is either a task or a flow."""
 
 import abc
 import datetime
@@ -15,24 +15,26 @@ from .globalConfig import GlobalConfig
 
 
 class Node(metaclass=abc.ABCMeta):
-    """
-    An abstract class for node representation
-    """
+    """An abstract class for node representation."""
+
+    _NAME_RE = r"^[_a-zA-Z][_a-zA-Z0-9]*$"
 
     def __init__(self, name):
+        """Instantiate a node (flow/task)."""
         if not self.check_name(name):
             raise ValueError("Invalid node name '%s'" % name)
         self._name = name
 
     @property
     def name(self):
-        """
+        """Get name of the node.
+
         :return: a name of the node
         """
         return self._name
 
     def _expand_queue_name(self, queue_name):
-        """Assign queue name based on configuration, do expansion based on env variables if needed
+        """Assign queue name based on configuration, do expansion based on env variables if needed.
 
         :param queue_name: name of queue as provided in config file or None
         :return: final name of the queue
@@ -50,34 +52,34 @@ class Node(metaclass=abc.ABCMeta):
             raise ValueError(err_msg)
 
     def is_flow(self):
-        """
+        """Check if this node is a flow.
+
         :return: True if node represents a Flow
         """
         from .flow import Flow
         return isinstance(self, Flow)
 
     def is_task(self):
-        """
+        """Check if this node is a task.
+
         :return: True if node represents a Task
         """
         from .task import Task
         return isinstance(self, Task)
 
-    @staticmethod
-    def check_name(name):
-        """
-        Check whether name is a correct node (flow/task) name
+    @classmethod
+    def check_name(cls, name):
+        """Check whether name is a correct node (flow/task) name.
 
         :param name: node name
         :return: True if name is a correct node name
         :rtype: bool
         """
-        regexp = re.compile(r"^[_a-zA-Z][_a-zA-Z0-9]*$")
+        regexp = re.compile(cls._NAME_RE)
         return regexp.match(name)
 
     def parse_throttling(self, dict_):
-        """
-        Parse throttling from a dictionary
+        """Parse throttling definition from a dictionary.
 
         :param dict_: dictionary from which throttling should be parsed
         :return: timedelta describing throttling countdown or None if not throttling applied

@@ -17,19 +17,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # ####################################################################
-""" Abstract cache for defining cache interface """
+"""Abstract cache for defining cache interface."""
 
 import abc
 
 
 class Cache(metaclass=abc.ABCMeta):
-    """
-    Base class for Cache classes
-    """
+    """Base class for Cache classes."""
+
     @abc.abstractmethod
     def add(self, item_id, item, task_name, flow_name):
-        """
-        Add item to cache
+        """Add item to cache.
 
         :param item_id: item id under which item should be referenced
         :param item: item itself
@@ -40,8 +38,7 @@ class Cache(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get(self, item_id, task_name, flow_name):
-        """
-        Get item from cache
+        """Get item from cache.
 
         :param item_id: item id under which the item is stored
         :param task_name: name of task that result should/shouldn't be cached in order to get

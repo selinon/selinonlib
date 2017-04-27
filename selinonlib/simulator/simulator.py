@@ -4,7 +4,9 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Using Selinon simulator is a good way to test you configuration and behaviour locally if you would like to save
+"""Simulate execution in a single CLI run.
+
+Using Selinon simulator is a good way to test you configuration and behaviour locally if you would like to save
 some time when debugging or exploring all the possibilities that Selinon offers you. Keep in mind that running
 Selinon locally was designed for development purposes and behaviour in general can (and in many cases will) vary.
 
@@ -47,12 +49,14 @@ from .queuePool import QueuePool
 
 
 class Simulator(object):
-    """Simulator that simulates Selinon run in a multi-process environment"""
+    """Simulator that simulates Selinon run in a multi-process environment."""
+
     simulator_queues = QueuePool()
     _logger = logging.getLogger(__name__)
 
     def __init__(self, nodes_definition, flow_definitions, **opts):
-        """
+        """Instantiate simulator.
+
         :param nodes_definition: path to nodes.yaml file
         :param flow_definitions: a list of YAML files describing flows
         :param opts: additional simulator options, supported: concurrency, config_py path, sleep_time, keep_config_py
@@ -69,7 +73,7 @@ class Simulator(object):
             raise ValueError("Unknown options supplied: %s" % opts)
 
     def run(self, flow_name, node_args=None):
-        """Run simulator
+        """Run simulator.
 
         :param flow_name: a flow name that should be run
         :param node_args: arguments for the flow
@@ -131,7 +135,7 @@ class Simulator(object):
 
     @classmethod
     def schedule(cls, task, celery_kwargs):
-        """Schedule a new task to be executed
+        """Schedule a new task to be executed.
 
         :param task: task to be executed
         :type task: Dispatcher|SelinonTaskEnvelope

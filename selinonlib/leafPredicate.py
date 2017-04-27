@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Leaf predicate in condition - should always return True/False for the given input"""
+"""Leaf predicate in condition - should always return True/False for the given input."""
 
 import ast
 import importlib
@@ -17,14 +17,13 @@ from .predicate import Predicate
 
 
 class LeafPredicate(Predicate):
-    """
-    Leaf predicate representation
-    """
+    """Leaf predicate representation."""
 
     _logger = logging.getLogger(__name__)
 
     def __init__(self, predicate_func, node, flow, args=None):
-        """
+        """Instantiate leaf predicate.
+
         :param predicate_func: predicate function
         :param node: node that predicate conforms to
         :param flow: flow to which predicate belongs to
@@ -42,20 +41,21 @@ class LeafPredicate(Predicate):
             raise ValueError("Expected task name for predicate '%s'" % self._func)
 
     def requires_message(self):
-        """
+        """Check whether this predicate requires results from parent node.
+
         :return: True if predicate requires a message from a parent node
         """
         return 'message' in self._func_args
 
     def requires_node_args(self):
-        """
+        """Check whether this predicate inspects arguments passed to flow.
+
         :return: True if predicate requires a node arguments
         """
         return 'node_args' in self._func_args
 
     def _check_parameters(self):
-        """
-        Check user defined predicate parameters against predicate parameters
+        """Check user defined predicate parameters against predicate parameters.
 
         :raises: ValueError
         """
@@ -89,8 +89,7 @@ class LeafPredicate(Predicate):
             raise ValueError("Bad predicate arguments specified in flow '%s'" % self.flow.name)
 
     def _check_usage(self):
-        """
-        Check correct predicate usage
+        """Check correct predicate usage.
 
         :raises: ValueError
         """
@@ -104,8 +103,7 @@ class LeafPredicate(Predicate):
                              % (str(self), self.node.name, self.node.import_path))
 
     def check(self):
-        """
-        Check whether predicate is correctly used
+        """Check whether predicate is correctly used.
 
         :raises: ValueError
         """
@@ -113,6 +111,10 @@ class LeafPredicate(Predicate):
         self._check_parameters()
 
     def __str__(self):
+        """Create a string representation of this predicate (Python function call).
+
+        :return: a string representation of this predicate
+        """
         if self.requires_message():
             if self._args:
                 return "%s(db.get('%s'), %s)"\
@@ -123,7 +125,7 @@ class LeafPredicate(Predicate):
         # we hide node_args parameter
         return "%s(%s)" % (self._func.__name__, dict2strkwargs(self._args))
 
-    def _task_str_name(self):
+    def _task_str_name(self):  # noqa
         # task_name can be None if we have starting edge
         if self.node is None:
             return 'None'
@@ -131,7 +133,8 @@ class LeafPredicate(Predicate):
         return "%s" % self.node.name
 
     def ast(self):
-        """
+        """Create Python AST of this predicate.
+
         :return: AST representation of predicate
         """
         # we could directly use db[task] in predicates, but predicates should not handle database errors,
@@ -155,14 +158,16 @@ class LeafPredicate(Predicate):
                         args=[], starargs=None, kwargs=None, keywords=kwargs)
 
     def predicates_used(self):
-        """
+        """Return a list of predicates that are used.
+
         :return: list of predicates that are used
         :rtype: List[Predicate]
         """
         return [self._func] if self._func else []
 
     def nodes_used(self):
-        """
+        """Return a list of nodes that are used by this predicate.
+
         :return: list of nodes that are used
         :rtype: List[Node]
         """
@@ -170,8 +175,7 @@ class LeafPredicate(Predicate):
 
     @classmethod
     def create(cls, name, node, flow, args=None):  # pylint: disable=arguments-differ
-        """
-        Create predicate
+        """Create predicate.
 
         :param name: predicate name
         :type name: str

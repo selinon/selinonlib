@@ -4,38 +4,51 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Pool of all queues in the system"""
+"""Pool of all queues in the system."""
 
 from .timeQueue import TimeQueue
 
 
 class QueuePool(object):
-    """Pool of all queues in the system"""
+    """Pool of all queues in the system."""
+
     class _QueueWrapper(object):
-        """Wrap a queue so we carry additional info needed for QueuePool - cyclic double linked list"""
+        """Wrap a queue so we carry additional info needed for QueuePool - cyclic double linked list."""
 
         def __init__(self, previous_wrapper, next_wrapper, queue_name):
+            """Init QueueWrapper.
+
+            :param previous_wrapper: preceding queue wrapper in the linked list
+            :param next_wrapper: next queue wrapper in the linked list
+            :param queue_name: name of the queue that is wrapped
+            """
             self.queue_name = queue_name
             self.queue = TimeQueue()
             self.previous = previous_wrapper or self
             self.next = next_wrapper or self
 
-        def __next__(self):
+        def __next__(self):  # noqa
             return self.next
 
         def __repr__(self):
+            """Queue representation for nice logs.
+
+            :return: queue representation
+            """
             return "%s(queue='%s')" % (self.__class__.__name__, self.queue_name)
 
     def __init__(self):
+        """Initialize pool of queues."""
+        # Queues are instantiated lazily on demand.
         self._queues = {}
         self._last_used = None
         self._queue_head = None
         self._queue_tail = None
 
     def _create_queue_wrapper(self, queue_name):
-        """"Create queue wrapper for the given queue name and register it to our queue pool (cyclic double-linked list)
+        """"Create queue wrapper for the given queue name and register it to our queue pool (cyclic double-linked list).
 
-        :param queue_name:
+        :param queue_name: queue name that the wrapper represents
         :return queue wrapper
         """
         queue_wrapper = self._QueueWrapper(self._queue_tail, self._queue_head, queue_name)
@@ -51,9 +64,9 @@ class QueuePool(object):
         return queue_wrapper
 
     def _remove_queue_wrapper(self, queue_wrapper):
-        """"Remove queue wrapper from queue pool - double linked list
-        """
+        """"Remove queue wrapper from queue pool - double linked list."""
         self._queues.pop(queue_wrapper.queue_name)
+
         if queue_wrapper is self._queue_head and queue_wrapper is self._queue_tail:
             self._queue_head = None
             self._queue_tail = None
@@ -73,7 +86,7 @@ class QueuePool(object):
             self._last_used = queue_wrapper.previous
 
     def get_queue(self, name):
-        """Get queue wrapper by name of the queue that is wrapped, if does not exist, create one lazily
+        """Get queue wrapper by name of the queue that is wrapped, if does not exist, create one lazily.
 
         :param name: a name of the queue
         :return: queue wrapper for the given queue with requested name
@@ -85,14 +98,15 @@ class QueuePool(object):
         return queue_wrapper
 
     def queue_exists(self, name):
-        """
+        """Check whether a queue with the given name exists.
+
         :param name: name of queue to be checked if exists
         :return: True if such queue exists in queue pool
         """
         return name in self._queues
 
     def push(self, queue_name, time, record):
-        """Push record with its time to queue with name queue_name
+        """Push record with its time to queue with name queue_name.
 
         :param queue_name: a queue name that should keep record
         :param time: time of record (when should be record executed)
@@ -108,7 +122,7 @@ class QueuePool(object):
             self._last_used = queue_wrapper
 
     def pop(self):
-        """Pop a record with the smallest time
+        """Pop a record with the smallest time.
 
         :return: (time, record) tuple -  time of record and record itself (see self.push for more info)
         """
@@ -141,10 +155,15 @@ class QueuePool(object):
         return result_time, result_record
 
     def is_empty(self):
-        """
+        """Check pool emptiness.
+
         :return: True if queue pool does not have any messages and no queues (as queues get deleted when empty)
         """
         return len(self._queues) == 0
 
     def __repr__(self):
+        """Queue pool representation.
+
+        :return: a string representing pool (with a list of active queues)
+        """
         return "%s(%s)" % (self.__class__.__name__, self._queues)

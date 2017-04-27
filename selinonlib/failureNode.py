@@ -4,7 +4,8 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-r"""
+r"""Failure node handling representation.
+
 A failure is basically a node in graph, that represents all permutations of possible cases of failures. Consider
 having two failure conditions:
 
@@ -52,12 +53,11 @@ from functools import reduce
 
 
 class FailureNode(object):
-    """
-    A representation of a failure node permutation
-    """
+    """A representation of a failure node permutation."""
 
     def __init__(self, flow, traversed, failure_link):
-        """
+        """Instantiate a failure node in the graph of all possible failures (permutations).
+
         :param flow: flow to which the failure node conforms to
         :param traversed: traversed nodes - also permutation of nodes
         :param failure_link: link to next failure node in failures
@@ -70,8 +70,7 @@ class FailureNode(object):
         self.propagate_failure = False
 
     def to(self, node_name):  # pylint: disable=invalid-name
-        """
-        Retrieve next permutation
+        """Retrieve next permutation based on link in failure graph.
 
         :param node_name: a name of the node for next permutation
         :rtype: FailureNode
@@ -79,15 +78,15 @@ class FailureNode(object):
         return self.next[node_name]
 
     def has_to(self, node_name):
-        """
-        :param node_name:
+        """Check whether there is a link to next permutation.
+
+        :param node_name: name of the node to be added to create a new permutation
         :return: True if there is a link to next permutation for node of name node_name
         """
         return node_name in self.next
 
     def add_to(self, node_name, failure):
-        """
-        Add failure for next permutation
+        """Add failure for next permutation.
 
         :param node_name: a node for next permutation
         :param failure: FailureNode that should be added
@@ -97,7 +96,7 @@ class FailureNode(object):
 
     @staticmethod
     def _add_failure_info(failure_node, failure_info):
-        """Add failure specific info to a failure node
+        """Add failure specific info to a failure node.
 
         :param failure_node: a failure node where the failure info should be added
         :param failure_info: additional information as passed from configuration file
@@ -127,8 +126,7 @@ class FailureNode(object):
 
     @classmethod
     def construct(cls, flow, failures):  # pylint: disable=too-many-locals,too-many-branches
-        """
-        Construct failures from failures dictionary
+        """Construct failures from failures dictionary.
 
         :param failures: failures dictionary
         :param flow: flow to which failures conform to

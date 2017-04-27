@@ -4,9 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""
-Predicate interface - predicate for building conditions
-"""
+"""Predicate interface - predicate for building conditions."""
 
 import abc
 
@@ -15,22 +13,28 @@ from .helpers import dict2json
 
 
 class Predicate(metaclass=abc.ABCMeta):
-    """
-    An abstract predicate representation
-    """
+    """An abstract predicate representation."""
+
     @abc.abstractmethod
     def __init__(self):
+        """Instantiate predicate representation."""
         pass
 
     @abc.abstractmethod
     def __str__(self):
+        """String representation of this predicate.
+
+        :return: string representation (Python code)
+        :rtype: str
+        """
         pass
 
     @abc.abstractclassmethod
     def create(cls, tree, nodes_from, flow):
-        """
-        Create the predicate
+        """Create the predicate.
 
+        :param tree: node from which should be predicate instantiated
+        :type tree: List
         :param nodes_from: nodes which are used within edge definition
         :type nodes_from: List[Nodes]
         :param flow: flow to which predicate belongs to
@@ -41,22 +45,25 @@ class Predicate(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def ast(self):
-        """
-        :return: AST representation of predicate
+        """Python AST of this predicate (construct transitively for all indirect children as well).
+
+        :return: AST of describing all children predicates
         """
         pass
 
     @abc.abstractmethod
     def predicates_used(self):
-        """
-        :return: list of predicates that are used
+        """Compute all predicates that are used (transitively) by child/children.
+
+        :return: used predicates by children
         :rtype: List[Predicate]
         """
         pass
 
     @abc.abstractmethod
     def nodes_used(self):
-        """
+        """Compute all nodes that are used (transitively) by child/children.
+
         :return: list of nodes that are used
         :rtype: List[Node]
         """
@@ -64,8 +71,7 @@ class Predicate(metaclass=abc.ABCMeta):
 
     @staticmethod
     def construct(tree, nodes_from, flow):  # pylint: disable=too-many-branches
-        """
-        Top-down creation of predicates - recursively called to construct predicates
+        """Top-down creation of predicates - recursively called to construct predicates.
 
         :param tree: a dictionary describing nodes
         :type tree: dict
@@ -114,8 +120,7 @@ class Predicate(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def check(self):
-        """
-        Recursively check predicate correctness
+        """Recursively/transitively check predicate correctness.
 
         :raises ValueError: if predicate is not correct
         """
@@ -123,8 +128,7 @@ class Predicate(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def requires_message(self):
-        """
-        Recursively check if one of the predicates require message from storage (result of previous task)
+        """Recursively check if one of the predicates require message from storage (result of previous task).
 
         :return: True if a result from storage is required
         """

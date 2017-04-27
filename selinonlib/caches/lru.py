@@ -4,35 +4,33 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""
-Least-Recently-Used cache implementation
-"""
+"""Least-Recently-Used cache implementation."""
 
 from selinon import Cache
 from selinon import CacheMissError
 
 
 class _Record(object):
-    """
-    Record that is used in a double-linked list in order to track usage
-    """
+    """Record that is used in a double-linked list in order to track usage."""
 
-    def __init__(self, item_id, item):
+    def __init__(self, item_id, item):  # noqa
         self.item_id = item_id
         self.item = item
         self.previous = None
         self.next = None
 
-    def __repr__(self):
+    def __repr__(self):  # noqa
         return "<%s>" % self.item_id
 
 
 class LRU(Cache):
-    """
-    Least-Recently-Used cache
-    """
+    """Least-Recently-Used cache."""
 
     def __init__(self, max_cache_size):
+        """Initialize cache.
+
+        :param max_cache_size: maximum number of items stored in the cache
+        """
         # let's allow zero size
         assert max_cache_size >= 0  # nosec
 
@@ -44,6 +42,10 @@ class LRU(Cache):
         self.current_cache_size = 0
 
     def __repr__(self):
+        """Cache representation for logs/debug.
+
+        :return: string representation of cache
+        """
         records = []
 
         record = self._record_head
@@ -54,8 +56,7 @@ class LRU(Cache):
         return "%s(%s)" % (self.__class__.__name__, records)
 
     def _add_record(self, record):
-        """
-        Add record to cache, record shouldn't be present in the cache
+        """Add record to cache, record shouldn't be present in the cache.
 
         :param record: record to add to cache
         """
@@ -73,8 +74,7 @@ class LRU(Cache):
         self._record_tail = record
 
     def _remove_record(self, record):
-        """
-        Remove record from cache, record should be present in the cache
+        """Remove record from cache, record should be present in the cache.
 
         :param record: record to be deleted
         """
@@ -97,15 +97,12 @@ class LRU(Cache):
         record.previous = None
 
     def _clean_cache(self):
-        """
-        Trim cache
-        """
+        """Trim cache."""
         while self.current_cache_size + 1 > self.max_cache_size and self.current_cache_size > 0:
             self._remove_record(self._record_head)
 
     def add(self, item_id, item, task_name=None, flow_name=None):
-        """
-        Add item to cache
+        """Add item to cache.
 
         :param item_id: item id under which item should be referenced
         :param item: item itself
@@ -123,8 +120,7 @@ class LRU(Cache):
             self._add_record(record)
 
     def get(self, item_id, task_name=None, flow_name=None):
-        """
-        Get item from cache
+        """Get item from cache.
 
         :param item_id: item id under which the item is stored
         :param task_name: name of task that result should/shouldn't be cached, unused when caching Celery's AsyncResult

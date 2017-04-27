@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""A flow representation"""
+"""A flow representation."""
 
 import logging
 
@@ -17,16 +17,15 @@ from .strategy import Strategy
 
 
 class Flow(Node):  # pylint: disable=too-many-instance-attributes
-    """
-    Flow representation
-    """
+    """Flow representation."""
 
     _DEFAULT_MAX_RETRY = 0
     _DEFAULT_RETRY_COUNTDOWN = 0
     _logger = logging.getLogger(__name__)
 
     def __init__(self, name, **opts):
-        """
+        """Initialize flow node representation.
+
         :param name: flow name
         :type name: str
         :param opts: additional flow options as provided in YAML configuration, see implementation for more details
@@ -61,8 +60,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
             raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
 
     def _set_propagate(self, system, flow_def, propagate_type):
-        """
-        Parse propagate_node_args flag and adjust flow accordingly
+        """Parse propagate_node_args flag and adjust flow accordingly.
 
         :param system: system that is used
         :param flow_def: flow definition
@@ -88,7 +86,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         return ret
 
     def _check_conf_keys(self, flow_def):
-        """Check configuration keys so no unknown and unwanted configuration is supplied
+        """Check configuration keys so no unknown and unwanted configuration is supplied.
 
         :param flow_def: dictionary containing flow definition
         :raises: ValueError on wrong configuration
@@ -104,8 +102,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
                              % (self.name, unknown_conf))
 
     def parse_definition(self, flow_def, system):
-        """
-        Parse flow definition (fill flow attributes) from a dictionary
+        """Parse flow definition (fill flow attributes) from a dictionary.
 
         :param flow_def: dictionary containing flow definition
         :param system: system in which flow is defined
@@ -156,20 +153,23 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.retry_countdown = flow_def.get('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
 
     def add_edge(self, edge):
-        """
+        """Add edge to this flow.
+
         :param edge: edge to be added
         :type edge: List[Edge]
         """
         self.edges.append(edge)
 
     def add_nowait_node(self, node):
-        """
+        """Add edge to this flow, do not wait for node to finish.
+
         :param node: add a node that should be marked with nowait flag
         """
         self.nowait_nodes.append(node)
 
     def all_nodes_from(self):
-        """
+        """Compute all nodes that are stated in 'from' in edges section for this flow.
+
         :return: all source nodes in flow, excluding failures
         """
         all_nodes_from = set()
@@ -180,7 +180,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         return list(all_nodes_from)
 
     def all_nodes_to(self):
-        """
+        """Compute all nodes that are stated in 'to' in edges section for this flow.
+
         :return: all destination nodes in flow, excluding failures
         """
         all_nodes_to = set()
@@ -191,7 +192,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         return list(all_nodes_to)
 
     def all_source_nodes(self):
-        """
+        """Compute all source nodes for this flow.
+
         :return: all source nodes in flow, including failures
         """
         if self.failures:
@@ -200,7 +202,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         return self.all_nodes_from()
 
     def all_destination_nodes(self):
-        """
+        """Compute all destination nodes for this flow.
+
         :return: all destination nodes in flow, including failures
         """
         if self.failures:
@@ -209,14 +212,16 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         return self.all_nodes_to()
 
     def all_used_nodes(self):
-        """
+        """Get all used nodes in this flow, including failures.
+
         :return: all used nodes in flow
         """
         return list(set(self.all_destination_nodes()) | set(self.all_source_nodes()))
 
     @staticmethod
     def _should_config(dst_node_name, configuration):
-        """
+        """Syntax sugar for configuration entries that accept list or boolean at the same time.
+
         :param dst_node_name: destination node to which configuration should be propagated
         :param configuration: configuration that should be checked
         :return: true if node_name satisfies configuration
@@ -230,49 +235,56 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         return False
 
     def should_propagate_finished(self, dst_node_name):
-        """
+        """Check whether this flow should propagate info about finished nodes.
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_finished
         """
         return self._should_config(dst_node_name, self.propagate_finished)
 
     def should_propagate_failures(self, dst_node_name):
-        """
+        """Check whether this flow should propagate info about failed nodes.
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_failures
         """
         return self._should_config(dst_node_name, self.propagate_failures)
 
     def should_propagate_node_args(self, dst_node_name):
-        """
+        """Check whether this flow should propagate flow arguments.
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_node_args
         """
         return self._should_config(dst_node_name, self.propagate_node_args)
 
     def should_propagate_parent(self, dst_node_name):
-        """
+        """Check whether this flow should propagate parent nodes.
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_parent
         """
         return self._should_config(dst_node_name, self.propagate_parent)
 
     def should_propagate_parent_failures(self, dst_node_name):  # pylint: disable=invalid-name
-        """
+        """Check whether this flow should propagate parent node failures.
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_parent_failures
         """
         return self._should_config(dst_node_name, self.propagate_parent_failures)
 
     def should_propagate_compound_finished(self, dst_node_name):  # pylint: disable=invalid-name
-        """
+        """Check whether this flow should info about finished nodes (in compound/flattered mode).
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_compound_finished
         """
         return self._should_config(dst_node_name, self.propagate_compound_finished)
 
     def should_propagate_compound_failures(self, dst_node_name):  # pylint: disable=invalid-name
-        """
+        """Check whether this flow should info about failures (in compound/flattered mode).
+
         :param dst_node_name: destination node to which configuration should be propagated
         :return: True if should propagate_compound_failures
         """

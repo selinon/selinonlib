@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Supportive and handling library for Selinon"""
+"""Supportive and handling library for Selinon."""
 
 from .builtinPredicate import AndPredicate
 from .builtinPredicate import BuiltinPredicate

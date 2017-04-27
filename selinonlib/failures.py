@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Task and flow failure handling"""
+"""Task and flow failure handling."""
 
 from itertools import chain
 
@@ -13,12 +13,11 @@ from .helpers import check_conf_keys
 
 
 class Failures(object):
-    """
-    Node failures and fallback handling
-    """
+    """Node failures and fallback handling."""
 
     def __init__(self, raw_definition, system, flow, last_allocated=None, starting_nodes=None):
-        """
+        """Construct failures based on definition stated in YAML config files.
+
         :param raw_definition: raw definition of failures
         :param system: system context
         :param last_allocated: last allocated starting node for linked list
@@ -56,13 +55,15 @@ class Failures(object):
         self.starting_nodes = starting_nodes
 
     def all_waiting_nodes(self):
-        """
+        """Compute all nodes that have defined a fallback.
+
         :return: all nodes that for which there is defined a callback
         """
         return list(set(chain(*self.waiting_nodes)))
 
     def all_fallback_nodes(self):
-        """
+        """Compute all fallback nodes.
+
         :return: all nodes that are used as fallback nodes
         """
         # remove True/False flags
@@ -82,7 +83,8 @@ class Failures(object):
 
     @staticmethod
     def construct(system, flow, failures_dict):
-        """
+        """Construct Failres.
+
         :param system: system context
         :param flow: a flow to which failures conform
         :param failures_dict: construct failures from failures dict
@@ -116,20 +118,28 @@ class Failures(object):
 
     @staticmethod
     def starting_nodes_name(flow_name):
-        """
-        A starting node name representation for generated Python config
+        """A starting node name for graph of all failures nodes for generated Python config.
+
+        :param flow_name: flow name for which the starting node should be created
+        :return: variable name
+        :rtype: str
         """
         return "_%s_failure_starting_nodes" % flow_name
 
     @staticmethod
     def failure_node_name(flow_name, failure_node):
-        """
-        A failure node name representation for generated Python config
+        """A failure node name representation for generated Python config.
+
+        :param flow_name: name of flow for which the representation should be created
+        :param failure_node: a node from graph of all failure permutations
+        :return: variable name
+        :rtype: str
         """
         return "_%s_fail_%s" % (flow_name, "_".join(failure_node.traversed))
 
     def fallback_nodes_names(self):
-        """
+        """Compute names for all nodes that are started by fallbacks.
+
         :return: names of nodes that are started by fallbacks in all failures
         """
         ret = []
@@ -143,14 +153,14 @@ class Failures(object):
         return ret
 
     def waiting_nodes_names(self):
-        """
+        """Compute all nodes that have defined fallbacks.
+
         :return: names of all nodes that we are expecting to fail for fallbacks
         """
         return list(self.starting_nodes.keys())
 
     def dump2stream(self, stream, flow_name):
-        """
-        Dump failures to the Python config file for Dispatcher
+        """Dump failures to the Python config file for Dispatcher.
 
         :param stream: output stream to dump to
         :param flow_name: a name of a flow that failures belong to

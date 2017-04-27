@@ -4,7 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Core Selinonlib logic - system representation, parsing and handling actions"""
+"""Core Selinonlib logic - system representation, parsing and handling actions."""
 
 import datetime
 import logging
@@ -32,14 +32,13 @@ from .version import selinonlib_version
 
 
 class System(object):
-    """
-    The representation of the whole system
-    """
+    """The representation of the whole system."""
 
     _logger = logging.getLogger(__name__)
 
     def __init__(self, tasks=None, flows=None, storages=None, task_classes=None):
-        """
+        """Initialize system info.
+
         :param tasks: a list of tasks available in the system
         :param flows: a list of flows available in the system
         :param storages: a list of storages available in the system
@@ -52,8 +51,7 @@ class System(object):
         self.task_classes = task_classes or []
 
     def _check_name_collision(self, name):
-        """
-        Tasks and Flows share name space, check for collisions
+        """All tasks and flows share name space, check for collisions.
 
         :param name: a node name
         :raises: ValueError
@@ -64,8 +62,7 @@ class System(object):
             raise ValueError("Unable to add node with name '%s', a task with the same name already exist" % name)
 
     def add_task(self, task):
-        """
-        Register a task in the system
+        """Register a task in the system.
 
         :param task: a task to be registered
         :type task: Task
@@ -74,8 +71,7 @@ class System(object):
         self.tasks.append(task)
 
     def add_flow(self, flow):
-        """
-        Register a flow in the system
+        """Register a flow in the system.
 
         :param flow: a flow to be registered
         :type flow: flow
@@ -84,8 +80,7 @@ class System(object):
         self.flows.append(flow)
 
     def add_storage(self, storage):
-        """
-        Add storage to system
+        """Add storage to system.
 
         :param storage: storage that should be added
         """
@@ -100,8 +95,7 @@ class System(object):
         self.storages.append(storage)
 
     def storage_by_name(self, name, graceful=False):
-        """
-        Retrieve storage by its name
+        """Retrieve storage by its name.
 
         :param name: name of the storage
         :param graceful: if true, exception is raised if no such storage with name name is found
@@ -115,8 +109,7 @@ class System(object):
         return None
 
     def task_by_name(self, name, graceful=False):
-        """
-        Find a task by its name
+        """Find a task by its name.
 
         :param name: a task name
         :param graceful: if True, no exception is raised if task couldn't be found
@@ -127,35 +120,14 @@ class System(object):
         for task in self.tasks:
             if task.name == name:
                 return task
+
         if not graceful:
             raise KeyError("Task with name {} not found in the system".format(name))
+
         return None
 
-    def task_queue_names(self):
-        """
-        :return: corresponding mapping from task name to task queue
-        """
-        ret = {}
-
-        for task in self.tasks:
-            ret[task.name] = task.queue_name
-
-        return ret
-
-    def dispatcher_queue_names(self):
-        """
-        :return: dispatcher queue name
-        """
-        ret = {}
-
-        for flow in self.flows:
-            ret[flow.name] = flow.queue_name
-
-        return ret
-
     def flow_by_name(self, name, graceful=False):
-        """
-        Find a flow by its name
+        """Find a flow by its name.
 
         :param name: a flow name
         :param graceful: if True, no exception is raised if flow couldn't be found
@@ -166,13 +138,38 @@ class System(object):
         for flow in self.flows:
             if flow.name == name:
                 return flow
+
         if not graceful:
             raise KeyError("Flow with name '{}' not found in the system".format(name))
+
         return None
 
-    def node_by_name(self, name, graceful=False):
+    def task_queue_names(self):
+        """Get information about queue names per task.
+
+        :return: corresponding mapping from task name to task queue
         """
-        Find a node (flow or task) by its name
+        ret = {}
+
+        for task in self.tasks:
+            ret[task.name] = task.queue_name
+
+        return ret
+
+    def dispatcher_queue_names(self):
+        """Get information about queue names per dispatcher/flow.
+
+        :return: dispatcher queue names based on flow names
+        """
+        ret = {}
+
+        for flow in self.flows:
+            ret[flow.name] = flow.queue_name
+
+        return ret
+
+    def node_by_name(self, name, graceful=False):
+        """Find a node (flow or task) by its name.
 
         :param name: a node name
         :param graceful: if True, no exception is raised if node couldn't be found
@@ -191,8 +188,7 @@ class System(object):
         return node
 
     def class_of_task(self, task):
-        """
-        Return task class of a task
+        """Return task class of a task.
 
         :param task: task to look task class for
         :return: TaskClass or None if a task class for task is not available
@@ -203,8 +199,7 @@ class System(object):
         return None
 
     def _dump_imports(self, output):
-        """
-        Dump used imports of tasks to a stream
+        """Dump used imports of tasks to a stream.
 
         :param output: a stream to write to
         """
@@ -252,8 +247,7 @@ class System(object):
         output.write("\nimport datetime\n")
 
     def _dump_output_schemas(self, output):
-        """
-        Dump output schema mapping to a stream
+        """Dump output schema mapping to a stream.
 
         :param output: a stream to write to
         """
@@ -268,8 +262,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_flow_flags(self, stream):
-        """
-        Dump various flow flags
+        """Dump various flow flags.
 
         :param stream: a stream to write to
         """
@@ -307,8 +300,7 @@ class System(object):
 
     @staticmethod
     def _dump_dict(output, dict_name, dict_items):
-        """
-        Dump propagate_finished flag configuration to a stream
+        """Dump propagate_finished flag configuration to a stream.
 
         :param output: a stream to write to
         """
@@ -326,8 +318,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_task_classes(self, output):
-        """
-        Dump mapping from task name to task class
+        """Dump mapping from task name to task class.
 
         :param output: a stream to write to
         """
@@ -341,8 +332,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_storage_task_names(self, output):
-        """
-        Dump mapping for task name in storage (task name alias for storage)
+        """Dump mapping for task name in storage (task name alias for storage).
 
         :param output: a stream to write to
         """
@@ -356,8 +346,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_queues(self, output):
-        """
-        Dump queues for tasks and dispatcher
+        """Dump queues for tasks and dispatcher.
 
         :param output: a stream to write to
         """
@@ -365,8 +354,7 @@ class System(object):
         self._dump_dict(output, 'dispatcher_queues', {f.name: "'%s'" % f.queue_name for f in self.flows})
 
     def _dump_storage2instance_mapping(self, output):
-        """
-        Dump storage name to instance mapping to a stream
+        """Dump storage name to instance mapping to a stream.
 
         :param output: a stream to write to
         """
@@ -393,8 +381,7 @@ class System(object):
         output.write("\n}\n\n")
 
     def _dump_task2storage_mapping(self, output):
-        """
-        Dump task name to storage name mapping to a stream
+        """Dump task name to storage name mapping to a stream.
 
         :param output: a stream to write to
         """
@@ -410,8 +397,7 @@ class System(object):
         output.write("\n}\n\n")
 
     def _dump_storage_conf(self, output):
-        """
-        Dump storage configuration to a stream
+        """Dump storage configuration to a stream.
 
         :param output: a stream to write to
         """
@@ -424,7 +410,7 @@ class System(object):
         self._dump_dict(output, 'storage2storage_cache', {s.name: s.cache_config.var_name for s in self.storages})
 
     def _dump_async_result_cache(self, output):
-        """Dump Celery AsyncResult caching configuration
+        """Dump Celery AsyncResult caching configuration.
 
         :param output: a stream to write to
         """
@@ -435,8 +421,7 @@ class System(object):
         self._dump_dict(output, 'async_result_cache', {f.name: f.cache_config.var_name for f in self.flows})
 
     def _dump_strategy_func(self, output):
-        """
-        Dump scheduling strategy function to a stream
+        """Dump scheduling strategy function to a stream.
 
         :param output: a stream to write to
         """
@@ -461,8 +446,7 @@ class System(object):
 
     @staticmethod
     def _dump_condition_name(flow_name, idx):
-        """
-        Create condition name for a dump
+        """Create condition name for a dump.
 
         :param flow_name: flow name
         :type flow_name: str
@@ -475,8 +459,7 @@ class System(object):
 
     @staticmethod
     def _dump_foreach_function_name(flow_name, idx):
-        """
-        Create foreach function name for a dump
+        """Create foreach function name for a dump.
 
         :param flow_name: flow name
         :type flow_name: str
@@ -488,8 +471,7 @@ class System(object):
         return '_foreach_{}_{}'.format(flow_name, idx)
 
     def _dump_condition_functions(self, output):
-        """
-        Dump condition functions to a stream
+        """Dump condition functions to a stream.
 
         :param output: a stream to write to
         """
@@ -499,8 +481,7 @@ class System(object):
                 output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
 
     def _dump_throttling(self, output):
-        """
-        Dump throttling configuration
+        """Dump throttling configuration.
 
         :param output: a stream to write to
         """
@@ -508,8 +489,7 @@ class System(object):
         self._dump_dict(output, 'throttle_flows', {f.name: repr(f.throttling) for f in self.flows})
 
     def _dump_max_retry(self, output):
-        """
-        Dump max_retry configuration to a stream
+        """Dump max_retry configuration to a stream.
 
         :param output: a stream to write to
         """
@@ -523,8 +503,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_retry_countdown(self, output):
-        """
-        Dump retry_countdown configuration to a stream
+        """Dump retry_countdown configuration to a stream.
 
         :param output: a stream to write to
         """
@@ -538,8 +517,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_storage_readonly(self, output):
-        """
-        Dump storage_readonly flow to a stream
+        """Dump storage_readonly flow to a stream.
 
         :param output: a stream to write to
         """
@@ -553,8 +531,7 @@ class System(object):
         output.write('\n}\n\n')
 
     def _dump_selective_run_functions(self, output):
-        """
-        Dump all selective run functions
+        """Dump all selective run functions.
 
         :param output: a stream to write to
         """
@@ -563,12 +540,10 @@ class System(object):
                         {t.name: t.selective_run_function.get_import_name() for t in self.tasks})
 
     def _dump_nowait_nodes(self, output):
-        """
-        Dump nowait nodes to a stream
+        """Dump nowait nodes to a stream.
 
         :param output: a stream to write to
         """
-
         output.write('nowait_nodes = {\n')
         printed = False
         for flow in self.flows:
@@ -581,8 +556,7 @@ class System(object):
 
     @staticmethod
     def _dump_init(output):
-        """
-        Dump init function to a stream
+        """Dump init function to a stream.
 
         :param output: a stream to write to
         :return:
@@ -594,8 +568,7 @@ class System(object):
         output.write('\n')
 
     def _dump_edge_table(self, output):
-        """
-        Dump edge definition table to a stream
+        """Dump edge definition table to a stream.
 
         :param output: a stream to write to
         """
@@ -624,8 +597,7 @@ class System(object):
         output.write('}\n\n')
 
     def dump2stream(self, stream):
-        """
-        Perform system dump to a Python source code to an output stream
+        """Perform system dump to a Python source code to an output stream.
 
         :param stream: an output stream to write to
         """
@@ -679,8 +651,7 @@ class System(object):
         stream.write('#'*80+'\n\n')
 
     def dump2file(self, output_file):
-        """
-        Perform system dump to a Python source code
+        """Perform system dump to a Python source code.
 
         :param output_file: an output file to write to
         """
@@ -689,8 +660,7 @@ class System(object):
             self.dump2stream(stream)
 
     def plot_graph(self, output_dir, image_format=None):  # pylint: disable=too-many-statements,too-many-branches
-        """
-        Plot system flows to graphs - each flow in a separate file
+        """Plot system flows to graphs - each flow in a separate file.
 
         :param output_dir: output directory to write graphs of flows to
         :param image_format: image format, the default is svg if None
@@ -806,8 +776,7 @@ class System(object):
         return ret
 
     def _post_parse_check(self):
-        """
-        Called once parse was done to ensure that system was correctly defined in config file
+        """Called once parse was done to ensure that system was correctly defined in config file.
 
         :raises: ValueError
         """
@@ -819,10 +788,11 @@ class System(object):
                 raise ValueError("Empty flow: %s" % flow.name)
 
     def _check_propagate(self, flow):  # pylint: disable=too-many-branches
-        """
+        """Check propagate configuration.
 
-        :param flow:
-        :return:
+        :param flow: flow that should be checked
+        :type flow: Flow
+        :raises ValueError: if propagate check fails
         """
         all_source_nodes = flow.all_source_nodes()
         #
@@ -928,8 +898,7 @@ class System(object):
                                  % flow.name)
 
     def _check(self):  # pylint: disable=too-many-statements,too-many-branches
-        """
-        Check system for consistency
+        """Check system for consistency.
 
         :raises: ValueError
         """
@@ -1033,8 +1002,7 @@ class System(object):
 
     @classmethod
     def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
-        """
-        Construct System from files
+        """Construct System from files.
 
         :param nodes_definition_file: path to nodes definition file
         :param flow_definition_files: path to files that describe flows

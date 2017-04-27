@@ -4,19 +4,26 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""Configuration for caching"""
+"""Configuration for caching."""
 
 from .helpers import check_conf_keys
 
-_DEFAULT_CACHE_NAME = 'LRU'
-_DEFAULT_CACHE_IMPORT = 'selinonlib.caches'
-_DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
-
 
 class CacheConfig(object):
-    """Configuration for Caching"""
+    """Configuration for Caching."""
+
+    _DEFAULT_CACHE_NAME = 'LRU'
+    _DEFAULT_CACHE_IMPORT = 'selinonlib.caches'
+    _DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
 
     def __init__(self, name, import_path, options, entity_name):
+        """Initialize cache config as described in the YAML configuration file.
+
+        :param name: name of the cache
+        :param import_path: import from where cache should be imported
+        :param options: cache options
+        :param entity_name: entity for which cache should be provided
+        """
         self.name = name
         self.import_path = import_path
         self.options = options
@@ -24,25 +31,26 @@ class CacheConfig(object):
 
     @property
     def var_name(self):
-        """
-        return: name of cache variable that will be used in config.py file
+        """Name of variable in the generated Python code representing this cache.
+
+        :return: name of cache variable that will be used in config.py file
         """
         return "_cache_%s_%s" % (self.entity_name, self.name)
 
-    @staticmethod
-    def get_default(entity_name):
-        """Get default cache configuration
+    @classmethod
+    def get_default(cls, entity_name):
+        """Get default cache configuration.
 
         :param entity_name: entity name that will use the default cache - entity is either storage name or
                             flow name (when caching async results)
         :return: CacheConfig for the given entity
         :rtype: CacheConfig
         """
-        return CacheConfig(_DEFAULT_CACHE_NAME, _DEFAULT_CACHE_IMPORT, _DEFAULT_CACHE_OPTIONS, entity_name)
+        return CacheConfig(cls._DEFAULT_CACHE_NAME, cls._DEFAULT_CACHE_IMPORT, cls._DEFAULT_CACHE_OPTIONS, entity_name)
 
-    @staticmethod
-    def from_dict(dict_, entity_name):
-        """Parse cache configuration from a dict
+    @classmethod
+    def from_dict(cls, dict_, entity_name):
+        """Parse cache configuration from a dict.
 
         :param dict_: dict from which cache configuration should be parsed
         :param entity_name: entity name that will use the default cache - entity is either storage name or
@@ -50,9 +58,9 @@ class CacheConfig(object):
         :return: cache for the given entity based on configuration
         :rtype: CacheConfig
         """
-        name = dict_.get('name', _DEFAULT_CACHE_NAME)
-        import_path = dict_.get('import', _DEFAULT_CACHE_IMPORT)
-        options = dict_.get('options', _DEFAULT_CACHE_OPTIONS)
+        name = dict_.get('name', cls._DEFAULT_CACHE_NAME)
+        import_path = dict_.get('import', cls._DEFAULT_CACHE_IMPORT)
+        options = dict_.get('options', cls._DEFAULT_CACHE_OPTIONS)
 
         if not isinstance(name, str):
             raise ValueError("Cache configuration for '%s' expects name to be a string, got '%s' instead"

@@ -4,9 +4,7 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
-"""
-In memory storage implementation
-"""
+"""In memory storage implementation."""
 
 import json as jsonlib
 import sys
@@ -15,12 +13,11 @@ from selinon import DataStorage
 
 
 class InMemoryStorage(DataStorage):
-    """
-    Storage that stores results in memory without persistence
-    """
+    """Storage that stores results in memory without persistence."""
 
     def __init__(self, echo=False, json=False):
-        """
+        """Initialize storage, values passed from YAML cofig file.
+
         :param echo: echo results to stdout/stderr - provide 'stderr' or 'stdout' to echo data retrieval and storing
         :param json: if True a JSON will be printed
         """
@@ -38,16 +35,16 @@ class InMemoryStorage(DataStorage):
         elif echo == 'stderr':
             self.echo_file = sys.stderr
 
-    def is_connected(self):
+    def is_connected(self):  # noqa
         return True
 
-    def connect(self):
+    def connect(self):  # noqa
         pass
 
-    def disconnect(self):
+    def disconnect(self):  # noqa
         pass
 
-    def retrieve(self, flow_name, task_name, task_id):
+    def retrieve(self, flow_name, task_name, task_id):  # noqa
         try:
             result = self.database[task_id]['result']
             if self.echo_file and self.echo_json:
@@ -57,7 +54,7 @@ class InMemoryStorage(DataStorage):
         except KeyError:
             raise FileNotFoundError("Record not found in database")
 
-    def store(self, node_args, flow_name, task_name, task_id, result):
+    def store(self, node_args, flow_name, task_name, task_id, result):  # noqa
         assert task_id not in self.database  # nosec
 
         record = {
@@ -77,6 +74,6 @@ class InMemoryStorage(DataStorage):
         # task_id is unique for the record
         return task_id
 
-    def store_error(self, node_args, flow_name, task_name, task_id, exc_info):
+    def store_error(self, node_args, flow_name, task_name, task_id, exc_info):  # noqa
         # just to make pylint happy
         raise NotImplementedError()
