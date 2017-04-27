@@ -9,7 +9,7 @@ Source code documentation
 .. toctree::
    :maxdepth: 1
 
-   api/selinonlib
+   selinonlib/doc/selinonlib/selinonlib
 
 Indices and tables
 ==================

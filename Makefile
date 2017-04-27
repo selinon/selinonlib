@@ -1,6 +1,6 @@
 TEMPFILE := $(shell mktemp -u)
 
-.PHONY: install clean uninstall venv doc docs html
+.PHONY: install clean uninstall venv doc docs html api
 
 install:
 	sh ./bump-version.sh
@@ -36,8 +36,10 @@ clean:
 	find . -name '*.pyc' -or -name '__pycache__' -print0 | xargs -0 rm -rf
 	rm -rf venv docs.source/api docs/build/ build dist selinonlib.egg-info
 
+api:
+	@sphinx-apidoc -e -o docs.source/selinonlib/doc/selinonlib selinonlib -f
+
 doc:
-	@sphinx-apidoc -e -o docs.source/api selinonlib -f
 	@make -f Makefile.docs html
 	@echo "Documentation available at 'docs/index.html'"
 
