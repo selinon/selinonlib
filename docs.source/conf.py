@@ -87,7 +87,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Selinonlib'
-copyright = '2016, Fridolin Pokorny'
+copyright = '2016 - 2017, Fridolin Pokorny'
 author = 'Fridolin Pokorny'
 
 # The version info for the project you're documenting, acts as replacement for
