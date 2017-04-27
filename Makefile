@@ -38,7 +38,7 @@ clean:
 
 doc:
 	@sphinx-apidoc -e -o docs.source/api selinonlib -f
-	@make -f Makefile.docs docs html
+	@make -f Makefile.docs html
 	@echo "Documentation available at 'docs/index.html'"
 
 docs: doc
