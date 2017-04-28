@@ -37,7 +37,7 @@ clean:
 	rm -rf venv docs.source/api docs/build/ build dist selinonlib.egg-info
 
 api:
-	@sphinx-apidoc -e -o docs.source/selinonlib/doc/selinonlib selinonlib -f
+	@sphinx-apidoc -e -o docs.source/selinonlib/doc selinonlib -f
 
 doc:
 	@make -f Makefile.docs html
