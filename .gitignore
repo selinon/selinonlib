@@ -1,4 +1,5 @@
 *.pyc
+docs/
 venv
 dist
 selinonlib.egg-info

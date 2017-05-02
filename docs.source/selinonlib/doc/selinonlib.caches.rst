@@ -6,8 +6,6 @@ Submodules
 
 .. toctree::
 
-   selinonlib.caches.cache
-   selinonlib.caches.cacheMissError
    selinonlib.caches.fifo
    selinonlib.caches.lifo
    selinonlib.caches.lru

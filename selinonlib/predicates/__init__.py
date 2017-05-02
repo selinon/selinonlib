@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Built-in predicates shipped with Selinon."""
 
 from .alwaysFalse import alwaysFalse
 from .alwaysTrue import alwaysTrue

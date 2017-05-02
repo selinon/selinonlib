@@ -43,8 +43,6 @@ Submodules
    selinonlib.predicates.empty
    selinonlib.predicates.envEqual
    selinonlib.predicates.envExist
-   selinonlib.predicates.envGreater
-   selinonlib.predicates.envLess
    selinonlib.predicates.fieldBool
    selinonlib.predicates.fieldContain
    selinonlib.predicates.fieldDict
