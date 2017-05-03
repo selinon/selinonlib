@@ -406,7 +406,7 @@ class System(object):
         for storage in self.storages:
             cache_config = storage.cache_config
             output.write("%s = %s(%s)\n" % (cache_config.var_name, cache_config.name,
-                                            dict2strkwargs(cache_config.options)))
+                                            dict2strkwargs(cache_config.configuration)))
         self._dump_dict(output, 'storage2storage_cache', {s.name: s.cache_config.var_name for s in self.storages})
 
     def _dump_async_result_cache(self, output):
@@ -417,7 +417,7 @@ class System(object):
         for flow in self.flows:
             cache_config = flow.cache_config
             output.write("%s = %s(%s)\n" % (cache_config.var_name, cache_config.name,
-                                            dict2strkwargs(cache_config.options)))
+                                            dict2strkwargs(cache_config.configuration)))
         self._dump_dict(output, 'async_result_cache', {f.name: f.cache_config.var_name for f in self.flows})
 
     def _dump_strategy_func(self, output):

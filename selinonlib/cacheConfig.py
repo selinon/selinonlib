@@ -16,17 +16,17 @@ class CacheConfig(object):
     _DEFAULT_CACHE_IMPORT = 'selinonlib.caches'
     _DEFAULT_CACHE_OPTIONS = {'max_cache_size': 0}
 
-    def __init__(self, name, import_path, options, entity_name):
+    def __init__(self, name, import_path, configuration, entity_name):
         """Initialize cache config as described in the YAML configuration file.
 
         :param name: name of the cache
         :param import_path: import from where cache should be imported
-        :param options: cache options
+        :param configuration: cache configuration
         :param entity_name: entity for which cache should be provided
         """
         self.name = name
         self.import_path = import_path
-        self.options = options
+        self.configuration = configuration
         self.entity_name = entity_name
 
     @property
@@ -60,7 +60,7 @@ class CacheConfig(object):
         """
         name = dict_.get('name', cls._DEFAULT_CACHE_NAME)
         import_path = dict_.get('import', cls._DEFAULT_CACHE_IMPORT)
-        options = dict_.get('options', cls._DEFAULT_CACHE_OPTIONS)
+        configuration = dict_.get('configuration', cls._DEFAULT_CACHE_OPTIONS)
 
         if not isinstance(name, str):
             raise ValueError("Cache configuration for '%s' expects name to be a string, got '%s' instead"
@@ -70,14 +70,14 @@ class CacheConfig(object):
             raise ValueError("Cache configuration for '%s' expects import to be a string, got '%s' instead"
                              % (entity_name, import_path))
 
-        if not isinstance(options, dict):
-            raise ValueError("Cache configuration for '%s' expects options to be a dict of cache options, "
-                             "got '%s' instead" % (entity_name, options))
+        if not isinstance(configuration, dict):
+            raise ValueError("Cache configuration for '%s' expects configuration to be a dict of cache configuration, "
+                             "got '%s' instead" % (entity_name, configuration))
 
-        # check supplied configuration options
-        unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import', 'options'))
+        # check supplied configuration configuration
+        unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import', 'configuration'))
         if unknown_conf:
-            raise ValueError("Unknown configuration options for cache '%s' supplied: %s"
+            raise ValueError("Unknown configuration configuration for cache '%s' supplied: %s"
                              % (name, unknown_conf))
 
-        return CacheConfig(name, import_path, options, entity_name)
+        return CacheConfig(name, import_path, configuration, entity_name)
