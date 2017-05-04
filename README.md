@@ -1,6 +1,6 @@
 # Selinonlib
 
-A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/fridex/selinon). You can find generated Sphinx documentation [here](https://fridex.github.io/selinonlib). Project is hosted on [Github](https://github.com/fridex/selinon).
+A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/selinon/selinon). You can find generated Sphinx documentation [here](https://selinon.readthedocs.io). Project is hosted on [Github](https://github.com/selinon/selinon).
 
 ![PyPI Current Version](https://img.shields.io/pypi/v/selinonlib.svg)
 ![PyPI Implementation](https://img.shields.io/pypi/implementation/selinonlib.svg)
@@ -26,7 +26,7 @@ A flow consists of tasks and each flow can be seen as a task (a black box) so fl
 
 Conditions are made of predicates that can be used with logical operators *and*, *or* or *not*. You can run multiple tasks based on conditions or you can inspect multiple results of tasks in order to proceed with computation in the flow.
 
-Cyclic dependencies on tasks and flows are fully supported. See [Selinon](https://github.com/fridex/selinon) for more info and examples.
+Cyclic dependencies on tasks and flows are fully supported. See [Selinon](https://github.com/selinon/selinon) for more info and examples.
 
 ## Installation
 
@@ -38,7 +38,7 @@ $ pip3 install selinonlib
 
 ### Why is this tool useful?
 
-See [Selinon](https://github.com/fridex/selinon) dispatcher for usage examples. This tool is intended to automatically generate Python code from a YAML configuration file, perform additional consistency checks or plot flow graphs.
+See [Selinon](https://github.com/selinon/selinon) for usage examples. This tool is intended to automatically generate Python code from a YAML configuration file, perform additional consistency checks or plot flow graphs.
 
 ### Examples:
 

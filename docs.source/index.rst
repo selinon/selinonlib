@@ -5,7 +5,7 @@ Selinonlib is a library and tool that is used in `Selinon <https://github.com/se
 
 .. note::
 
-  This documentation is for developers. If you want to get familiar with Selinon check `Selinon documentation <https://selinon.readthedocs.org/>`_ first.
+  This documentation is for developers. If you want to get familiar with Selinon check `Selinon documentation <https://selinon.readthedocs.io/>`_ first.
 
 Source code documentation
 #########################
