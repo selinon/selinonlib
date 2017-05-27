@@ -18,13 +18,27 @@ devenv:
 	@echo "Installing the latest Selinon sources from GitHub repo"
 	pip3 install -U --force-reinstall git+https://github.com/selinon/selinon@master
 
-check:
+pytest:
 	@# set timeout so we do not wait in infinite loops and such
 	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
+	@echo ">>> Executing testsuite"
 	PYTHONPATH="test/:${PYTHONPATH}" python3 -m pytest -s -vvl --timeout=2 --nocapturelog -p no:celery test/
-	@[ -n "${NOPYLINT}" ] || { echo ">>> Running PyLint"; pylint selinonlib; }
-	#@[ -n "${NOCOALA}" ] || { echo ">>> Running Coala bears"; coala --non-interactive; }
-	@[ -n "${NOPYDOCSTYLE}" ] || { echo ">>> Running pydocstyle"; find selinonlib/ -name '*.py' -and ! -name 'test_*.py' -and ! -name 'codename.py' -and ! -name 'version.py' ! -path 'selinonlib/predicates/*' -print0 | xargs -0 pydocstyle {} \; ; }
+
+pylint:
+	@echo ">>> Running PyLint"
+	pylint selinonlib
+
+coala:
+	@# We need to run coala in a virtual env due to dependency issues
+	@echo ">>> Coala disabled"
+	@#@echo ">>> Running coala"
+	@#coala --non-interactive
+
+pydocstyle:
+	@echo ">>> Running pydocstyle"
+	find selinonlib/ -name '*.py' -and ! -name 'test_*.py' -and ! -name 'codename.py' -and ! -name 'version.py' ! -path 'selinonlib/predicates/*' -print0 | xargs -0 pydocstyle {} \; 
+
+check: pytest pylint pydocstyle coala
 
 venv:
 	virtualenv venv && source venv/bin/activate && pip3 install -r requirements.txt

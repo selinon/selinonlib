@@ -16,7 +16,8 @@ def get_requirements():
 def get_version():
     with open(os.path.join(NAME, 'version.py')) as f:
         version = f.readline()
-    return version.split(' = ')[1]
+    # dirty, remove trailing and leading chars
+    return version.split(' = ')[1][1:-2]
 
 
 if sys.version_info[0] != 3:
@@ -24,7 +25,7 @@ if sys.version_info[0] != 3:
 
 setup(
     name=NAME,
-    version='0.1.0rc3',
+    version=get_version(),
     packages=find_packages(),
     scripts=['selinonlib-cli'],
     install_requires=get_requirements(),
