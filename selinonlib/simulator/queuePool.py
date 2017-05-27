@@ -46,7 +46,7 @@ class QueuePool(object):
         self._queue_tail = None
 
     def _create_queue_wrapper(self, queue_name):
-        """"Create queue wrapper for the given queue name and register it to our queue pool (cyclic double-linked list).
+        """Create queue wrapper for the given queue name and register it to our queue pool (cyclic double-linked list).
 
         :param queue_name: queue name that the wrapper represents
         :return queue wrapper
@@ -64,7 +64,7 @@ class QueuePool(object):
         return queue_wrapper
 
     def _remove_queue_wrapper(self, queue_wrapper):
-        """"Remove queue wrapper from queue pool - double linked list."""
+        """Remove queue wrapper from queue pool - double linked list."""
         self._queues.pop(queue_wrapper.queue_name)
 
         if queue_wrapper is self._queue_head and queue_wrapper is self._queue_tail:

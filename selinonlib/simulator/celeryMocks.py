@@ -83,7 +83,7 @@ class SimulateAsyncResult(object):
 
     @property
     def result(self):
-        """Result of a task.
+        """Get result of a task.
 
         :return: retrieve result of the task or exception that was raised
         """

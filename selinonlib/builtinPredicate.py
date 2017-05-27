@@ -31,7 +31,7 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
         self._children = children
 
     def _str(self, operator):
-        """String representation of this predicate.
+        """Create a string representation of this predicate.
 
         :param operator: boolean operator that should be used for concatenating child predicates
         :return: string representation (Python code)
@@ -152,7 +152,7 @@ class AndPredicate(NaryPredicate):
     """And predicate representation."""
 
     def __str__(self):
-        """String representation of this predicate.
+        """Create a string representation of this predicate.
 
         :return: string representation (Python code)
         :rtype: str
@@ -184,7 +184,7 @@ class OrPredicate(NaryPredicate):
     """And predicate representation."""
 
     def __str__(self):
-        """String representation of this predicate.
+        """Create a string representation of this predicate.
 
         :return: string representation (Python code)
         :rtype: str
@@ -216,7 +216,7 @@ class NotPredicate(UnaryPredicate):
     """Unary or predicate representation."""
 
     def __str__(self):
-        """String representation of this predicate.
+        """Create a string representation of this predicate.
 
         :return: string representation (Python code)
         :rtype: str
@@ -256,7 +256,7 @@ class AlwaysTruePredicate(BuiltinPredicate):
         self.flow = flow
 
     def __str__(self):
-        """String representation of this predicate.
+        """Create string representation of this predicate.
 
         :return: string representation (Python code)
         :rtype: str

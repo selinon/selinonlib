@@ -118,7 +118,7 @@ class Failures(object):
 
     @staticmethod
     def starting_nodes_name(flow_name):
-        """A starting node name for graph of all failures nodes for generated Python config.
+        """Create a starting node name for graph of all failures nodes for generated Python config.
 
         :param flow_name: flow name for which the starting node should be created
         :return: variable name
@@ -128,7 +128,7 @@ class Failures(object):
 
     @staticmethod
     def failure_node_name(flow_name, failure_node):
-        """A failure node name representation for generated Python config.
+        """Create a failure node name representation for generated Python config.
 
         :param flow_name: name of flow for which the representation should be created
         :param failure_node: a node from graph of all failure permutations

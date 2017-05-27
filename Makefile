@@ -13,8 +13,10 @@ uninstall:
 	rm -f ${TEMPFILE}
 
 devenv:
-	@echo "Installing latest development requirements"
-	pip3 install -U --force-reinstall -r dev_requirements.txt
+	@echo "Installing the latest development requirements"
+	pip3 install -U -r dev_requirements.txt
+	@echo "Installing the latest Selinon sources from GitHub repo"
+	pip3 install -U --force-reinstall git+https://github.com/selinon/selinon@master
 
 check:
 	@# set timeout so we do not wait in infinite loops and such
@@ -23,10 +25,6 @@ check:
 	@[ -n "${NOPYLINT}" ] || { echo ">>> Running PyLint"; pylint selinonlib; }
 	#@[ -n "${NOCOALA}" ] || { echo ">>> Running Coala bears"; coala --non-interactive; }
 	@[ -n "${NOPYDOCSTYLE}" ] || { echo ">>> Running pydocstyle"; find selinonlib/ -name '*.py' -and ! -name 'test_*.py' -and ! -name 'codename.py' -and ! -name 'version.py' ! -path 'selinonlib/predicates/*' -print0 | xargs -0 pydocstyle {} \; ; }
-
-devenv:
-	@echo "Installing latest development requirements"
-	pip3 install -U -r dev_requirements.txt
 
 venv:
 	virtualenv venv && source venv/bin/activate && pip3 install -r requirements.txt

@@ -776,8 +776,9 @@ class System(object):
         return ret
 
     def _post_parse_check(self):
-        """Called once parse was done to ensure that system was correctly defined in config file.
+        """Check parsed definition.
 
+        Called once parse was done to ensure that system was correctly defined in config file.
         :raises: ValueError
         """
         self._logger.debug("Post parse check is going to be executed")

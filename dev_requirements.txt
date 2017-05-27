@@ -11,4 +11,3 @@ boto3
 pytest-capturelog
 pydocstyle
 #redis
-git+https://github.com/selinon/selinon@master

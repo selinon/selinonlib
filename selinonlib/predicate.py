@@ -22,7 +22,7 @@ class Predicate(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __str__(self):
-        """String representation of this predicate.
+        """Create a string representation of this predicate.
 
         :return: string representation (Python code)
         :rtype: str
