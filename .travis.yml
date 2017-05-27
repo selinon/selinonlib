@@ -1,11 +1,18 @@
 language: python
 python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  #- "nightly"
-install: 
-  - pip3 install -r dev_requirements.txt
-  - pip3 install -U coala-bears
+- '3.4'
+- '3.5'
+- '3.6'
+install:
+- pip3 install -r dev_requirements.txt
+- pip3 install -U coala-bears
 script: make check
-
+deploy:
+  provider: pypi
+  user: fridex
+  password:
+    secure: QthRN4yYwoArX91K9E3Nh8u/wqLDds8DxojcsOV9WUVfNuy75g9BZA+fzBX1qUL5CyqYoMW2vm6RYtRSfNhaAsftakA0GHdzUOspolxZuff0f3JFdsb+FgV2CugA8krqyiQLJdD0dBSrKliRggKCnuCIatY8GNMX7X8ktu9IugIyNYUmCtLNvnYIeTSWPg0L+a10ozrp0tQrwlJr28AtUTuPQDmzLJJi8o3Jq5NgPJydp99dxhT2Vxg4ytQ+Z3wOWee13VQHY0uI47TbjCEV52kMaAtdUsKdEdSX+4zpZoQRwZNtOAot22d8gIfoTrRjIll8wvqLLl46aakTqxzKP5qBaMH0Zej+VoyEYoUxFQZlqmVvPilUbGiGoo2Q7dL4OFc7kKitt8/cy6Z9a6edJf0vFQWja7xZo4Xq6zwo4MYf8GCzn4Xk0XNJ5NLGX2woLayKqkFWobgz/1hJ1LRysxq5VySBPOn3On+kTXDNRudL3HyjG+5nbrfQJLOY1fGnSbGRT9iXN0+lyqjRBjDR0bboYyiGLOpYacAiwrlxlQCDbDYDuftT5O5OTguWJYkUplwMi+Bp61d5EC1ANXdl2s1GNe/reUirErEi6+4skUpfTl8UqjnhyFGwdQNNQU9mdS38dSxB8VqfY8yscvzzlGEbFKX/tEPjj5CvuYDpvfQ=
+  on:
+    tags: true
+    branch: master
+  distributions: sdist bdist_wheel
