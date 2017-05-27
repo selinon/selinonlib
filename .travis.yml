@@ -5,7 +5,6 @@ python:
 - '3.6'
 install:
 - pip3 install -r dev_requirements.txt
-- pip3 install -U coala-bears
 script: make check
 deploy:
   provider: pypi

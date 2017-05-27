@@ -2,7 +2,7 @@
 pytest>=3
 pytest-timeout
 pylint
-coala-bears
+#coala-bears
 # Storage implementations requirements
 pymongo
 SQLAlchemy

@@ -21,7 +21,7 @@ check:
 	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
 	PYTHONPATH="test/:${PYTHONPATH}" python3 -m pytest -s -vvl --timeout=2 --nocapturelog -p no:celery test/
 	@[ -n "${NOPYLINT}" ] || { echo ">>> Running PyLint"; pylint selinonlib; }
-	@[ -n "${NOCOALA}" ] || { echo ">>> Running Coala bears"; coala --non-interactive; }
+	#@[ -n "${NOCOALA}" ] || { echo ">>> Running Coala bears"; coala --non-interactive; }
 	@[ -n "${NOPYDOCSTYLE}" ] || { echo ">>> Running pydocstyle"; find selinonlib/ -name '*.py' -and ! -name 'test_*.py' -and ! -name 'codename.py' -and ! -name 'version.py' ! -path 'selinonlib/predicates/*' -print0 | xargs -0 pydocstyle {} \; ; }
 
 devenv:
