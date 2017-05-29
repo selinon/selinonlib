@@ -796,6 +796,7 @@ class System(object):
         :raises ValueError: if propagate check fails
         """
         all_source_nodes = flow.all_source_nodes()
+        all_destination_nodes = flow.all_destination_nodes()
         #
         # checks on propagate_{compound_,}finished
         #
@@ -865,7 +866,7 @@ class System(object):
 
         if isinstance(flow.propagate_parent, list):
             for node in flow.propagate_parent:
-                if node not in all_source_nodes:
+                if node not in all_destination_nodes:
                     raise ValueError("Subflow '%s' should receive parent, but there is no dependency "
                                      "in flow '%s' to which should be parent nodes propagated"
                                      % (node.name, flow.name))
