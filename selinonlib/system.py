@@ -1079,8 +1079,15 @@ class System(object):
             if flow_definitions is None:
                 raise ValueError("No flow definitions provided in file '%s'" % flow_file)
             for flow_def in content['flow-definitions']:
+                if 'name' not in flow_def:
+                    raise ValueError("No flow name provided in the flow definition in file '%s'", flow_file)
                 flow = system.flow_by_name(flow_def['name'])
-                flow.parse_definition(flow_def, system)
+                try:
+                    flow.parse_definition(flow_def, system)
+                except:
+                    cls._logger.error("Failed to parse flow definition from file '%s' for flow '%s'",
+                                      flow_file, flow_def['name'])
+                    raise
 
         system._post_parse_check()  # pylint: disable=protected-access
         if not no_check:
