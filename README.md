@@ -1,6 +1,6 @@
 # Selinonlib
 
-A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/selinon/selinon). You can find generated Sphinx documentation [here](https://selinon.readthedocs.io). Project is hosted on [Github](https://github.com/selinon/selinon).
+A simple tool to visualize, check dependencies and generate Python code for [Selinon](https://github.com/selinon/selinon). You can find generated Sphinx documentation [here](https://selinonlib.readthedocs.io). Project is hosted on [Github](https://github.com/selinon/selinonlib).
 
 ![PyPI Current Version](https://img.shields.io/pypi/v/selinonlib.svg)
 ![PyPI Implementation](https://img.shields.io/pypi/implementation/selinonlib.svg)
@@ -38,21 +38,16 @@ $ pip3 install selinonlib
 
 ### Why is this tool useful?
 
-See [Selinon](https://github.com/selinon/selinon) for usage examples. This tool is intended to automatically generate Python code from a YAML configuration file, perform additional consistency checks or plot flow graphs.
+See [Selinon](https://github.com/selinon/selinon) for usage examples. This tool is intended to automatically generate Python code from a YAML configuration file, perform additional consistency checks or plot flow graphs. It also provides a Selinon user a pack of predefined storage/database adapters and other tools suitable for user-specific Selinon configuration.
 
 ### Examples:
 
 Plot graphs of flows:
 ```
-$ ./selinonlib-cli -tasks-definition your_example.yml -flow-definition your_example_flows.yml -verbose -graph ${PWD} && xdg-open flow1.svg
+$ selinonlib-cli -vvv plot --nodes-definitions nodes.yml --flow-definitions flow1.yml flow2.yml --format svg --output-dir ./ && xdg-open flow1.svg
 ```
 
 Generate Python code configuration for Selinon:
 ```
-$ ./selinonlib-cli -tasks example/example.yaml -flow examples/examples.yaml -v -dump dump.py && cat dump.py
-```
-
-Plot graphs of flows with a custom style (you can use shortcuts of arguments as shown bellow, refer to graphviz library for style configuration options):
-```
-$ ./selinonlib-cli -config example.config.yml -tasks exampes/example.yml -flow examples/example.yml -v -graph . && xdg-open flow1.svg
+$ selinonlib-cli -vvv inspect --nodes-definitions nodes.yml --flow-definitions flow1.yml flow2.yml --dump out.py && cat out.py
 ```
