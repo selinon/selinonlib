@@ -12,6 +12,11 @@ A simple tool to visualize, check dependencies and generate Python code for [Sel
 
 Is this project helpful? [Send me a simple warm message](https://saythanks.io/to/fridex)!
 
+## Crossroad
+
+ * [PyPI](https://pypi.python.org/pypi/selinonlib)
+ * [Developers documentation](https://selinonlib.readthedocs.io)
+
 ## The Idea
 
 A system consists of two main parts:
