@@ -6,13 +6,9 @@
 # ######################################################################
 """Selinonlib library helpers."""
 
-import ast
 from contextlib import contextmanager
 import json
 import os
-import sys
-
-from dill.source import getsource
 
 
 def dict2strkwargs(dict_):
@@ -86,21 +82,7 @@ def get_function_arguments(function):
     :param function: function to parse arguments
     :return: list of arguments that predicate function expects
     """
-    ret = []
-
-    func_source = getsource(function)
-    func_ast = ast.parse(func_source)
-    call = func_ast.body[0]
-
-    for arg in call.args.args:
-        # Python2 and Python3 have different AST representations for arg, this can be removed since we support
-        # only python3
-        if sys.version_info[0] == 2:
-            ret.append(arg.id)
-        else:
-            ret.append(arg.arg)
-
-    return ret
+    return list(function.__code__.co_varnames[:function.__code__.co_argcount])
 
 
 def check_conf_keys(dict_, known_conf_opts):
