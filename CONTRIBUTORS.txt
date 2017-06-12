@@ -1,2 +1,3 @@
 Fridolin Pokorny <fridolin.pokorny@gmail.com>
 Slavek Kabrda <slavek@redhat.com>
+Pavel Grochal <darkless69@gmail.com>
