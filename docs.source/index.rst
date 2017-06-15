@@ -7,20 +7,14 @@ Selinonlib is a library and tool that is used in `Selinon <https://github.com/se
 
   This documentation is for developers. If you want to get familiar with Selinon check `Selinon documentation <https://selinon.readthedocs.io/>`_ first.
 
-Source code documentation
-#########################
+Core Selinonlib
+###############
 
 .. autosummary::
 
    selinonlib.builtinPredicate
-   selinonlib.cacheConfig
-   selinonlib.caches.fifo
-   selinonlib.caches.lifo
-   selinonlib.caches.lru
-   selinonlib.caches.mru
-   selinonlib.caches.rr
-   selinonlib.caches
    selinonlib.config
+   selinonlib.cacheConfig
    selinonlib.edge
    selinonlib.failureNode
    selinonlib.failures
@@ -30,26 +24,68 @@ Source code documentation
    selinonlib.leafPredicate
    selinonlib.node
    selinonlib.predicate
-   selinonlib.predicates
-   selinonlib.routines
    selinonlib.selectiveRunFunction
+   selinonlib.storage
+   selinonlib.strategy
+   selinonlib.system
+   selinonlib.taskClass
+   selinonlib.task
+
+Task result and task state caches
+#################################
+
+.. autosummary::
+
+   selinonlib.caches
+   selinonlib.caches.fifo
+   selinonlib.caches.lifo
+   selinonlib.caches.lru
+   selinonlib.caches.mru
+   selinonlib.caches.rr
+
+Built-in predicates
+###################
+
+.. autosummary::
+
+   selinonlib.predicates
+
+Run-time support routines
+#########################
+
+.. autosummary::
+
+   selinonlib.routines
+
+CLI simulator implementation
+############################
+
+.. autosummary::
+
    selinonlib.simulator.celeryMocks
    selinonlib.simulator.progress
    selinonlib.simulator.queuePool
    selinonlib.simulator.simulator
    selinonlib.simulator.timeQueue
-   selinonlib.storage
+
+Storage and database adapters
+#############################
+
+.. autosummary::
+
+   selinonlib.storages
    selinonlib.storages.inMemoryStorage
    selinonlib.storages.mongo
    selinonlib.storages.redis
-   selinonlib.storages
    selinonlib.storages.s3
    selinonlib.storages.sqlStorage
+
+Predefined scheduling strategies
+################################
+
+.. autosummary::
+
    selinonlib.strategies
-   selinonlib.strategy
-   selinonlib.system
-   selinonlib.taskClass
-   selinonlib.task
 
 Indices and tables
 ==================
