@@ -1,6 +1,7 @@
 *.pyc
 docs/
 venv
+venv-coala
 dist
 selinonlib.egg-info
 build

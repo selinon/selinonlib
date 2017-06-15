@@ -11,9 +11,10 @@ import logging
 import os
 import platform
 
+import yaml
+
 import codegen
 import graphviz
-import yaml
 
 from .config import Config
 from .flow import Flow
@@ -26,7 +27,6 @@ from .storage import Storage
 from .task import Task
 from .taskClass import TaskClass
 from .version import selinonlib_version
-
 
 # pylint: disable=too-many-locals,too-many-nested-blocks,too-many-boolean-expressions,too-many-lines
 

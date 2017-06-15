@@ -21,7 +21,6 @@ Other parameters are specific for strategy function and are configurable from YA
 
 from random import randint as gen_random
 
-
 # There are done checks on user-defined strategies, so keep args
 # pylint: disable=unused-argument
 
