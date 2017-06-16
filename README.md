@@ -16,6 +16,7 @@ Is this project helpful? [Send me a simple warm message](https://saythanks.io/to
 
  * [PyPI](https://pypi.python.org/pypi/selinonlib)
  * [Developers documentation](https://selinonlib.readthedocs.io)
+ * [Travis CI](https://travis-ci.org/selinon/selinonlib)
 
 ## The Idea
 
