@@ -54,6 +54,11 @@ class GlobalConfig(object):
 
     @classmethod
     def _parse_trace_storage(cls, trace_def, system):
+        """Parse tracing by storage.
+
+        :param trace_def: definition of tracing as supplied in the YAML file
+        :param system: system instance
+        """
         if not isinstance(trace_def, dict):
             raise ValueError("Configuration of storage trace expects dict, got '%s' instead (type: %s)"
                              % (trace_def, type(trace_def)))
@@ -71,6 +76,10 @@ class GlobalConfig(object):
 
     @classmethod
     def _parse_trace_function(cls, trace_def):
+        """Parse tracing by external function.
+
+        :param trace_def: definition of tracing as supplied in the YAML file
+        """
         if not isinstance(trace_def, dict):
             raise ValueError("Configuration of trace function expects dict, got '%s' instead (type: %s)"
                              % (trace_def, type(trace_def)))
@@ -92,11 +101,19 @@ class GlobalConfig(object):
 
     @classmethod
     def _parse_trace_logging(cls, trace_def):
+        """Parse tracing by Python's logging facilities.
+
+        :param trace_def: definition of tracing as supplied in the YAML file
+        """
         if trace_def is True:
             cls._trace_logging.append(trace_def)
 
     @classmethod
     def _parse_trace_sentry(cls, trace_def):
+        """Parse tracing by Sentry - error tracking software.
+
+        :param trace_def: definition of tracing as supplied in the YAML file
+        """
         if not isinstance(trace_def, dict):
             raise ValueError("Configuration of Sentry tracing expects dict, got '%s' instead (type: %s)"
                              % (trace_def, type(trace_def)))
@@ -111,8 +128,8 @@ class GlobalConfig(object):
     def _parse_trace(cls, system, trace_record):
         """Parse trace configuration entry.
 
-        @param system: system instance for which the parsing is done (for storage lookup)
-        @param trace_record: trace record to be parsed
+        :param system: system instance for which the parsing is done (for storage lookup)
+        :param trace_record: trace record to be parsed
         """
         if trace_record is None:
             raise ValueError('Trace not defined properly in global configuration section, '
