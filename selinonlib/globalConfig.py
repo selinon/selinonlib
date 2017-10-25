@@ -138,10 +138,6 @@ class GlobalConfig(object):
         if trace_record is False:
             return
 
-        if trace_record is True:
-            cls._trace_logging = True
-            return
-
         trace_record = [trace_record] if not isinstance(trace_record, list) else trace_record
 
         for entry in trace_record:
