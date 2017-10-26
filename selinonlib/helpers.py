@@ -8,7 +8,12 @@
 
 from contextlib import contextmanager
 import json
+import logging
 import os
+import subprocess
+import tempfile
+
+_logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 def dict2strkwargs(dict_):
@@ -76,13 +81,13 @@ def dict2json(dict_, pretty=True):
     return json.dumps(dict_)
 
 
-def get_function_arguments(function):
+def get_function_arguments(func):
     """Get arguments of function.
 
-    :param function: function to parse arguments
+    :param func: function to parse arguments
     :return: list of arguments that predicate function expects
     """
-    return list(function.__code__.co_varnames[:function.__code__.co_argcount])
+    return list(func.__code__.co_varnames[:func.__code__.co_argcount])
 
 
 def check_conf_keys(dict_, known_conf_opts):
@@ -93,3 +98,32 @@ def check_conf_keys(dict_, known_conf_opts):
     :return: configuration options that are now known with their values
     """
     return {k: v for k, v in dict_.items() if k not in known_conf_opts}
+
+
+def git_previous_version(file_path, tmp_dir=None):
+    """Get previous version of a file in Git CVS.
+
+    :param file_path: a path to file to get previous version from
+    :param tmp_dir: a directory to store the content of previous file version
+    :return: a path to a temporary file with content from previous version
+    """
+    cmd = "git log --max-count 1 --pretty=format:%H".split(' ')
+    cmd.append(file_path)
+    try:
+        git_hash = subprocess.check_output(cmd, stderr=subprocess.PIPE, universal_newlines=True)
+    except subprocess.CalledProcessError as exc:
+        err_msg = "Failed to get previous version of file %r using git: %s" % (file_path, str(exc.stderr))
+        raise RuntimeError(err_msg) from exc
+
+    _logger.debug("Previous version found in Git CVS of file %r is %s", file_path, git_hash)
+
+    cmd = ["git", "show", "%s:%s" % (git_hash, file_path)]
+    try:
+        file_content = subprocess.check_output(cmd, stderr=subprocess.PIPE, universal_newlines=True)
+    except subprocess.CalledProcessError as exc:
+        err_msg = "Failed to get content of file %r in version %s using git: %s" % (file_path, git_hash, str(exc.stderr))
+        raise RuntimeError(err_msg) from exc
+
+    with tempfile.NamedTemporaryFile(mode="w", dir=tmp_dir, delete=False) as temp_file:
+        temp_file.write(file_content)
+        return temp_file.name
