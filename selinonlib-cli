@@ -17,13 +17,15 @@ from celery import __version__ as celery_version
 from selinonlib import selinonlib_version, selinonlib_version_codename
 from selinonlib import System
 from selinonlib import Config
+from selinonlib.migrator import Migrator
+from selinonlib.helpers import git_previous_version
 from selinonlib.simulator import Simulator
 
 _logger = logging.getLogger(os.path.basename(__file__))
 
 
 class Command(object):
-    """Selinon CLI entrypoint"""
+    """Selinon CLI entrypoint."""
     DESCRIPTION = 'developer interaction tool for Selinon config files'
     DEFAULT_PLOT_GRAPH_FORMAT = 'svg'
     DEFAULT_PLOT_OUTPUT_DIR = '.'
@@ -33,7 +35,7 @@ class Command(object):
 
     @staticmethod
     def _require_yaml_configs(parser):
-        """Add arguments for nodes and flows to a command parser
+        """Add arguments for nodes and flows to a command parser.
 
         :param parser: a command parser that should be enriched with nodes and flows config files
         """
@@ -46,7 +48,7 @@ class Command(object):
 
     @classmethod
     def _get_inspect_args_parser(cls):
-        """Get parser for inspect command
+        """Get parser for inspect command.
 
         :return: inspect command parser
         """
@@ -67,7 +69,7 @@ class Command(object):
 
     @classmethod
     def _get_plot_args_parser(cls):
-        """Get parser for plot command
+        """Get parser for plot command.
 
         :return: plot command parser
         """
@@ -88,7 +90,7 @@ class Command(object):
 
     @classmethod
     def _get_simulate_args_parser(cls):
-        """Get parser for simulate command
+        """Get parser for simulate command.
 
         :return: simulate command parser
         """
@@ -132,8 +134,34 @@ class Command(object):
         return parser
 
     @classmethod
+    def _get_migrate_args_parser(cls):
+        """Get parser for the migrate command.
+
+        :return: simulate command parser
+        """
+        parser = argparse.ArgumentParser(add_help=False)
+
+        cls._require_yaml_configs(parser)
+
+        parser.add_argument('--old-nodes-definition', '-N', dest='old_nodes_definition',
+                            action='store', metavar='NODES.yml',
+                            help='path to old tasks definition file')
+        parser.add_argument('--old-flow-definitions', '-F', dest='old_flow_definitions',
+                            action='store', metavar='FLOW.yml',
+                            help='path to old flow definition file', nargs='+')
+
+        parser.add_argument('--migration-dir', '-m', action='store', dest='migration_dir', required=True,
+                            help='path to a directory containing generated migrations')
+        parser.add_argument('--git', '-g', action='store_true', dest='use_git',
+                            help='use Git VCS for obtaining old flow configuration')
+        parser.add_argument('--no-check', dest='no_check', action='store_true',
+                            help='do not check system for errors')
+
+        return parser
+
+    @classmethod
     def _get_version_args_parser(cls):
-        """Get parser for version command
+        """Get parser for version command.
 
         :return: version command parser
         """
@@ -146,7 +174,7 @@ class Command(object):
 
     @classmethod
     def _get_args_parser(cls, prog_name):
-        """Get parser that parses commands and their arguments
+        """Get parser that parses commands and their arguments.
 
         :param prog_name: application name based on invocation
         :return: top level parser
@@ -163,6 +191,8 @@ class Command(object):
 
         subparsers.add_parser('simulate', parents=[cls._get_simulate_args_parser()],
                               help='simulate flow locally without Celery')
+        subparsers.add_parser('migrate', parents=[cls._get_migrate_args_parser()],
+                              help='generate config file migration')
         subparsers.add_parser('plot', parents=[cls._get_plot_args_parser()],
                               help='plot graphs from configuration files')
         subparsers.add_parser('inspect', parents=[cls._get_inspect_args_parser()],
@@ -174,7 +204,7 @@ class Command(object):
 
     @staticmethod
     def plot(args):
-        """Plot flows based on YAML configuration - plot command
+        """Plot flows based on YAML configuration - plot command.
 
         :param args: arguments for plot command
         """
@@ -184,8 +214,55 @@ class Command(object):
         return 0
 
     @staticmethod
+    def migrate(args):
+        """Perform migrations on old and new YAML configuration files in flow changes.
+
+        :param args: arguments for migrate command
+        """
+        if int(args.old_flow_definitions is not None) + int(args.old_nodes_definition is not None) == 1:
+            raise ValueError("Please provide all flow and nodes configuration files or use --git")
+
+        use_old_files = args.old_flow_definitions is not None
+        usage_clash = int(use_old_files) + int(args.use_git)
+        if usage_clash == 2:
+            raise ValueError("Option --git is disjoint with explicit configuration file specification")
+
+        if usage_clash == 0:
+            raise ValueError("Use --git or explicit old configuration file specification in order "
+                             "to access old config files")
+
+        old_nodes_definition = args.old_nodes_definition or git_previous_version(args.nodes_definition)
+        old_flow_definitions = args.old_flow_definitions or map(git_previous_version, args.flow_definitions)
+
+        try:
+            if not args.no_check:
+                try:
+                    System.from_files(args.nodes_definition, args.flow_definitions)
+                except Exception as e:
+                    raise ValueError("There is an error in your new configuration files: {}".format(str(e))) from e
+
+                try:
+                    System.from_files(old_nodes_definition, old_flow_definitions)
+                except Exception as e:
+                    raise ValueError("There is an error in your old configuration files: {}".format(str(e))) from e
+
+            migrator = Migrator(args.migration_dir)
+            new_migration_file = migrator.create_migration_file(old_nodes_definition, old_flow_definitions,
+                                                                args.nodes_definition, args.flow_definitions)
+        finally:
+            if args.use_git:
+                _logger.debug("Removing temporary files")
+                # Clean up temporary files produced by git_previous_version()
+                os.remove(old_nodes_definition)
+                for old_flow_definition_file in old_flow_definitions:
+                    os.remove(old_flow_definition_file)
+
+        _logger.info("New migration file placed in %r", new_migration_file)
+        return 0
+
+    @staticmethod
     def simulate(args):
-        """Simulate flows based on YAML configuration - simulate command
+        """Simulate flows based on YAML configuration - simulate command.
 
         :param args: arguments for simulate command
         """
@@ -232,7 +309,7 @@ class Command(object):
 
     @classmethod
     def inspect(cls, args):
-        """Inspect configuration - inspect command
+        """Inspect configuration - inspect command.
 
         :param args: arguments for inspect command
         """
@@ -262,12 +339,12 @@ class Command(object):
 
     @classmethod
     def version(cls, args):
-        """Get version information - version command
+        """Get version information - version command.
 
         :param args: arguments for version command
         """
         if args.codename:
-            print(version_codename)
+            print(selinonlib_version_codename)
         else:
             print('Selinonlib version: %s' % selinonlib_version)
             print('Selinon version: %s' % selinon_version)
@@ -276,7 +353,7 @@ class Command(object):
 
     @classmethod
     def _setup_logging(cls, verbose, no_color):
-        """Set up Python logging based
+        """Set up Python logging based.
 
         :param verbose: verbosity level
         :param no_color: do not use colorized output
