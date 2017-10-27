@@ -121,7 +121,8 @@ def git_previous_version(file_path, tmp_dir=None):
     try:
         file_content = subprocess.check_output(cmd, stderr=subprocess.PIPE, universal_newlines=True)
     except subprocess.CalledProcessError as exc:
-        err_msg = "Failed to get content of file %r in version %s using git: %s" % (file_path, git_hash, str(exc.stderr))
+        err_msg = "Failed to get content of file %r in version %s using git: %s" \
+                  % (file_path, git_hash, str(exc.output))
         raise RuntimeError(err_msg) from exc
 
     with tempfile.NamedTemporaryFile(mode="w", dir=tmp_dir, delete=False) as temp_file:
