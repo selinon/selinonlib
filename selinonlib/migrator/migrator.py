@@ -23,7 +23,8 @@ class Migrator(object):
     """Main class for performing configuration file migrations."""
 
     def __init__(self, migrations_dir):
-        """
+        """Initialize migrator.
+
         :param migrations_dir: a path to directory containing migration files
         """
         self.migrations_dir = migrations_dir
@@ -73,7 +74,8 @@ class Migrator(object):
                         self.new_flow_definitions[flow['name']] = entry
 
     def _get_new_migration_file_name(self):
-        """
+        """Generate a new migration file name.
+
         :return: a name of new migration file where migrations should be stored
         :rtype: str
         """
@@ -155,7 +157,6 @@ class Migrator(object):
         :return: a dict containing flow migration definition
         :rtype: dict
         """
-
         self._preprocess_edges(old_flow_edges)
         self._preprocess_edges(new_flow_edges)
 
