@@ -110,9 +110,9 @@ def git_previous_version(file_path, tmp_dir=None):
     cmd = "git log --max-count 1 --pretty=format:%H".split(' ')
     cmd.append(file_path)
     try:
-        git_hash = subprocess.check_output(cmd, stderr=subprocess.PIPE, universal_newlines=True)
+        git_hash = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
     except subprocess.CalledProcessError as exc:
-        err_msg = "Failed to get previous version of file %r using git: %s" % (file_path, str(exc.stderr))
+        err_msg = "Failed to get previous version of file %r using git: %s" % (file_path, str(exc.output))
         raise RuntimeError(err_msg) from exc
 
     _logger.debug("Previous version found in Git CVS of file %r is %s", file_path, git_hash)
