@@ -16,6 +16,7 @@ from selinonlib.strategies import (
     random,
     constant
 )
+from selinonlibTestCase import SelinonlibTestCase
 
 # Values used in tests for strategies functions
 _TEST_START_RETRY = 2
@@ -47,7 +48,7 @@ _STRATEGIES_ALL_ARG = _STRATEGIES_ONE_ARG + _STRATEGIES_TWO_ARG + _STRATEGIES_TH
 
 
 @pytest.mark.parametrize("strategy", _STRATEGIES_ALL_ARG)
-class TestStrategies(object):
+class TestStrategies(SelinonlibTestCase):
     def test_start(self, strategy):
         status = {
             'previous_retry': None,
@@ -99,4 +100,3 @@ class TestStrategies(object):
 
         retry = strategy(status)
         assert retry is None
-

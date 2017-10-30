@@ -8,9 +8,10 @@
 import pytest
 from selinon import CacheMissError
 from selinonlib.caches import MRU
+from selinonlibTestCase import SelinonlibTestCase
 
 
-class TestMRU(object):
+class TestMRU(SelinonlibTestCase):
     """
     Test Most-Recently-Used cache
     """

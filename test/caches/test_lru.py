@@ -8,9 +8,10 @@
 import pytest
 from selinon import CacheMissError
 from selinonlib.caches import LRU
+from selinonlibTestCase import SelinonlibTestCase
 
 
-class TestLRU(object):
+class TestLRU(SelinonlibTestCase):
     @staticmethod
     def _item_id2item(i):
         return "x%s" % i

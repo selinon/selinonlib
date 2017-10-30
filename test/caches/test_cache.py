@@ -8,6 +8,7 @@
 import pytest
 from selinon import CacheMissError
 from selinonlib.caches import (FIFO, LIFO, LRU, MRU, RR)
+from selinonlibTestCase import SelinonlibTestCase
 
 # Available caches that should be tested
 _CACHE_TYPES = [
@@ -20,7 +21,7 @@ _CACHE_TYPES = [
 
 
 @pytest.mark.parametrize("cache_cls", _CACHE_TYPES)
-class TestCache(object):
+class TestCache(SelinonlibTestCase):
     """
     Generic cache test cases
     """
@@ -43,7 +44,7 @@ class TestCache(object):
         cache.add("item_id1", "item", "Task1", "flow1")
 
         with pytest.raises(CacheMissError):
-            cache.get("item_id1", "Task1", "flow1") == "item"
+            assert cache.get("item_id1", "Task1", "flow1") == "item"
 
     def test_one_item(self, cache_cls):
         cache = cache_cls(max_cache_size=1)
