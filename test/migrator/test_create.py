@@ -30,6 +30,7 @@ def migration_test(test):
         migration_file_path = migrator.create_migration_file(old_config_files[0], old_config_files[1],
                                                              new_config_files[0], new_config_files[1])
         test_instance.check_migration_match(migration_file_path, test_instance.get_reference_test_output(test.__name__))
+        test(test_instance)
 
     return wrapper
 
