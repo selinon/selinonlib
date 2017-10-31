@@ -1,0 +1,12 @@
+{
+  "_meta": null,
+  "migration": {
+    "flow1": {
+      "1": null,
+      "2": 1
+    },
+    "flow2": {
+      "1": null
+    }
+  }
+}

@@ -8,9 +8,10 @@
 import pytest
 from selinon import CacheMissError
 from selinonlib.caches import FIFO
+from selinonlibTestCase import SelinonlibTestCase
 
 
-class TestFIFO(object):
+class TestFIFO(SelinonlibTestCase):
     """
     Test First-In-First-Out cache
     """

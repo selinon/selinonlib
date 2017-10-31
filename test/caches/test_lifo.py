@@ -8,9 +8,10 @@
 import pytest
 from selinon import CacheMissError
 from selinonlib.caches import LIFO
+from selinonlibTestCase import SelinonlibTestCase
 
 
-class TestLIFO(object):
+class TestLIFO(SelinonlibTestCase):
     @staticmethod
     def _item_id2item(i):
         return "x%s" % i

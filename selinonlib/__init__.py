@@ -10,6 +10,7 @@ from .builtinPredicate import UnaryPredicate
 from .codename import selinonlib_version_codename
 from .config import Config
 from .edge import Edge
+from .errors import MigrationNotNeeded
 from .flow import Flow
 from .leafPredicate import LeafPredicate
 from .node import Node

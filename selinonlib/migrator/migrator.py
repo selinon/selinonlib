@@ -13,6 +13,7 @@ import platform
 
 import yaml
 
+from selinonlib import MigrationNotNeeded
 from selinonlib import selinonlib_version
 from selinonlib.helpers import dict2json
 
@@ -106,23 +107,32 @@ class Migrator(object):
         return str(new_migration_number + 1) + ".json"
 
     @staticmethod
-    def _add_migration_metadata(migration):
-        """Add metadata to already generated migration."""
-        migration['_meta'] = {
+    def _get_migration_metadata():
+        """Add metadata to migration content."""
+        try:
+            user = os.getlogin()
+        except Exception:  # pylint: disable=broad-except
+            # Travis CI fails here, but let's be tolerant in other cases as well
+            user = None
+
+        return {
             'selinonlib_version': selinonlib_version,
             'host': platform.node(),
             'datetime': str(datetime.utcnow()),
-            'user': os.getlogin()
+            'user': user
         }
 
     def _write_migration_file(self, migration):
         """Write computed migration to migration dir."""
         new_migration_file_name = self._get_new_migration_file_name()
         new_migration_file_path = os.path.join(self.migrations_dir, new_migration_file_name)
-        self._add_migration_metadata(migration)
+        migration_file_content = {
+            '_meta': self._get_migration_metadata(),
+            'migration': migration
+        }
 
         with open(new_migration_file_path, 'w') as migration_file:
-            migration_file.write(dict2json(migration))
+            migration_file.write(dict2json(migration_file_content))
 
         return new_migration_file_path
 
@@ -207,7 +217,7 @@ class Migrator(object):
                 migrations[flow_name] = migration
 
         if not migrations:
-            raise RuntimeError("Flow configuration changes do not require new migration")
+            raise MigrationNotNeeded("Flow configuration changes do not require new migration")
 
         return self._write_migration_file(migrations)
 
@@ -225,7 +235,7 @@ class Migrator(object):
         :type new_flow_definitions_path: list
         :return: a path to newly created migration file
         """
-        _logger.warning("Performing configuration files migrations, storing results in %r", self.migrations_dir)
+        _logger.info("Performing configuration files migrations, storing results in %r", self.migrations_dir)
 
         with open(old_nodes_definition_path, 'r') as old_nodes_definition_file:
             self.old_nodes_definition = yaml.safe_load(old_nodes_definition_file)
@@ -239,3 +249,49 @@ class Migrator(object):
         self._load_flows(new_flow_definitions_path, is_old_flow=False)
         self._report_diff_flow()
         return self._calculate_migrations()
+
+    @staticmethod
+    def _do_migration(migration_spec, flow_name, message):
+        """Do single migration of message based on migration definition."""
+        flow_migration = migration_spec.get(flow_name)
+        if not flow_migration:
+            # Nothing to do, no changes in flow in the migration
+            return message
+
+        for idx, waiting_edge in enumerate(message['waiting_edges']):
+            if str(waiting_edge) in flow_migration:
+                message['waiting_edges'][idx] = flow_migration[str(idx)]
+
+        message['waiting_edges'] = list(filter(lambda x: x is not None, message['waiting_edges']))
+
+    def perform_migration(self, flow_name, message):
+        """Perform actual migration based on message received.
+
+        :param flow_name: name of flow for which the migration is performed
+        :param message: massage that was retrieved and keeps information about the system state
+        :return: migrated message
+        """
+        migration_version = message.get('migration_version')
+        if migration_version is None:
+            raise RuntimeError("Migration version not present in the message.")
+
+        if migration_version == 0:
+            _logger.debug("No migrations needed")
+            return message
+
+        nodes2start = []
+        while True:
+            current_migration_version = migration_version + 1
+            current_migration_path = os.path.join(self.migrations_dir, str(current_migration_version) + '.json')
+
+            try:
+                with open(current_migration_path, 'r') as migration_file:
+                    migration_spec = yaml.safe_load(migration_file)
+            except FileNotFoundError:
+                _logger.debug("Migration done from %d to version %d, last migration file is %r",
+                              migration_version, current_migration_version, current_migration_path)
+                break
+
+            message, nodes2start = self._do_migration(migration_spec, flow_name, message)
+
+        return message, nodes2start
