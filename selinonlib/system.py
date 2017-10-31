@@ -576,6 +576,8 @@ class System(object):
         GlobalConfig.dump_trace(output, 'config_cls', indent_count=1)
         # always pass in case we have nothing to init
         output.write('    return\n')
+        # Mark initialization as complete for the Config instance
+        output.write('    config_cls.initialized = True\n')
         output.write('\n')
 
     def _dump_edge_table(self, output):
