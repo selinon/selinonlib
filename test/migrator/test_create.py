@@ -53,6 +53,10 @@ def migration_test_exception(exc):
 
 
 class TestCreateMigration(SelinonlibTestCase):
+    """Test creation and generation of coniguration migrations."""
+
+    migration_dir = None
+
     def setup_method(self):
         """Set up migration test - create a temporary migration directory."""
         self.migration_dir = tempfile.mkdtemp(prefix='migration_dir_')

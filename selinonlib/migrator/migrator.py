@@ -75,21 +75,12 @@ class Migrator(object):
                     else:
                         self.new_flow_definitions[flow['name']] = entry
 
-    def _get_new_migration_file_name(self):
-        """Generate a new migration file name.
+    def _get_latest_migration_version(self):
+        """Get latest migration number based on migration files present in the migration directory.
 
-        :return: a name of new migration file where migrations should be stored
-        :rtype: str
+        :return: latest migration number
         """
-        if not os.path.isdir(self.migrations_dir):
-            _logger.debug("Creating migration directory %r", self.migrations_dir)
-            try:
-                os.mkdir(self.migrations_dir)
-            except Exception as exc:
-                raise MigrationSkew("Migration directory does not exist, unable to create a new directory: %s"
-                                    % str(exc))
-
-        new_migration_number = 0
+        latest_migration_number = 0
         for file_name in os.listdir(self.migrations_dir):
             file_path = os.path.join(self.migrations_dir, file_name)
             if not os.path.isfile(file_path) or not file_name.endswith('.json') or file_name[0] == '.':
@@ -104,9 +95,25 @@ class Migrator(object):
                                     "to migration file - migration files should be named numerically"
                                     % file_path) from exc
 
-            new_migration_number = max(migration_number, new_migration_number)
+            latest_migration_number = max(migration_number, latest_migration_number)
 
-        return str(new_migration_number + 1) + ".json"
+        return latest_migration_number
+
+    def _get_new_migration_file_name(self):
+        """Generate a new migration file name.
+
+        :return: a name of new migration file where migrations should be stored
+        :rtype: str
+        """
+        if not os.path.isdir(self.migrations_dir):
+            _logger.debug("Creating migration directory %r", self.migrations_dir)
+            try:
+                os.mkdir(self.migrations_dir)
+            except Exception as exc:
+                raise RuntimeError("Migration directory does not exist, unable to create a new directory: %s"
+                                   % str(exc))
+
+        return str(self._get_latest_migration_version() + 1) + ".json"
 
     @staticmethod
     def _get_migration_metadata():
@@ -253,47 +260,61 @@ class Migrator(object):
         return self._calculate_migrations()
 
     @staticmethod
-    def _do_migration(migration_spec, flow_name, message):
+    def _do_migration(migration_spec, message):
         """Do single migration of message based on migration definition."""
-        flow_migration = migration_spec.get(flow_name)
+        flow_migration = migration_spec['migration'].get(message['flow_name'])
         if not flow_migration:
             # Nothing to do, no changes in flow in the migration
             return message
 
-        for idx, waiting_edge in enumerate(message['waiting_edges']):
+        waiting_edges = message.get('state', {}).get('waiting_edges', [])
+        if not waiting_edges:
+            # Flow not run yet, no waiting edges
+            return message
+
+        for idx, waiting_edge in enumerate(waiting_edges):
             if str(waiting_edge) in flow_migration:
-                message['waiting_edges'][idx] = flow_migration[str(idx)]
+                message['state']['waiting_edges'][idx] = flow_migration[str(waiting_edge)]
 
-        message['waiting_edges'] = list(filter(lambda x: x is not None, message['waiting_edges']))
+        message['state']['waiting_edges'] = list(filter(lambda x: x is not None, message['state']['waiting_edges']))
+        return message
 
-    def perform_migration(self, flow_name, message):
+    def perform_migration(self, message):
         """Perform actual migration based on message received.
 
-        :param flow_name: name of flow for which the migration is performed
         :param message: massage that was retrieved and keeps information about the system state
         :return: migrated message
         """
         migration_version = message.get('migration_version')
+        latest_migration_version = self._get_latest_migration_version()
         if migration_version is None:
-            raise RuntimeError("Migration version not present in the message.")
-
-        if migration_version == 0:
-            _logger.debug("No migrations needed")
+            # This means that this message is consumed for the first time, adjust migration based on migration
+            # version of the current worker.
+            message['migration_version'] = latest_migration_version
             return message
 
-        nodes2start = []
-        while True:
-            current_migration_version = migration_version + 1
+        if migration_version == latest_migration_version:
+            _logger.debug("No migrations needed, migration version is %d", migration_version)
+            return message
+
+        if migration_version > latest_migration_version:
+            raise MigrationSkew("Received message with a newer migration number, "
+                                "message migration version: %d, latest migration number present: %d"
+                                % (migration_version, latest_migration_version))
+
+        current_migration_version = migration_version
+        while current_migration_version != latest_migration_version:
+            current_migration_version += 1
             current_migration_path = os.path.join(self.migrations_dir, str(current_migration_version) + '.json')
 
             try:
                 with open(current_migration_path, 'r') as migration_file:
                     migration_spec = yaml.safe_load(migration_file)
-            except FileNotFoundError:
-                _logger.debug("Migration done from %d to version %d, last migration file is %r",
-                              migration_version, current_migration_version, current_migration_path)
-                break
+            except FileNotFoundError as exc:
+                raise MigrationSkew("Migration file %r not found, cannot perform migrations"
+                                    % current_migration_path) from exc
 
-            message, nodes2start = self._do_migration(migration_spec, flow_name, message)
+            message = self._do_migration(migration_spec, message)
 
-        return message, nodes2start
+        message['migration_version'] = current_migration_version
+        return message
