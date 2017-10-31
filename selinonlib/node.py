@@ -39,7 +39,8 @@ class Node(metaclass=abc.ABCMeta):
         :param queue_name: name of queue as provided in config file or None
         :return: final name of the queue
         """
-        queue_name = queue_name or GlobalConfig.default_dispatcher_queue
+        if not queue_name:
+            queue_name = GlobalConfig.default_dispatcher_queue if self.is_flow() else GlobalConfig.default_task_queue
         try:
             return queue_name.format(**os.environ)
         except KeyError:
