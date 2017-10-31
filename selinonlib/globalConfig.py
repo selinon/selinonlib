@@ -161,15 +161,14 @@ class GlobalConfig(object):
         :param dict_: dictionary containing global configuration as stated in YAML config file
         """
         if 'predicates_module' in dict_:
-            cls.predicates_module = dict_['predicates_module']
+            cls.predicates_module = dict_.pop('predicates_module')
 
         if 'trace' in dict_:
-            cls._parse_trace(system, dict_['trace'])
+            cls._parse_trace(system, dict_.pop('trace'))
 
-        cls.default_dispatcher_queue = dict_.get('default_dispatcher_queue', cls.DEFAULT_CELERY_QUEUE)
-        cls.default_task_queue = dict_.get('default_task_queue', cls.DEFAULT_CELERY_QUEUE)
+        cls.default_dispatcher_queue = dict_.pop('default_dispatcher_queue', cls.DEFAULT_CELERY_QUEUE)
+        cls.default_task_queue = dict_.pop('default_task_queue', cls.DEFAULT_CELERY_QUEUE)
 
-        unknown_conf = check_conf_keys(dict_, ('predicates_module', 'trace'))
-        if unknown_conf:
+        if dict_:
             raise ValueError("Unknown configuration options supplied in global configuration section: %s"
-                             % unknown_conf)
+                             % dict_)
