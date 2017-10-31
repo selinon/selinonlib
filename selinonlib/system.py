@@ -555,6 +555,17 @@ class System(object):
         output.write('\n}\n\n')
 
     @staticmethod
+    def _dump_settings(output):
+        """Dump generic settings that do not belong anywhere.
+
+        :param output: a stream to write to
+        """
+        if GlobalConfig.migration_dir:
+            output.write('migration_dir = %r' % GlobalConfig.migration_dir)
+        else:
+            output.write('migration_dir = None')
+
+    @staticmethod
     def _dump_init(output):
         """Dump init function to a stream.
 
@@ -642,6 +653,8 @@ class System(object):
         self._dump_selective_run_functions(stream)
         stream.write('#'*80+'\n\n')
         self._dump_nowait_nodes(stream)
+        stream.write('#'*80+'\n\n')
+        self._dump_settings(stream)
         stream.write('#'*80+'\n\n')
         self._dump_init(stream)
         stream.write('#'*80+'\n\n')

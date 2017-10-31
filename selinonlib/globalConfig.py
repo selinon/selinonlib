@@ -17,6 +17,7 @@ class GlobalConfig(object):
 
     default_task_queue = DEFAULT_CELERY_QUEUE
     default_dispatcher_queue = DEFAULT_CELERY_QUEUE
+    migration_dir = None
 
     _trace_logging = []
     _trace_function = []
@@ -168,6 +169,7 @@ class GlobalConfig(object):
 
         cls.default_dispatcher_queue = dict_.pop('default_dispatcher_queue', cls.DEFAULT_CELERY_QUEUE)
         cls.default_task_queue = dict_.pop('default_task_queue', cls.DEFAULT_CELERY_QUEUE)
+        cls.migration_dir = dict_.pop('migration_dir', None)
 
         if dict_:
             raise ValueError("Unknown configuration options supplied in global configuration section: %s"
