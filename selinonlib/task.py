@@ -8,6 +8,7 @@
 
 import logging
 
+from .errors import ConfigurationError
 from .node import Node
 from .selectiveRunFunction import SelectiveRunFunction
 
@@ -35,8 +36,8 @@ class Task(Node):
         self.import_path = import_path
 
         if 'storage_task_name' in opts and not self.storage:
-            raise ValueError("Unable to assign storage_task_name for task '%s' (class '%s' from '%s'), task has "
-                             "no storage assigned" % (self.name, self.class_name, self.import_path))
+            raise ConfigurationError("Unable to assign storage_task_name for task '%s' (class '%s' from '%s'), task "
+                                     "has no storage assigned" % (self.name, self.class_name, self.import_path))
 
         if 'selective_run_function' in opts:
             self.selective_run_function = SelectiveRunFunction.from_dict(opts.pop('selective_run_function'))
@@ -58,8 +59,8 @@ class Task(Node):
         self.throttling = self.parse_throttling(opts.pop('throttling', {}))
 
         if opts:
-            raise ValueError("Unknown task option provided for task '%s' (class '%s' from '%s'): %s"
-                             % (name, self.class_name, self.import_path, opts))
+            raise ConfigurationError("Unknown task option provided for task '%s' (class '%s' from '%s'): %s"
+                                     % (name, self.class_name, self.import_path, opts))
 
         # register task usage
         if self.storage:
@@ -74,30 +75,30 @@ class Task(Node):
         :raises: ValueError if an error occurred
         """
         if not isinstance(self.import_path, str):
-            raise ValueError("Error in task '%s' definition - import path should be string; got '%s'"
-                             % (self.name, self.import_path))
+            raise ConfigurationError("Error in task '%s' definition - import path should be string; got '%s'"
+                                     % (self.name, self.import_path))
 
         if self.class_name is not None and not isinstance(self.class_name, str):
-            raise ValueError("Error in task '%s' definition - class instance should be string; got '%s'"
-                             % (self.name, self.class_name))
+            raise ConfigurationError("Error in task '%s' definition - class instance should be string; got '%s'"
+                                     % (self.name, self.class_name))
 
         if self.output_schema is not None and not isinstance(self.output_schema, str):
-            raise ValueError("Error in task '%s' definition - output schema should be string; got '%s'"
-                             % (self.name, self.output_schema))
+            raise ConfigurationError("Error in task '%s' definition - output schema should be string; got '%s'"
+                                     % (self.name, self.output_schema))
 
         if self.max_retry is not None and (not isinstance(self.max_retry, int) or self.max_retry < 0):
-            raise ValueError("Error in task '%s' definition - max_retry should be None, zero or positive integer;"
-                             " got '%s'" % (self.name, self.max_retry))
+            raise ConfigurationError("Error in task '%s' definition - max_retry should be None, zero or positive "
+                                     "integer; got '%s'" % (self.name, self.max_retry))
 
         if self.retry_countdown is not None and (not isinstance(self.retry_countdown, int) or self.retry_countdown < 0):
-            raise ValueError("Error in task '%s' definition - retry_countdown should be None or positive integer;"
-                             " got '%s'" % (self.name, self.retry_countdown))
+            raise ConfigurationError("Error in task '%s' definition - retry_countdown should be None or positive "
+                                     "integer; got '%s'" % (self.name, self.retry_countdown))
 
         if self.queue_name is not None and not isinstance(self.queue_name, str):
-            raise ValueError("Invalid task queue, should be string, got %s" % self.queue_name)
+            raise ConfigurationError("Invalid task queue, should be string, got %s" % self.queue_name)
 
         if not isinstance(self.storage_readonly, bool):
-            raise ValueError("Storage usage flag readonly should be of type bool")
+            raise ConfigurationError("Storage usage flag readonly should be of type bool")
 
     @staticmethod
     def from_dict(dictionary, system):
@@ -112,9 +113,9 @@ class Task(Node):
         :raises: ValueError
         """
         if 'name' not in dictionary or not dictionary['name']:
-            raise KeyError('Task name definition is mandatory')
+            raise ConfigurationError('Task name definition is mandatory')
         if 'import' not in dictionary or not dictionary['import']:
-            raise KeyError('Task import definition is mandatory')
+            raise ConfigurationError('Task import definition is mandatory')
         if 'storage' in dictionary:
             storage = system.storage_by_name(dictionary.pop('storage'))
         else:

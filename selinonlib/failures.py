@@ -8,6 +8,7 @@
 
 from itertools import chain
 
+from .errors import ConfigurationError
 from .failureNode import FailureNode
 from .helpers import check_conf_keys
 
@@ -31,7 +32,8 @@ class Failures(object):
             for node_name in failure['nodes']:
                 node = system.node_by_name(node_name, graceful=True)
                 if not node:
-                    raise KeyError("No such node with name '%s' in failure, flow '%s'" % (node_name, flow.name))
+                    raise ConfigurationError("No such node with name '%s' in failure, flow '%s'"
+                                             % (node_name, flow.name))
                 waiting_nodes_entry.append(node)
 
             if isinstance(failure['fallback'], list):
@@ -39,13 +41,14 @@ class Failures(object):
                 for node_name in failure['fallback']:
                     node = system.node_by_name(node_name, graceful=True)
                     if not node:
-                        raise KeyError("No such node with name '%s' in failure fallback, flow '%s'"
-                                       % (node_name, flow.name))
+                        raise ConfigurationError("No such node with name '%s' in failure fallback, flow '%s'"
+                                                 % (node_name, flow.name))
                     fallback_nodes_entry.append(node)
             elif isinstance(failure['fallback'], bool):
                 fallback_nodes_entry = failure['fallback']
             else:
-                raise ValueError("Unknown fallback definition in flow '%s', failure: %s" % (flow.name, failure))
+                raise ConfigurationError("Unknown fallback definition in flow '%s', failure: %s"
+                                         % (flow.name, failure))
 
             self.waiting_nodes.append(waiting_nodes_entry)
             self.fallback_nodes.append(fallback_nodes_entry)
@@ -92,11 +95,11 @@ class Failures(object):
         """
         for failure in failures_dict:
             if 'nodes' not in failure or failure['nodes'] is None:
-                raise ValueError("Failure should state nodes for state 'nodes' to fallback from in flow '%s'"
-                                 % flow.name)
+                raise ConfigurationError("Failure should state nodes for state 'nodes' to fallback from in flow '%s'"
+                                         % flow.name)
 
             if 'fallback' not in failure:
-                raise ValueError("No fallback stated in failure in flow '%s'" % flow.name)
+                raise ConfigurationError("No fallback stated in failure in flow '%s'" % flow.name)
 
             if not isinstance(failure['nodes'], list):
                 failure['nodes'] = [failure['nodes']]
@@ -106,12 +109,13 @@ class Failures(object):
 
             if failure['fallback'] is not True and len(failure['fallback']) == 1 and len(failure['nodes']) == 1 \
                     and failure['fallback'][0] == failure['nodes'][0]:
-                raise ValueError("Detect cyclic fallback dependency in flow %s, failure on %s"
-                                 % (flow.name, failure['nodes'][0]))
+                raise ConfigurationError("Detect cyclic fallback dependency in flow %s, failure on %s"
+                                         % (flow.name, failure['nodes'][0]))
 
             unknown_conf = check_conf_keys(failure, known_conf_opts=('nodes', 'fallback', 'propagate_failure'))
             if unknown_conf:
-                raise ValueError("Unknown configuration option supplied in fallback definition: %s" % unknown_conf)
+                raise ConfigurationError("Unknown configuration option supplied in fallback definition: %s"
+                                         % unknown_conf)
 
         last_allocated, starting_nodes = FailureNode.construct(flow, failures_dict)
         return Failures(failures_dict, system, flow, last_allocated, starting_nodes)

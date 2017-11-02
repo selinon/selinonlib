@@ -10,6 +10,7 @@ import abc
 import ast
 from functools import reduce
 
+from .errors import ConfigurationError
 from .predicate import Predicate
 
 
@@ -61,7 +62,7 @@ class NaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disable
         :return: instance of cls
         """
         if not isinstance(tree, list):
-            raise ValueError("Nary logical operators expect list of children")
+            raise ConfigurationError("Nary logical operators expect list of children")
         children = []
         for child in tree:
             children.append(Predicate.construct(child, nodes_from, flow))
@@ -118,7 +119,7 @@ class UnaryPredicate(BuiltinPredicate, metaclass=abc.ABCMeta):  # pylint: disabl
         :return: instance of cls
         """
         if isinstance(tree, list):
-            raise ValueError("Unary logical operators expect one child")
+            raise ConfigurationError("Unary logical operators expect one child")
         return cls(Predicate.construct(tree, nodes_from, flow))
 
     def predicates_used(self):

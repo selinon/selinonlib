@@ -6,6 +6,7 @@
 # ######################################################################
 """Function that is run on selective flow/task run."""
 
+from .errors import ConfigurationError
 from .helpers import check_conf_keys
 
 
@@ -61,8 +62,8 @@ class SelectiveRunFunction(object):
 
         unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import'))
         if unknown_conf:
-            raise ValueError("Unknown configuration options for selective run function supplied: %s"
-                             % (unknown_conf.keys()))
+            raise ConfigurationError("Unknown configuration options for selective run function supplied: %s"
+                                     % (unknown_conf.keys()))
 
         name = dict_.pop('name', cls._DEFAULT_FUNCTION_NAME)
         import_path = dict_.pop('import', cls._DEFAULT_IMPORT_PATH)

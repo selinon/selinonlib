@@ -51,6 +51,8 @@ Python code generation.
 
 from functools import reduce
 
+from .errors import ConfigurationError
+
 
 class FailureNode(object):
     """A representation of a failure node permutation."""
@@ -104,22 +106,23 @@ class FailureNode(object):
         """
         # fallback parsing
         if failure_node.fallback:
-            raise ValueError("Multiple definitions of a failure in flow '%s' with failure of %s"
-                             % (failure_node.flow.name, failure_node.traversed))
+            raise ConfigurationError("Multiple definitions of a failure in flow '%s' with failure of %s"
+                                     % (failure_node.flow.name, failure_node.traversed))
 
         if not isinstance(failure_info['fallback'], list) and failure_info['fallback'] is not True:
             failure_info['fallback'] = [failure_info['fallback']]
 
         # propagate_failure parsing
         if not isinstance(failure_info.get('propagate_failure', False), bool):
-            raise ValueError("Configuration option 'propagate_failure' for failure '%s' in flow '%s' should be "
-                             "boolean, got '%s' instead"
-                             % (failure_node.traversed, failure_node.flow.name, failure_info['propagate_failure']))
+            raise ConfigurationError("Configuration option 'propagate_failure' for failure '%s' in flow '%s' "
+                                     "should be boolean, got '%s' instead"
+                                     % (failure_node.traversed, failure_node.flow.name,
+                                        failure_info['propagate_failure']))
 
         if failure_info['fallback'] is True and failure_info.get('propagate_failure') is True:
-            raise ValueError("Configuration is misleading for failure '%s' in flow '%s' - cannot set "
-                             "propagate_failure and fallback to true at the same time"
-                             % (failure_node.traversed, failure_node.flow.name))
+            raise ConfigurationError("Configuration is misleading for failure '%s' in flow '%s' - cannot set "
+                                     "propagate_failure and fallback to true at the same time"
+                                     % (failure_node.traversed, failure_node.flow.name))
 
         failure_node.fallback = failure_info['fallback']
         failure_node.propagate_failure = failure_info.get('propagate_failure', False)

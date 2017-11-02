@@ -8,6 +8,7 @@
 
 import abc
 
+from .errors import ConfigurationError
 from .helpers import check_conf_keys
 from .helpers import dict2json
 
@@ -84,7 +85,7 @@ class Predicate(metaclass=abc.ABCMeta):
         from .builtinPredicate import OrPredicate, AndPredicate, NotPredicate
 
         if not tree:
-            raise ValueError("Bad condition '%s'" % tree)
+            raise ConfigurationError("Bad condition '%s'" % tree)
 
         if 'name' in tree:
             if 'node' in tree:
@@ -94,8 +95,8 @@ class Predicate(metaclass=abc.ABCMeta):
                         node = node_from
                         break
                 if node is None:
-                    raise ValueError("Node listed node '%s' in predicate '%s' is not requested in 'nodes_from'"
-                                     % (tree['node'], tree['name']))
+                    raise ConfigurationError("Node '%s' listed in predicate '%s' is not requested in 'nodes_from'"
+                                             % (tree['node'], tree['name']))
             else:
                 if len(nodes_from) == 1:
                     node = nodes_from[0]
@@ -105,8 +106,8 @@ class Predicate(metaclass=abc.ABCMeta):
 
             unknown_conf = check_conf_keys(tree, known_conf_opts=('name', 'node', 'args'))
             if unknown_conf:
-                raise ValueError("Unknown configuration option for predicate '%s' in flow '%s': %s"
-                                 % (tree['name'], flow.name, unknown_conf.keys()))
+                raise ConfigurationError("Unknown configuration option for predicate '%s' in flow '%s': %s"
+                                         % (tree['name'], flow.name, unknown_conf.keys()))
 
             return LeafPredicate.create(tree['name'], node, flow, tree.get('args'))
         elif 'or' in tree:
@@ -116,7 +117,7 @@ class Predicate(metaclass=abc.ABCMeta):
         elif 'and' in tree:
             return AndPredicate.create(tree['and'], nodes_from, flow)
         else:
-            raise ValueError("Unknown predicate:\n%s" % dict2json(tree))
+            raise ConfigurationError("Unknown predicate:\n%s" % dict2json(tree))
 
     @abc.abstractmethod
     def check(self):

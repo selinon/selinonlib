@@ -14,6 +14,7 @@ import platform
 import yaml
 
 from selinonlib import MigrationNotNeeded
+from selinonlib import MigrationSkew
 from selinonlib import selinonlib_version
 from selinonlib.helpers import dict2json
 
@@ -85,8 +86,8 @@ class Migrator(object):
             try:
                 os.mkdir(self.migrations_dir)
             except Exception as exc:
-                raise RuntimeError("Migration directory does not exist, unable to create a new directory: %s"
-                                   % str(exc))
+                raise MigrationSkew("Migration directory does not exist, unable to create a new directory: %s"
+                                    % str(exc))
 
         new_migration_number = 0
         for file_name in os.listdir(self.migrations_dir):
@@ -99,8 +100,9 @@ class Migrator(object):
             try:
                 migration_number = int(migration_number)
             except ValueError as exc:
-                raise ValueError("Unable to parse previous migrations, file name %r does not correspond to migration "
-                                 "file - migration files should be named numerically" % file_path) from exc
+                raise MigrationSkew("Unable to parse previous migrations, file name %r does not correspond "
+                                    "to migration file - migration files should be named numerically"
+                                    % file_path) from exc
 
             new_migration_number = max(migration_number, new_migration_number)
 

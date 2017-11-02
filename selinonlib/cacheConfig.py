@@ -6,6 +6,7 @@
 # ######################################################################
 """Configuration for caching."""
 
+from .errors import ConfigurationError
 from .helpers import check_conf_keys
 
 
@@ -63,21 +64,21 @@ class CacheConfig(object):
         configuration = dict_.get('configuration', cls._DEFAULT_CACHE_OPTIONS)
 
         if not isinstance(name, str):
-            raise ValueError("Cache configuration for '%s' expects name to be a string, got '%s' instead"
-                             % (entity_name, name))
+            raise ConfigurationError("Cache configuration for '%s' expects name to be a string, got '%s' instead"
+                                     % (entity_name, name))
 
         if not isinstance(import_path, str):
-            raise ValueError("Cache configuration for '%s' expects import to be a string, got '%s' instead"
-                             % (entity_name, import_path))
+            raise ConfigurationError("Cache configuration for '%s' expects import to be a string, got '%s' instead"
+                                     % (entity_name, import_path))
 
         if not isinstance(configuration, dict):
-            raise ValueError("Cache configuration for '%s' expects configuration to be a dict of cache configuration, "
-                             "got '%s' instead" % (entity_name, configuration))
+            raise ConfigurationError("Cache configuration for '%s' expects configuration to be a dict of cache "
+                                     "configuration, got '%s' instead" % (entity_name, configuration))
 
         # check supplied configuration configuration
         unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import', 'configuration'))
         if unknown_conf:
-            raise ValueError("Unknown configuration configuration for cache '%s' supplied: %s"
-                             % (name, unknown_conf))
+            raise ConfigurationError("Unknown configuration configuration for cache '%s' supplied: %s"
+                                     % (name, unknown_conf))
 
         return CacheConfig(name, import_path, configuration, entity_name)
