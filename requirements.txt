@@ -2,6 +2,7 @@ argcomplete
 graphviz
 codegen
 pyyaml
+selinon
 # Storage implementations requirements - optional dependencies
 #pymongo
 #SQLAlchemy
