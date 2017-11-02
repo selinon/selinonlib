@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     selinonlib.caches
+    selinonlib.migrator
     selinonlib.predicates
     selinonlib.routines
     selinonlib.simulator
@@ -23,6 +24,7 @@ Submodules
    selinonlib.codename
    selinonlib.config
    selinonlib.edge
+   selinonlib.errors
    selinonlib.failureNode
    selinonlib.failures
    selinonlib.flow
