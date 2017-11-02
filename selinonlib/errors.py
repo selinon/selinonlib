@@ -49,3 +49,7 @@ class NoParentNodeError(Exception):
 
 class RequestError(Exception):
     """An error raised if there was an issue with request issued by user - usually means bad usage error."""
+
+
+class UnknownError(Exception):
+    """An error raised on unknown scenarios - possibly some bug in code."""

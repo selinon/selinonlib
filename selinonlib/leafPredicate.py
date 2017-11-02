@@ -10,6 +10,7 @@ import ast
 import importlib
 import logging
 
+from .errors import ConfigurationError
 from .globalConfig import GlobalConfig
 from .helpers import dict2strkwargs
 from .helpers import get_function_arguments
@@ -38,7 +39,7 @@ class LeafPredicate(Predicate):
         self._func_args = get_function_arguments(self._func)
 
         if self.requires_message() and not self.node:
-            raise ValueError("Expected task name for predicate '%s'" % self._func.__name__)
+            raise ConfigurationError("Expected task name for predicate '%s'" % self._func.__name__)
 
     def requires_message(self):
         """Check whether this predicate requires results from parent node.
@@ -57,7 +58,7 @@ class LeafPredicate(Predicate):
     def _check_parameters(self):
         """Check user defined predicate parameters against predicate parameters.
 
-        :raises: ValueError
+        :raises: ConfigurationError
         """
         func_args = get_function_arguments(self._func)
         user_args = self._args.keys()
@@ -86,7 +87,7 @@ class LeafPredicate(Predicate):
             error = True
 
         if error:
-            raise ValueError("Bad predicate arguments specified in flow '%s'" % self.flow.name)
+            raise ConfigurationError("Bad predicate arguments specified in flow '%s'" % self.flow.name)
 
     def _check_usage(self):
         """Check correct predicate usage.
@@ -94,13 +95,13 @@ class LeafPredicate(Predicate):
         :raises: ValueError
         """
         if self.requires_message() and self.node and self.node.is_flow():
-            raise ValueError("Results of sub-flows cannot be used in predicates")
+            raise ConfigurationError("Results of sub-flows cannot be used in predicates")
         if self.requires_message() and not self.node:
-            raise ValueError("Cannot inspect results in starting edge in predicate '%s'" % self._func.__name__)
+            raise ConfigurationError("Cannot inspect results in starting edge in predicate '%s'" % self._func.__name__)
         if self.requires_message() and not self.node.storage:
-            raise ValueError("Cannot use predicate '%s' that requires a results of node '%s' (import: %s) since "
-                             "this node has no storage assigned"
-                             % (str(self), self.node.name, self.node.import_path))
+            raise ConfigurationError("Cannot use predicate '%s' that requires a results "
+                                     "of node '%s' (import: %s) since this node has no storage assigned"
+                                     % (str(self), self.node.name, self.node.import_path))
 
     def check(self):
         """Check whether predicate is correctly used.

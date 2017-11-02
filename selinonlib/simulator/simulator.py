@@ -38,6 +38,7 @@ from selinon import Config
 from selinon import run_flow
 from selinon import run_flow_selective
 from selinon.systemState import SystemState
+from selinonlib import UnknownError
 from selinonlib.globalConfig import GlobalConfig
 
 from .celeryMocks import simulate_apply_async
@@ -70,7 +71,7 @@ class Simulator(object):
         self.selective = opts.pop('selective', None)
 
         if opts:
-            raise ValueError("Unknown options supplied: %s" % opts)
+            raise UnknownError("Unknown options supplied: %s" % opts)
 
     def run(self, flow_name, node_args=None):
         """Run simulator.
@@ -78,7 +79,7 @@ class Simulator(object):
         :param flow_name: a flow name that should be run
         :param node_args: arguments for the flow
         """
-        # We need to assing a custum async result as we are not running Celery but our mocks instead
+        # We need to assign a custom async result as we are not running Celery but our mocks instead
         flexmock(SystemState, _get_async_result=SimulateAsyncResult)
         # Overwrite used Celery functions so we do not rely on Celery logic at all
         CeleryTask.apply_async = simulate_apply_async
@@ -129,9 +130,11 @@ class Simulator(object):
                 else:
                     # reschedule if there was an exception and we did not hit max_retries when doing retry
                     Simulator.schedule(task, selinon_exc.celery_kwargs)
-            except:
-                raise RuntimeError("Ooooops! Congratulations! It looks like you've found a bug! Feel free to open an "
-                                   "issue at https://github.com/selinon/selinonlib/issues")
+            except KeyboardInterrupt:
+                raise
+            except Exception as exc:
+                raise UnknownError("Ooooops! Congratulations! It looks like you've found a bug! Feel free to open an "
+                                   "issue at https://github.com/selinon/selinonlib/issues") from exc
 
     @classmethod
     def schedule(cls, task, celery_kwargs):

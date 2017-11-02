@@ -10,6 +10,7 @@ import logging
 
 from .cacheConfig import CacheConfig
 from .edge import Edge
+from .errors import ConfigurationError
 from .failures import Failures
 from .helpers import check_conf_keys
 from .node import Node
@@ -57,7 +58,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         assert self.propagate_failures is not True and self.propagate_compound_failures is not True  # nosec
 
         if opts:
-            raise ValueError("Unknown flow option provided for flow '%s': %s" % (name, opts))
+            raise ConfigurationError("Unknown flow option provided for flow '%s': %s" % (name, opts))
 
     def _set_propagate(self, system, flow_def, propagate_type):
         """Parse propagate_node_args flag and adjust flow accordingly.
@@ -81,7 +82,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
             elif isinstance(flow_def[propagate_type], bool):
                 ret = flow_def[propagate_type]
             else:
-                raise ValueError("Unknown value in '%s' in flow %s" % (self.name, propagate_type))
+                raise ConfigurationError("Unknown value in '%s' in flow %s" % (self.name, propagate_type))
 
         return ret
 
@@ -98,8 +99,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
 
         unknown_conf = check_conf_keys(flow_def, known_conf_keys)
         if unknown_conf:
-            raise ValueError("Unknown configuration option for flow '%s' supplied: %s"
-                             % (self.name, unknown_conf))
+            raise ConfigurationError("Unknown configuration option for flow '%s' supplied: %s"
+                                     % (self.name, unknown_conf))
 
     def parse_definition(self, flow_def, system):
         """Parse flow definition (fill flow attributes) from a dictionary.
@@ -111,7 +112,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self._check_conf_keys(flow_def)
 
         if self.edges:
-            raise ValueError("Multiple definitions of flow '%s'" % self.name)
+            raise ConfigurationError("Multiple definitions of flow '%s'" % self.name)
 
         for edge_def in flow_def['edges']:
             edge = Edge.from_dict(edge_def, system, self)
@@ -131,9 +132,8 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
 
         if 'cache' in flow_def:
             if not isinstance(flow_def['cache'], dict):
-                raise ValueError("Flow cache for flow '%s' should be a dict with configuration, "
-                                 "got '%s' instead"
-                                 % (self.name, flow_def['cache']))
+                raise ConfigurationError("Flow cache for flow '%s' should be a dict with configuration, "
+                                         "got '%s' instead" % (self.name, flow_def['cache']))
             self.cache_config = CacheConfig.from_dict(flow_def['cache'], self.name)
 
         if 'sampling' in flow_def:

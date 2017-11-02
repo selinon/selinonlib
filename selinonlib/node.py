@@ -11,6 +11,7 @@ import datetime
 import os
 import re
 
+from .errors import ConfigurationError
 from .globalConfig import GlobalConfig
 
 
@@ -22,7 +23,7 @@ class Node(metaclass=abc.ABCMeta):
     def __init__(self, name):
         """Instantiate a node (flow/task)."""
         if not self.check_name(name):
-            raise ValueError("Invalid node name '%s'" % name)
+            raise ConfigurationError("Invalid node name '%s'" % name)
         self._name = name
 
     @property
@@ -43,14 +44,14 @@ class Node(metaclass=abc.ABCMeta):
             queue_name = GlobalConfig.default_dispatcher_queue if self.is_flow() else GlobalConfig.default_task_queue
         try:
             return queue_name.format(**os.environ)
-        except KeyError:
+        except KeyError as exc:
             if self.is_flow():
                 err_msg = "Expansion of queue name based on environment variables failed for flow '%s', queue: '%s'" \
                           % (self.name, queue_name)
             else:
                 err_msg = "Expansion of queue name based on environment variables failed for task '%s', queue: '%s' " \
                           % (self.name, queue_name)
-            raise ValueError(err_msg)
+            raise ConfigurationError(err_msg) from exc
 
     def is_flow(self):
         """Check if this node is a flow.
@@ -90,11 +91,11 @@ class Node(metaclass=abc.ABCMeta):
             return None
 
         if not isinstance(dict_, dict):
-            raise ValueError("Definition of throttling expects key value definition, got %s instead in '%s'"
-                             % (dict_['throttling'], self.name))
+            raise ConfigurationError("Definition of throttling expects key value definition, got %s instead in '%s'"
+                                     % (dict_['throttling'], self.name))
         try:
             return datetime.timedelta(**dict_)
-        except TypeError:
-            raise ValueError("Wrong throttling definition in '%s', expected values are %s"
-                             % (self.name,
-                                ['days', 'seconds', 'microseconds', 'milliseconds', 'minutes', 'hours', 'weeks']))
+        except TypeError as exc:
+            raise ConfigurationError("Wrong throttling definition in '%s', expected values are %s"
+                                     % (self.name, ['days', 'seconds', 'microseconds', 'milliseconds', 'minutes',
+                                                    'hours', 'weeks'])) from exc

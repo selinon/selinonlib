@@ -7,6 +7,7 @@
 """Edge representation in task/flow dependency graph."""
 
 from .builtinPredicate import AlwaysTruePredicate
+from .errors import ConfigurationError
 from .helpers import check_conf_keys
 from .predicate import Predicate
 
@@ -48,35 +49,35 @@ class Edge(object):
             #  2. propagate_node_args is not set for flows listed in nodes to
             for node_to in self.nodes_to:
                 if not node_to.is_flow():
-                    raise ValueError("Flag propagate_result listed in foreach configuration in flow '%s' "
-                                     "requires all nodes to to be flows, but '%s' is a task"
-                                     % (self.flow.name, node_to.name))
+                    raise ConfigurationError("Flag propagate_result listed in foreach configuration in flow '%s' "
+                                             "requires all nodes to to be flows, but '%s' is a task"
+                                             % (self.flow.name, node_to.name))
 
                 if (isinstance(self.flow.propagate_node_args, bool) and self.flow.propagate_node_args) \
                         or \
                     (isinstance(self.flow.propagate_node_args, list) and node_to.name in self.flow.propagate_node_args):
-                    raise ValueError("Cannot propagate node arguments to subflow when propagate_result is set"
-                                     " in foreach definition in flow '%s' for node to '%s'"
-                                     % (self.flow.name, node_to.name))
+                    raise ConfigurationError("Cannot propagate node arguments to subflow when propagate_result "
+                                             "is set in foreach definition in flow '%s' for node to '%s'"
+                                             % (self.flow.name, node_to.name))
 
         for node in self.predicate.nodes_used():
             if not node.is_task():
                 continue
 
             if node.storage_readonly and self.predicate.requires_message():
-                raise ValueError("Cannot inspect results of node '%s' in flow '%s' as this node is configured "
-                                 "with readonly storage, condition: %s"
-                                 % (node.name, self.flow.name, str(self.predicate)))
+                raise ConfigurationError("Cannot inspect results of node '%s' in flow '%s' as this node is "
+                                         "configured with readonly storage, condition: %s"
+                                         % (node.name, self.flow.name, str(self.predicate)))
 
         if self.selective:
             # TODO: there are no checks whether tasks that we want to run are actually run - this will be runtime error
             if len(self.nodes_to) > 1:
-                raise ValueError("Cannot run selective flows on edges with more than 1 destination nodes in flow '%s'"
-                                 % self.flow.name)
+                raise ConfigurationError("Cannot run selective flows on edges with more than 1 destination nodes in"
+                                         "flow '%s'" % self.flow.name)
 
             if not self.nodes_to[0].is_flow():
-                raise ValueError("Cannot run selective flow in flow '%s', destination node '%s' is not a flow,"
-                                 % (self.flow.name, self.nodes_to[0].name))
+                raise ConfigurationError("Cannot run selective flow in flow '%s', destination node '%s' is not a flow,"
+                                         % (self.flow.name, self.nodes_to[0].name))
 
     def foreach_str(self):
         """Construct string representation for foreach node.
@@ -101,16 +102,16 @@ class Edge(object):
 
         unknown_conf = check_conf_keys(selective_def, known_conf_opts=('tasks', 'run_subsequent', 'follow_subflows'))
         if unknown_conf:
-            raise ValueError("Unknown configuration options supplied for selective flow run in flow '%s': %s"
-                             % (flow.name, unknown_conf))
+            raise ConfigurationError("Unknown configuration options supplied for selective flow run in flow '%s': %s"
+                                     % (flow.name, unknown_conf))
 
         if 'tasks' not in selective_def:
-            raise ValueError("Configuration for selective subflows expects 'tasks' to be defined in flow '%s'"
-                             % flow.name)
+            raise ConfigurationError("Configuration for selective subflows expects 'tasks' to be defined in flow '%s'"
+                                     % flow.name)
 
         if not isinstance(selective_def['tasks'], list) or not all(isinstance(t, str) for t in selective_def['tasks']):
-            raise ValueError("Configuration for selective subflows expects task names under 'tasks' key in flow '%s', "
-                             "got '%s' instead" % (flow.name, selective_def['tasks']))
+            raise ConfigurationError("Configuration for selective subflows expects task names under 'tasks' key in "
+                                     "flow '%s', got '%s' instead" % (flow.name, selective_def['tasks']))
 
         if 'run_subsequent' not in selective_def:
             selective_def['run_subsequent'] = cls._DEFAULT_RUN_SUBSEQUENT
@@ -120,12 +121,13 @@ class Edge(object):
 
         if not isinstance(selective_def['run_subsequent'], bool) and \
                 not isinstance(selective_def['run_subsequent'], list):
-            raise ValueError("Option 'run_subsequent' requires boolean or list of flow names in which subsequent"
-                             "nodes should be run in flow '%s', got '%s'", flow.name, selective_def['run_subsequent'])
+            raise ConfigurationError("Option 'run_subsequent' requires boolean or list of flow names "
+                                     "in which subsequent nodes should be run in flow '%s', got '%s'"
+                                     % (flow.name, selective_def['run_subsequent']))
 
         if not isinstance(selective_def['follow_subflows'], bool):
-            raise ValueError("Option 'follow_subflows' expects boolean got '%s' instead in flow '%s'",
-                             selective_def['follow_subflows'], flow.name)
+            raise ConfigurationError("Option 'follow_subflows' expects boolean got '%s' instead in flow '%s'"
+                                     % (selective_def['follow_subflows'], flow.name))
 
         # So we can use directly selective as **kwargs to run_flow_selective
         # TODO: unify with run_flow_selective
@@ -147,7 +149,8 @@ class Edge(object):
         :rtype: Edge
         """
         if 'from' not in dict_:
-            raise ValueError("Edge definition requires 'from' explicitly to be specified, use empty for starting edge")
+            raise ConfigurationError("Edge definition requires 'from' explicitly to be specified, "
+                                     "use empty for starting edge")
 
         # we allow empty list for a starting edge
         if dict_['from']:
@@ -157,7 +160,7 @@ class Edge(object):
             nodes_from = []
 
         if 'to' not in dict_ or not dict_['to']:
-            raise ValueError("Edge definition requires 'to' specified")
+            raise ConfigurationError("Edge definition requires 'to' specified")
 
         to_names = dict_['to'] if isinstance(dict_['to'], list) else [dict_['to']]
         nodes_to = [system.node_by_name(n) for n in to_names]
@@ -171,8 +174,8 @@ class Edge(object):
         if 'foreach' in dict_:
             foreach_def = dict_['foreach']
             if foreach_def is None or 'function' not in foreach_def or 'import' not in foreach_def:
-                raise ValueError("Specification of 'foreach' requires 'function' and 'import' to be set in flow '%s',"
-                                 " got %s instead" % (flow.name, foreach_def))
+                raise ConfigurationError("Specification of 'foreach' requires 'function' and 'import' to be set "
+                                         "in flow '%s', got %s instead" % (flow.name, foreach_def))
 
             foreach = {
                 'function': foreach_def['function'],
@@ -182,8 +185,8 @@ class Edge(object):
 
             if 'propagate_result' in foreach_def:
                 if not isinstance(foreach_def['propagate_result'], bool):
-                    raise ValueError("Propagate result should be bool in flow '%s', got %s instead"
-                                     % (flow.name, foreach_def['propagate_result']))
+                    raise ConfigurationError("Propagate result should be bool in flow '%s', got %s instead"
+                                             % (flow.name, foreach_def['propagate_result']))
 
                 if foreach_def['propagate_result']:
                     foreach['propagate_result'] = True
@@ -192,19 +195,19 @@ class Edge(object):
                 # here
 
             if not isinstance(foreach_def['function'], str):
-                raise ValueError("Wrong function name '%s' supplied in foreach section in flow %s"
-                                 % (foreach_def['function'], flow.name))
+                raise ConfigurationError("Wrong function name '%s' supplied in foreach section in flow %s"
+                                         % (foreach_def['function'], flow.name))
 
             if not isinstance(foreach_def['import'], str):
-                raise ValueError("Wrong import statement '%s' supplied in foreach section in flow %s"
-                                 % (foreach_def['import'], flow.name))
+                raise ConfigurationError("Wrong import statement '%s' supplied in foreach section in flow %s"
+                                         % (foreach_def['import'], flow.name))
 
         selective = cls._parse_selective(flow, dict_.get('selective'))
 
         unknown_conf = check_conf_keys(dict_, known_conf_opts=('from', 'to', 'foreach', 'condition', 'selective'))
         if unknown_conf:
-            raise ValueError("Unknown configuration options supplied for edge in flow '%s': %s"
-                             % (flow.name, unknown_conf))
+            raise ConfigurationError("Unknown configuration options supplied for edge in flow '%s': %s"
+                                     % (flow.name, unknown_conf))
 
         return Edge(
             nodes_from=nodes_from,

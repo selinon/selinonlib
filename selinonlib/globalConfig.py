@@ -6,6 +6,7 @@
 # ######################################################################
 """User's global configuration section parsed from YAML config file."""
 
+from .errors import ConfigurationError
 from .helpers import check_conf_keys
 
 
@@ -61,17 +62,17 @@ class GlobalConfig(object):
         :param system: system instance
         """
         if not isinstance(trace_def, dict):
-            raise ValueError("Configuration of storage trace expects dict, got '%s' instead (type: %s)"
-                             % (trace_def, type(trace_def)))
+            raise ConfigurationError("Configuration of storage trace expects dict, got '%s' instead (type: %s)"
+                                     % (trace_def, type(trace_def)))
 
         if 'name' not in trace_def:
-            raise ValueError('Expected storage name in tracing configuration, got %s instead'
-                             % trace_def)
+            raise ConfigurationError('Expected storage name in tracing configuration, got %s instead'
+                                     % trace_def)
 
         unknown_conf = check_conf_keys(trace_def, known_conf_opts=('method', 'name'))
         if unknown_conf:
-            raise ValueError("Unknown configuration for trace storage '%s' supplied: %s"
-                             % (trace_def, unknown_conf))
+            raise ConfigurationError("Unknown configuration for trace storage '%s' supplied: %s"
+                                     % (trace_def, unknown_conf))
 
         cls._trace_storage.append((system.storage_by_name(trace_def['name']), trace_def.get('method', 'trace')))
 
@@ -82,21 +83,21 @@ class GlobalConfig(object):
         :param trace_def: definition of tracing as supplied in the YAML file
         """
         if not isinstance(trace_def, dict):
-            raise ValueError("Configuration of trace function expects dict, got '%s' instead (type: %s)"
-                             % (trace_def, type(trace_def)))
+            raise ConfigurationError("Configuration of trace function expects dict, got '%s' instead (type: %s)"
+                                     % (trace_def, type(trace_def)))
 
         if 'import' not in trace_def:
-            raise ValueError('Expected import definition in function trace configuration, got %s instead'
-                             % trace_def)
+            raise ConfigurationError('Expected import definition in function trace configuration, got %s instead'
+                                     % trace_def)
 
         if 'name' not in trace_def:
-            raise ValueError('Expected function name in function trace configuration, got %s instead'
-                             % trace_def)
+            raise ConfigurationError('Expected function name in function trace configuration, got %s instead'
+                                     % trace_def)
 
         unknown_conf = check_conf_keys(trace_def, known_conf_opts=('import', 'name'))
         if unknown_conf:
-            raise ValueError("Unknown configuration for trace function '%s' from '%s' supplied: %s"
-                             % (trace_def['name'], trace_def['import'], unknown_conf))
+            raise ConfigurationError("Unknown configuration for trace function '%s' from '%s' supplied: %s"
+                                     % (trace_def['name'], trace_def['import'], unknown_conf))
 
         cls._trace_function.append((trace_def['import'], trace_def['name']))
 
@@ -116,12 +117,12 @@ class GlobalConfig(object):
         :param trace_def: definition of tracing as supplied in the YAML file
         """
         if not isinstance(trace_def, dict):
-            raise ValueError("Configuration of Sentry tracing expects dict, got '%s' instead (type: %s)"
-                             % (trace_def, type(trace_def)))
+            raise ConfigurationError("Configuration of Sentry tracing expects dict, got '%s' instead (type: %s)"
+                                     % (trace_def, type(trace_def)))
 
         unknown_conf = check_conf_keys(trace_def, known_conf_opts=('dsn',))
         if unknown_conf:
-            raise ValueError("Unknown configuration for Sentry trace function supplied: %s" % unknown_conf)
+            raise ConfigurationError("Unknown configuration for Sentry trace function supplied: %s" % unknown_conf)
 
         cls._trace_sentry.append(trace_def.get('dsn', True))
 
@@ -133,8 +134,8 @@ class GlobalConfig(object):
         :param trace_record: trace record to be parsed
         """
         if trace_record is None:
-            raise ValueError('Trace not defined properly in global configuration section, '
-                             'see documentation for more info')
+            raise ConfigurationError('Trace not defined properly in global configuration section, '
+                                     'see documentation for more info')
 
         if trace_record is False:
             return
@@ -172,5 +173,5 @@ class GlobalConfig(object):
         cls.migration_dir = dict_.pop('migration_dir', None)
 
         if dict_:
-            raise ValueError("Unknown configuration options supplied in global configuration section: %s"
-                             % dict_)
+            raise ConfigurationError("Unknown configuration options supplied in global configuration section: %s"
+                                     % dict_)

@@ -17,6 +17,7 @@ import codegen
 import graphviz
 
 from .config import Config
+from .errors import ConfigurationError
 from .flow import Flow
 from .globalConfig import GlobalConfig
 from .helpers import check_conf_keys
@@ -54,12 +55,14 @@ class System(object):
         """All tasks and flows share name space, check for collisions.
 
         :param name: a node name
-        :raises: ValueError
+        :raises: ConfigurationError
         """
         if any(flow.name == name for flow in self.flows):
-            raise ValueError("Unable to add node with name '%s', a flow with the same name already exist" % name)
+            raise ConfigurationError("Unable to add node with name '%s', a flow with the same name already exist"
+                                     % name)
         if any(task.name == name for task in self.tasks):
-            raise ValueError("Unable to add node with name '%s', a task with the same name already exist" % name)
+            raise ConfigurationError("Unable to add node with name '%s', a task with the same name already exist"
+                                     % name)
 
     def add_task(self, task):
         """Register a task in the system.
@@ -87,11 +90,11 @@ class System(object):
         # We need to check for name collision with tasks as well since we import them by name
         for task in self.tasks:
             if task.name == storage.name:
-                raise ValueError("Storage has same name as task '%s'" % storage.name)
+                raise ConfigurationError("Storage has same name as task '%s'" % storage.name)
 
         for stored_storage in self.storages:
             if stored_storage.name == storage:
-                raise ValueError("Multiple storages of the same name '{}'".format(storage.name))
+                raise ConfigurationError("Multiple storages of the same name '{}'".format(storage.name))
         self.storages.append(storage)
 
     def storage_by_name(self, name, graceful=False):
@@ -105,7 +108,7 @@ class System(object):
             if storage.name == name:
                 return storage
         if not graceful:
-            raise KeyError("Storage with name {} not found in the system".format(name))
+            raise ConfigurationError("Storage with name {} not found in the system".format(name))
         return None
 
     def task_by_name(self, name, graceful=False):
@@ -115,14 +118,14 @@ class System(object):
         :param graceful: if True, no exception is raised if task couldn't be found
         :return: task with name 'name'
         :rtype: Task
-        :raises: KeyError
+        :raises ConfigurationError
         """
         for task in self.tasks:
             if task.name == name:
                 return task
 
         if not graceful:
-            raise KeyError("Task with name {} not found in the system".format(name))
+            raise ConfigurationError("Task with name {} not found in the system".format(name))
 
         return None
 
@@ -133,14 +136,14 @@ class System(object):
         :param graceful: if True, no exception is raised if flow couldn't be found
         :return: flow with name 'name'
         :rtype: Flow
-        :raises: KeyError
+        :raises ConfigurationError:
         """
         for flow in self.flows:
             if flow.name == name:
                 return flow
 
         if not graceful:
-            raise KeyError("Flow with name '{}' not found in the system".format(name))
+            raise ConfigurationError("Flow with name '{}' not found in the system".format(name))
 
         return None
 
@@ -183,7 +186,7 @@ class System(object):
             node = self.flow_by_name(name, graceful=True)
 
         if not node and not graceful:
-            raise KeyError("Entity with name '{}' not found in the system".format(name))
+            raise ConfigurationError("Entity with name '{}' not found in the system".format(name))
 
         return node
 
@@ -801,7 +804,7 @@ class System(object):
         # are listed (by names) in a separate definition
         for flow in self.flows:
             if not flow.edges:
-                raise ValueError("Empty flow: %s" % flow.name)
+                raise ConfigurationError("Empty flow: %s" % flow.name)
 
     def _check_propagate(self, flow):  # pylint: disable=too-many-branches
         """Check propagate configuration.
@@ -818,9 +821,9 @@ class System(object):
         if isinstance(flow.propagate_finished, list):
             for node in flow.propagate_finished:
                 if node not in all_source_nodes:
-                    raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
-                                     "in flow '%s' to which should be parent nodes propagated"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Subflow '%s' should receive parent nodes, but there is no dependency "
+                                             "in flow '%s' to which should be parent nodes propagated"
+                                             % (node.name, flow.name))
 
                 # propagate_finished set to a flow but these arguments are not passed due
                 # to propagate_parent
@@ -837,9 +840,9 @@ class System(object):
         if isinstance(flow.propagate_compound_finished, list):
             for node in flow.propagate_compound_finished:
                 if node not in all_source_nodes:
-                    raise ValueError("Subflow '%s' should receive parent nodes, but there is no dependency "
-                                     "in flow '%s' to which should be parent nodes propagated"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Subflow '%s' should receive parent nodes, but there is no dependency "
+                                             "in flow '%s' to which should be parent nodes propagated"
+                                             % (node.name, flow.name))
 
                 # propagate_compound_finished set to a flow but these arguments are not passed due
                 # to propagate_parent
@@ -860,59 +863,57 @@ class System(object):
         if isinstance(flow.propagate_failures, list):
             for node in flow.propagate_failures:
                 if node not in all_source_nodes:
-                    raise ValueError("Node '%s' stated in propagate_failures but this node is not started "
-                                     "in flow '%s'"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Node '%s' stated in propagate_failures but this node is not started "
+                                             "in flow '%s'" % (node.name, flow.name))
                 if node not in all_waiting_failure_nodes:
-                    raise ValueError("Node '%s' stated in propagate_failures but there is no such fallback "
-                                     "defined that would handle node's failure in flow '%s'"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Node '%s' stated in propagate_failures but there is no such fallback "
+                                             "defined that would handle node's failure in flow '%s'"
+                                             % (node.name, flow.name))
 
         if isinstance(flow.propagate_compound_failures, list):
             for node in flow.propagate_compound_failures:
                 if node not in all_source_nodes:
-                    raise ValueError("Node '%s' stated in propagate_compound_failures but this node is not started "
-                                     "in flow '%s'"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Node '%s' stated in propagate_compound_failures but this node is "
+                                             "not started in flow '%s'" % (node.name, flow.name))
                 if node not in all_waiting_failure_nodes:
-                    raise ValueError("Node '%s' stated in propagate_compound_failures but there is no such fallback "
-                                     "defined that would handle node's failure in flow '%s'"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Node '%s' stated in propagate_compound_failures but there is "
+                                             "no such fallback defined that would handle node's failure in flow '%s'"
+                                             % (node.name, flow.name))
 
         if isinstance(flow.propagate_parent, list):
             for node in flow.propagate_parent:
                 if node not in all_destination_nodes:
-                    raise ValueError("Subflow '%s' should receive parent, but there is no dependency "
-                                     "in flow '%s' to which should be parent nodes propagated"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Subflow '%s' should receive parent, but there is no dependency "
+                                             "in flow '%s' to which should be parent nodes propagated"
+                                             % (node.name, flow.name))
 
         if isinstance(flow.propagate_finished, list) and isinstance(flow.propagate_compound_finished, list):
             for node in flow.propagate_finished:
                 if node in flow.propagate_compound_finished:
-                    raise ValueError("Cannot mark node '%s' for propagate_finished and "
-                                     "propagate_compound_finished at the same time in flow '%s'"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Cannot mark node '%s' for propagate_finished and "
+                                             "propagate_compound_finished at the same time in flow '%s'"
+                                             % (node.name, flow.name))
         else:
             if (flow.propagate_finished is True and flow.propagate_compound_finished is True)  \
                   or (flow.propagate_finished is True and isinstance(flow.propagate_compound_finished, list)) \
                   or (isinstance(flow.propagate_finished, list) and flow.propagate_compound_finished is True):
-                raise ValueError("Flags propagate_compound_finished and propagate_finished are disjoint,"
-                                 " please specify configuration for each node separately in flow '%s'"
-                                 % flow.name)
+                raise ConfigurationError("Flags propagate_compound_finished and propagate_finished are disjoint,"
+                                         " please specify configuration for each node separately in flow '%s'"
+                                         % flow.name)
 
         if isinstance(flow.propagate_failures, list) and isinstance(flow.propagate_compound_failures, list):
             for node in flow.propagate_failures:
                 if node in flow.propagate_compound_failures:
-                    raise ValueError("Cannot mark node '%s' for propagate_failures and "
-                                     "propagate_compound_failures at the same time in flow '%s'"
-                                     % (node.name, flow.name))
+                    raise ConfigurationError("Cannot mark node '%s' for propagate_failures and "
+                                             "propagate_compound_failures at the same time in flow '%s'"
+                                             % (node.name, flow.name))
         else:
             if (flow.propagate_failures is True and flow.propagate_compound_failures is True)  \
                   or (flow.propagate_failures is True and isinstance(flow.propagate_compound_failures, list)) \
                   or (isinstance(flow.propagate_failures, list) and flow.propagate_compound_failures is True):
-                raise ValueError("Flags propagate_compound_failures and propagate_failures are disjoint,"
-                                 " please specify configuration for each node separately in flow '%s'"
-                                 % flow.name)
+                raise ConfigurationError("Flags propagate_compound_failures and propagate_failures are disjoint, "
+                                         "please specify configuration for each node separately in flow '%s'"
+                                         % flow.name)
 
     def _check(self):  # pylint: disable=too-many-statements,too-many-branches
         """Check system for consistency.
@@ -959,18 +960,20 @@ class System(object):
 
                         if flow.node_args_from_first:
                             if len(edge.nodes_to) > 1:
-                                raise ValueError("Cannot propagate node arguments from multiple starting nodes")
+                                raise ConfigurationError("Cannot propagate node arguments from multiple "
+                                                         "starting nodes")
 
                             if edge.nodes_to[0].is_flow():
-                                raise ValueError("Cannot propagate node arguments from a sub-flow")
+                                raise ConfigurationError("Cannot propagate node arguments from a sub-flow")
 
                     node_seen = {}
                     for node_from in edge.nodes_from:
                         if not node_seen.get(node_from.name, False):
                             node_seen[node_from.name] = True
                         else:
-                            raise ValueError("Nodes cannot be dependent on a node of a same type mode than once; "
-                                             "node from '%s' more than once in flow '%s'" % (node_from.name, flow.name))
+                            raise ConfigurationError("Nodes cannot be dependent on a node of a same type mode "
+                                                     "than once; node from '%s' more than once in flow '%s'"
+                                                     % (node_from.name, flow.name))
 
                     # do not change order of checks as they depend on each other
                     edge.predicate.check()
@@ -978,19 +981,19 @@ class System(object):
 
                 if starting_edges_count > 1:
                     if flow.node_args_from_first:
-                        raise ValueError("Cannot propagate node arguments from multiple starting nodes")
+                        raise ConfigurationError("Cannot propagate node arguments from multiple starting nodes")
 
                 if starting_nodes_count == 0:
-                    raise ValueError("No starting node found in flow '%s'" % flow.name)
+                    raise ConfigurationError("No starting node found in flow '%s'" % flow.name)
 
                 for nowait_node in flow.nowait_nodes:
                     if nowait_node in all_source_nodes:
-                        raise ValueError("Node '%s' marked as 'nowait' but dependency in the flow '%s' found"
-                                         % (nowait_node.name, flow.name))
+                        raise ConfigurationError("Node '%s' marked as 'nowait' but dependency in the flow '%s' found"
+                                                 % (nowait_node.name, flow.name))
 
                     if nowait_node not in flow.all_destination_nodes():
-                        raise ValueError("Node '%s' marked as 'nowait' but this node is never started in flow '%s'"
-                                         % (nowait_node.name, flow.name))
+                        raise ConfigurationError("Node '%s' marked as 'nowait' but this node is never started in "
+                                                 "flow '%s'" % (nowait_node.name, flow.name))
 
                 self._check_propagate(flow)
 
@@ -1005,7 +1008,7 @@ class System(object):
                         error = True
 
                 if error:
-                    raise ValueError("Dependency on not started node detected in flow '%s'" % flow.name)
+                    raise ConfigurationError("Dependency on not started node detected in flow '%s'" % flow.name)
             except:
                 self._logger.error("Check of flow '%s' failed", flow.name)
                 raise
@@ -1038,9 +1041,9 @@ class System(object):
             cls._logger.debug("Parsing '%s'", nodes_definition_file)
             try:
                 content = yaml.load(nodes_file, Loader=yaml.SafeLoader)
-            except:
-                cls._logger.error("Bad YAML file, unable to load tasks from '%s'", nodes_definition_file)
-                raise
+            except Exception as exc:
+                error_msg = "Bad YAML file, unable to load tasks from %r: %s" % (nodes_definition_file, str(exc))
+                raise ConfigurationError(error_msg) from exc
 
         unknown_conf = check_conf_keys(content, known_conf_opts=known_yaml_keys)
         if unknown_conf:
@@ -1055,7 +1058,7 @@ class System(object):
             GlobalConfig.from_dict(system, content['global'])
 
         if 'tasks' not in content or content['tasks'] is None:
-            raise ValueError("No tasks defined in the system")
+            raise ConfigurationError("No tasks defined in the system")
 
         for task_dict in content['tasks']:
             task = Task.from_dict(task_dict, system)
@@ -1082,9 +1085,9 @@ class System(object):
                 cls._logger.debug("Parsing '%s'", flow_file)
                 try:
                     content = yaml.load(flow_definition, Loader=yaml.SafeLoader)
-                except:
-                    cls._logger.error("Bad YAML file, unable to load flow from '%s'", flow_file)
-                    raise
+                except Exception as exc:
+                    error_msg = "Bad YAML file, unable to load flow from %r: %s" % (flow_file, str(exc))
+                    raise ConfigurationError(error_msg) from exc
 
             unknown_conf = check_conf_keys(content, known_conf_opts=known_yaml_keys)
             if unknown_conf:
@@ -1093,10 +1096,10 @@ class System(object):
 
             flow_definitions = content.get('flow-definitions')
             if flow_definitions is None:
-                raise ValueError("No flow definitions provided in file '%s'" % flow_file)
+                raise ConfigurationError("No flow definitions provided in file '%s'" % flow_file)
             for flow_def in content['flow-definitions']:
                 if 'name' not in flow_def:
-                    raise ValueError("No flow name provided in the flow definition in file '%s'", flow_file)
+                    raise ConfigurationError("No flow name provided in the flow definition in file '%s'", flow_file)
                 flow = system.flow_by_name(flow_def['name'])
                 try:
                     flow.parse_definition(flow_def, system)

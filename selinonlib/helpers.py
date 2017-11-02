@@ -13,6 +13,8 @@ import os
 import subprocess
 import tempfile
 
+from .errors import RequestError
+
 _logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
@@ -113,7 +115,7 @@ def git_previous_version(file_path, tmp_dir=None):
         git_hash = subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True)
     except subprocess.CalledProcessError as exc:
         err_msg = "Failed to get previous version of file %r using git: %s" % (file_path, str(exc.output))
-        raise RuntimeError(err_msg) from exc
+        raise RequestError(err_msg) from exc
 
     _logger.debug("Previous version found in Git CVS of file %r is %s", file_path, git_hash)
 
@@ -123,7 +125,7 @@ def git_previous_version(file_path, tmp_dir=None):
     except subprocess.CalledProcessError as exc:
         err_msg = "Failed to get content of file %r in version %s using git: %s" \
                   % (file_path, git_hash, str(exc.output))
-        raise RuntimeError(err_msg) from exc
+        raise RequestError(err_msg) from exc
 
     with tempfile.NamedTemporaryFile(mode="w", dir=tmp_dir, delete=False) as temp_file:
         temp_file.write(file_content)

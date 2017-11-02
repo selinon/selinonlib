@@ -7,6 +7,7 @@
 """Storage configuration and abstraction from YAML config file."""
 
 from .cacheConfig import CacheConfig
+from .errors import ConfigurationError
 from .helpers import check_conf_keys
 
 
@@ -45,18 +46,18 @@ class Storage(object):
         :rtype: Storage
         """
         if 'name' not in dict_ or not dict_['name']:
-            raise KeyError('Storage name definition is mandatory')
+            raise ConfigurationError('Storage name definition is mandatory')
         if 'import' not in dict_ or not dict_['import']:
-            raise KeyError("Storage import definition is mandatory, storage '%s'" % dict_['name'])
+            raise ConfigurationError("Storage import definition is mandatory, storage '%s'" % dict_['name'])
         if 'configuration' not in dict_ or not dict_['configuration']:
-            raise KeyError("Storage configuration definition is mandatory, storage '%s'" % dict_['name'])
+            raise ConfigurationError("Storage configuration definition is mandatory, storage '%s'" % dict_['name'])
         if 'classname' in dict_ and not isinstance(dict_['classname'], str):
-            raise ValueError("Storage classname definition should be string, got '%s' instead, storage '%s'"
-                             % (dict_['classname'], dict_['name']))
+            raise ConfigurationError("Storage classname definition should be string, got '%s' instead, storage '%s'"
+                                     % (dict_['classname'], dict_['name']))
         if 'cache' in dict_:
             if not isinstance(dict_['cache'], dict):
-                raise ValueError("Storage cache for storage '%s' should be a dict with configuration, "
-                                 "got '%s' instead" % (dict_['name'], dict_['cache']))
+                raise ConfigurationError("Storage cache for storage '%s' should be a dict with configuration, "
+                                         "got '%s' instead" % (dict_['name'], dict_['cache']))
             cache_config = CacheConfig.from_dict(dict_['cache'], dict_['name'])
         else:
             cache_config = CacheConfig.get_default(dict_['name'])
@@ -64,8 +65,8 @@ class Storage(object):
         # check supplied configuration options
         unknown_conf = check_conf_keys(dict_, known_conf_opts=('name', 'import', 'configuration', 'cache', 'classname'))
         if unknown_conf:
-            raise ValueError("Unknown configuration options for storage '%s' supplied: %s"
-                             % (dict_['name'], unknown_conf.keys()))
+            raise ConfigurationError("Unknown configuration options for storage '%s' supplied: %s"
+                                     % (dict_['name'], unknown_conf.keys()))
 
         return Storage(dict_['name'], dict_['import'], dict_['configuration'], cache_config, dict_.get('classname'))
 
