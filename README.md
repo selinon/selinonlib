@@ -6,6 +6,7 @@ A simple tool to visualize, check dependencies and generate Python code for [Sel
 ![PyPI Implementation](https://img.shields.io/pypi/implementation/selinonlib.svg)
 ![PyPI Wheel](https://img.shields.io/pypi/wheel/selinonlib.svg)
 ![Travis CI](https://travis-ci.org/selinon/selinonlib.svg?branch=master)
+![Documentation Status](https://readthedocs.org/projects/selinonlib/badge/?version=latest)
 ![GitHub stars](https://img.shields.io/github/stars/selinon/selinonlib.svg)
 ![GitHub license](https://img.shields.io/badge/license-GPLv2-blue.svg)
 ![Twitter](https://img.shields.io/twitter/url/http/github.com/selinon/selinonlib.svg?style=social)
