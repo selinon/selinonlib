@@ -62,6 +62,7 @@ CLI simulator implementation
 
 .. autosummary::
 
+   selinonlib.simulator
    selinonlib.simulator.celeryMocks
    selinonlib.simulator.progress
    selinonlib.simulator.queuePool
