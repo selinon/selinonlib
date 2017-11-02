@@ -9,7 +9,7 @@
 from collections import deque
 
 from selinon import Cache
-from selinon import CacheMissError
+from selinon.errors import CacheMissError
 
 
 class FIFO(Cache):

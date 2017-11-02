@@ -6,7 +6,7 @@
 # ######################################################################
 
 import pytest
-from selinon import CacheMissError
+from selinon.errors import CacheMissError
 from selinonlib.caches import LRU
 from selinonlibTestCase import SelinonlibTestCase
 

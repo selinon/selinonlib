@@ -9,7 +9,7 @@
 import random
 
 from selinon import Cache
-from selinon import CacheMissError
+from selinon.errors import CacheMissError
 
 
 class RR(Cache):

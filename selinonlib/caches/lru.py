@@ -7,7 +7,7 @@
 """Least-Recently-Used cache implementation."""
 
 from selinon import Cache
-from selinon import CacheMissError
+from selinon.errors import CacheMissError
 
 
 class _Record(object):
