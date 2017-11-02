@@ -27,14 +27,6 @@ class UnknownStorageError(Exception):
     """Raised if there was requested or referenced storage that is not stated in the YAML configuration file."""
 
 
-class UnknownTaskError(Exception):
-    """Raised if there was requested or referenced storage that is not stated in the YAML configuration file."""
-
-
-class UnknownCacheError(Exception):
-    """Raised if there was requested or referenced cache that is not stated in the YAML configuration file."""
-
-
 class ConfigurationError(Exception):
     """Raised on errors that indicate errors in the configuration files."""
 
