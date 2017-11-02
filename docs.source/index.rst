@@ -80,6 +80,14 @@ Storage and database adapters
    selinonlib.storages.s3
    selinonlib.storages.sqlStorage
 
+Migrations
+##########
+
+.. autosummary::
+
+   selinonlib.migrator
+   selinonlib.migrator.migrator
+
 Predefined scheduling strategies
 ################################
 
