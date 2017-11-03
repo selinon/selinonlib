@@ -6,3 +6,5 @@ dist
 selinonlib.egg-info
 build
 .cache
+*.orig
+*.rej
