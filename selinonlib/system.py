@@ -214,8 +214,9 @@ class System(object):
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
 
             # predicates used on failure nodes
-            for predicate in flow.failures.predicates:
-                predicates.update([p.__name__ for p in predicate.predicates_used()])
+            if flow.failures:
+                for predicate in flow.failures.predicates:
+                    predicates.update([p.__name__ for p in predicate.predicates_used()])
 
             cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
 
