@@ -106,11 +106,6 @@ class FailureNode(object):
         :param failure_info: additional information as passed from configuration file
         :param predicate: predicate that should be evaluated on a failure
         """
-        # fallback parsing
-        if failure_node.fallback:
-            raise ConfigurationError("Multiple definitions of a failure in flow '%s' with failure of %s"
-                                     % (failure_node.flow.name, failure_node.traversed))
-
         if not isinstance(failure_info['fallback'], list) and failure_info['fallback'] is not True:
             failure_info['fallback'] = [failure_info['fallback']]
 
