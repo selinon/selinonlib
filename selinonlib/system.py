@@ -13,7 +13,6 @@ import platform
 
 import yaml
 
-import codegen
 import graphviz
 
 from .config import Config
@@ -147,6 +146,25 @@ class System(object):
 
         return None
 
+    def node_by_name(self, name, graceful=False):
+        """Find a node (flow or task) by its name.
+
+        :param name: a node name
+        :param graceful: if True, no exception is raised if node couldn't be found
+        :return: flow with name 'name'
+        :rtype: Node
+        :raises: KeyError
+        """
+        node = self.task_by_name(name, graceful=True)
+
+        if not node:
+            node = self.flow_by_name(name, graceful=True)
+
+        if not node and not graceful:
+            raise ConfigurationError("Entity with name '{}' not found in the system".format(name))
+
+        return node
+
     def task_queue_names(self):
         """Get information about queue names per task.
 
@@ -171,25 +189,6 @@ class System(object):
 
         return ret
 
-    def node_by_name(self, name, graceful=False):
-        """Find a node (flow or task) by its name.
-
-        :param name: a node name
-        :param graceful: if True, no exception is raised if node couldn't be found
-        :return: flow with name 'name'
-        :rtype: Node
-        :raises: KeyError
-        """
-        node = self.task_by_name(name, graceful=True)
-
-        if not node:
-            node = self.flow_by_name(name, graceful=True)
-
-        if not node and not graceful:
-            raise ConfigurationError("Entity with name '{}' not found in the system".format(name))
-
-        return node
-
     def class_of_task(self, task):
         """Return task class of a task.
 
@@ -213,6 +212,11 @@ class System(object):
         for flow in self.flows:
             for edge in flow.edges:
                 predicates.update([p.__name__ for p in edge.predicate.predicates_used()])
+
+            # predicates used on failure nodes
+            for predicate in flow.failures.predicates:
+                predicates.update([p.__name__ for p in predicate.predicates_used()])
+
             cache_imports.add((flow.cache_config.import_path, flow.cache_config.name))
 
         if predicates:
@@ -480,8 +484,11 @@ class System(object):
         """
         for flow in self.flows:
             for idx, edge in enumerate(flow.edges):
-                output.write('def {}(db, node_args):\n'.format(self._dump_condition_name(flow.name, idx)))
-                output.write('    return {}\n\n\n'.format(codegen.to_source(edge.predicate.ast())))
+                output.write('def {}(db, node_args):\n'.format(edge.predicate.construct_condition_name(flow.name, idx)))
+                output.write('    return {}\n\n\n'.format(edge.predicate.to_source()))
+
+            if flow.failures:
+                flow.failures.dump_all_conditions2stream(output)
 
     def _dump_throttling(self, output):
         """Dump throttling configuration.
@@ -597,7 +604,7 @@ class System(object):
                     output.write(' '*(len(flow.name) + 4 + 5))  # align to previous line
                 output.write("{'from': %s" % str([node.name for node in edge.nodes_from]))
                 output.write(", 'to': %s" % str([node.name for node in edge.nodes_to]))
-                output.write(", 'condition': %s" % self._dump_condition_name(flow.name, idx_edge))
+                output.write(", 'condition': %s" % edge.predicate.construct_condition_name(flow.name, idx_edge))
                 output.write(", 'condition_str': '%s'" % str(edge.predicate).replace('\'', '\\\''))
                 if edge.foreach:
                     output.write(", 'foreach': %s" % self._dump_foreach_function_name(flow.name, idx_edge))
@@ -617,6 +624,7 @@ class System(object):
 
         :param stream: an output stream to write to
         """
+        # pylint: disable=too-many-statements
         stream.write('#!/usr/bin/env python3\n')
         stream.write('# auto-generated using Selinonlib v{} on {} at {}\n\n'.format(selinonlib_version,
                                                                                     platform.node(),
@@ -639,10 +647,18 @@ class System(object):
         self._dump_retry_countdown(stream)
         self._dump_storage_readonly(stream)
         stream.write('#'*80+'\n\n')
+        self._dump_selective_run_functions(stream)
+        stream.write('#'*80+'\n\n')
+        self._dump_nowait_nodes(stream)
+        stream.write('#'*80+'\n\n')
+        self._dump_init(stream)
+        stream.write('#'*80+'\n\n')
+        self._dump_condition_functions(stream)
+        stream.write('#'*80+'\n\n')
 
         for flow in self.flows:
             if flow.failures:
-                flow.failures.dump2stream(stream, flow.name)
+                flow.failures.dump2stream(stream)
 
         stream.write('failures = {')
         printed = False
@@ -666,7 +682,6 @@ class System(object):
         self._dump_condition_functions(stream)
         stream.write('#'*80+'\n\n')
         self._dump_edge_table(stream)
-        stream.write('#'*80+'\n\n')
 
     def dump2file(self, output_file):
         """Perform system dump to a Python source code.
@@ -677,6 +692,64 @@ class System(object):
         with open(output_file, 'w') as stream:
             self.dump2stream(stream)
 
+    @staticmethod
+    def _plot_connection(graph, node, condition_node, storage_connections, direction_to_condition=True, fallback=False):
+        """Plot node connection to graph.
+
+        :param graph: graph to plot to
+        :param node: node to plot
+        :param condition_node: condition node to connect to
+        :param storage_connections: storages that were plotted with their connections (not to plot duplicit edges)
+        :param direction_to_condition: direction of the connection
+        :param fallback: True if plotting a fallback edge
+        """
+        edge_style = Config().style_fallback_edge() if fallback else Config().style_edge()
+
+        if node.is_flow():
+            graph.node(name=node.name, _attributes=Config().style_flow())
+        else:
+            graph.node(name=node.name)
+            if node.storage:
+                graph.node(name=node.storage.name, _attributes=Config().style_storage())
+                if (node.name, node.storage.name) not in storage_connections:
+                    graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
+                    storage_connections.append((node.name, node.storage.name,))
+
+        if direction_to_condition:
+            graph.edge(node.name, condition_node, _attributes=edge_style)
+        else:
+            graph.edge(condition_node, node.name, _attributes=edge_style)
+
+    def _plot_graph_failures(self, graph, flow, storage_connections):
+        """Plot failures to existing graph.
+
+        :param graph: graph to plot to
+        :param flow: flow which failures should be plotted
+        :param storage_connections: storage connections that were already defined
+        """
+        for idx, failure in enumerate(flow.failures.raw_definition):
+            condition = flow.failures.predicates[idx]
+            # This is kind-of-hack-ish as we do not want to traverse all failure nodes, so construct some unique name
+            # for this particular failure condition to ensure we do not overwrite an existing one
+            # See FailureNode.construct_condition_name() for a "proper" naming
+            condition_node = flow.name + str(idx)
+            graph.node(name=condition_node, label=str(condition), _attributes=Config().style_condition())
+
+            for node_name in failure['nodes']:
+                node = self.node_by_name(node_name)
+                self._plot_connection(graph, node, condition_node, storage_connections,
+                                      direction_to_condition=True, fallback=True)
+
+            if isinstance(failure['fallback'], bool):
+                graph.node(name=str(id(failure['fallback'])), label=str(failure['fallback']),
+                           _attributes=Config().style_fallback_true())
+                graph.edge(condition_node, str(id(failure['fallback'])), _attributes=Config().style_fallback_edge())
+            else:
+                for node_name in failure['fallback']:
+                    node = self.node_by_name(node_name)
+                    self._plot_connection(graph, node, condition_node, storage_connections,
+                                          direction_to_condition=False, fallback=True)
+
     def plot_graph(self, output_dir, image_format=None):  # pylint: disable=too-many-statements,too-many-branches
         """Plot system flows to graphs - each flow in a separate file.
 
@@ -685,7 +758,6 @@ class System(object):
         :return: list of file names to which the graph was rendered
         :rtype: List[str]
         """
-        # TODO: this method needs to be refactored
         self._logger.debug("Rendering system flows to '%s'", output_dir)
         ret = []
         image_format = image_format if image_format else 'svg'
@@ -698,7 +770,7 @@ class System(object):
             graph.edge_attr.update(Config().style_edge())
 
             for idx, edge in enumerate(flow.edges):
-                condition_node = "%s_%s" % (flow.name, idx)
+                condition_node = edge.predicate.construct_condition_name(flow.name, idx)
                 if edge.foreach:
                     condition_label = "%s\n%s" % (str(edge.predicate), edge.foreach_str())
                     graph.node(name=condition_node, label=condition_label,
@@ -707,84 +779,16 @@ class System(object):
                     graph.node(name=condition_node, label=str(edge.predicate),
                                _attributes=Config().style_condition())
 
-                for node in edge.nodes_to:
-                    # Plot storage connection
-                    if node.is_flow():
-                        graph.node(name=node.name, _attributes=Config().style_flow())
-                    else:
-                        graph.node(name=node.name)
-                        if node.storage:
-                            graph.node(name=node.storage.name, _attributes=Config().style_storage())
-                            if (node.name, node.storage.name) not in storage_connections:
-                                graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
-                                storage_connections.append((node.name, node.storage.name,))
-                    graph.edge(condition_node, node.name)
                 for node in edge.nodes_from:
-                    if node.is_flow():
-                        graph.node(name=node.name, _attributes=Config().style_flow())
-                    else:
-                        graph.node(name=node.name)
-                        if node.storage:
-                            graph.node(name=node.storage.name, _attributes=Config().style_storage())
-                            if (node.name, node.storage.name) not in storage_connections:
-                                graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
-                                storage_connections.append((node.name, node.storage.name,))
-                    graph.edge(node.name, condition_node)
+                    self._plot_connection(graph, node, condition_node, storage_connections,
+                                          direction_to_condition=True)
+                for node in edge.nodes_to:
+                    self._plot_connection(graph, node, condition_node, storage_connections,
+                                          direction_to_condition=False)
 
             # Plot failures as well
             if flow.failures:
-                for failure in flow.failures.raw_definition:
-                    if len(failure['nodes']) == 1 and \
-                            (isinstance(failure['fallback'], bool) or len(failure['fallback']) == 1):
-                        graph.node(name=failure['nodes'][0])
-
-                        if isinstance(failure['fallback'], list):
-                            fallback_node_name = failure['fallback'][0]
-                        else:
-                            fallback_node_name = str(failure['fallback'])
-
-                        graph.node(name=fallback_node_name)
-                        graph.edge(failure['nodes'][0], fallback_node_name,
-                                   _attributes=Config().style_fallback_edge())
-
-                        if not isinstance(failure['fallback'], bool):
-                            node = self.node_by_name(failure['fallback'][0])
-                            if node.is_task() and node.storage:
-                                graph.node(name=node.storage.name, _attributes=Config().style_storage())
-                                if (node.name, node.storage.name) not in storage_connections:
-                                    graph.edge(node.name, node.storage.name, _attributes=Config().style_store_edge())
-                                    storage_connections.append((node.name, node.storage.name,))
-                    else:
-                        graph.node(name=str(id(failure)), _attributes=Config().style_fallback_node())
-
-                        for node_name in failure['nodes']:
-                            if self.node_by_name(node_name).is_flow():
-                                graph.node(name=node_name, _attributes=Config().style_flow())
-                            else:
-                                graph.node(name=node_name)
-                            graph.edge(node_name, str(id(failure)), _attributes=Config().style_fallback_edge())
-
-                        if failure['fallback'] is True:
-                            graph.node(name=str(id(failure['fallback'])), label="True",
-                                       _attributes=Config().style_fallback_true())
-                            graph.edge(str(id(failure)), str(id(failure['fallback'])),
-                                       _attributes=Config().style_fallback_edge())
-                        else:
-                            for node_name in failure['fallback']:
-                                node = self.node_by_name(node_name)
-                                if node.is_flow():
-                                    graph.node(name=node.name, _attributes=Config().style_flow())
-                                else:
-                                    graph.node(name=node.name)
-                                    if node.storage:
-                                        graph.node(name=node.storage.name, _attributes=Config().style_storage())
-                                        if (node.name, node.storage.name) not in storage_connections:
-                                            graph.edge(node.name,
-                                                       node.storage.name,
-                                                       _attributes=Config().style_store_edge())
-                                            storage_connections.append((node.name, node.storage.name,))
-
-                                graph.edge(str(id(failure)), node_name, _attributes=Config().style_fallback_edge())
+                self._plot_graph_failures(graph, flow, storage_connections)
 
             file = os.path.join(output_dir, "%s" % flow.name)
             graph.render(filename=file, cleanup=True)

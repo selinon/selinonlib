@@ -8,6 +8,8 @@
 
 import abc
 
+import codegen
+
 from .errors import ConfigurationError
 from .helpers import check_conf_keys
 from .helpers import dict2json
@@ -31,7 +33,7 @@ class Predicate(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractclassmethod
-    def create(cls, tree, nodes_from, flow):
+    def create(cls, tree, nodes_from, flow, can_inspect_results):
         """Create the predicate.
 
         :param tree: node from which should be predicate instantiated
@@ -40,6 +42,8 @@ class Predicate(metaclass=abc.ABCMeta):
         :type nodes_from: List[Nodes]
         :param flow: flow to which predicate belongs to
         :type flow: Flow
+        :param can_inspect_results: True if predicates in the condition can query task result
+        :type can_inspect_results: bool
         :return: Predicate instance
         """
         pass
@@ -71,7 +75,19 @@ class Predicate(metaclass=abc.ABCMeta):
         pass
 
     @staticmethod
-    def construct(tree, nodes_from, flow):  # pylint: disable=too-many-branches
+    def construct_default(flow):
+        """Construct default predicate for edge.
+
+        :param flow: flow to which predicate belongs to
+        :type flow: Flow
+        :rtype: Predicate
+        """
+        from .builtinPredicate import AlwaysTruePredicate
+
+        return AlwaysTruePredicate(flow=flow)
+
+    @staticmethod
+    def construct(tree, nodes_from, flow, can_inspect_results=True):  # pylint: disable=too-many-branches
         """Top-down creation of predicates - recursively called to construct predicates.
 
         :param tree: a dictionary describing nodes
@@ -79,6 +95,8 @@ class Predicate(metaclass=abc.ABCMeta):
         :param nodes_from: nodes which are used within edge
         :param flow: flow to which predicate belongs to
         :type flow: Flow
+        :param can_inspect_results: True if predicates in the condition can query task result
+        :type can_inspect_results: bool
         :rtype: Predicate
         """
         from .leafPredicate import LeafPredicate
@@ -109,15 +127,40 @@ class Predicate(metaclass=abc.ABCMeta):
                 raise ConfigurationError("Unknown configuration option for predicate '%s' in flow '%s': %s"
                                          % (tree['name'], flow.name, unknown_conf.keys()))
 
-            return LeafPredicate.create(tree['name'], node, flow, tree.get('args'))
+            predicate = LeafPredicate.create(tree['name'], node, flow, tree.get('args'))
+
+            if not can_inspect_results and predicate.requires_message():
+                raise ConfigurationError("Cannot inspect results of tasks '%s' in predicate '%s' in flow '%s'"
+                                         % (nodes_from, tree['name'], flow.name))
+            return predicate
         elif 'or' in tree:
-            return OrPredicate.create(tree['or'], nodes_from, flow)
+            return OrPredicate.create(tree['or'], nodes_from, flow, can_inspect_results)
         elif 'not' in tree:
-            return NotPredicate.create(tree['not'], nodes_from, flow)
+            return NotPredicate.create(tree['not'], nodes_from, flow, can_inspect_results)
         elif 'and' in tree:
-            return AndPredicate.create(tree['and'], nodes_from, flow)
+            return AndPredicate.create(tree['and'], nodes_from, flow, can_inspect_results)
         else:
             raise ConfigurationError("Unknown predicate:\n%s" % dict2json(tree))
+
+    @staticmethod
+    def construct_condition_name(flow_name, idx):
+        """Create condition name for a dump.
+
+        :param flow_name: flow name
+        :type flow_name: str
+        :param idx: index of condition within the flow
+        :type idx: int
+        :return: condition function representation
+        """
+        assert idx >= 0  # nosec
+        return '_condition_{}_{}_cond'.format(flow_name, idx)
+
+    def to_source(self):
+        """Construct predicate source code.
+
+        :return: predicate source code
+        """
+        return codegen.to_source(self.ast())
 
     @abc.abstractmethod
     def check(self):
