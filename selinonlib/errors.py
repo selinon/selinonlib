@@ -45,3 +45,15 @@ class RequestError(Exception):
 
 class UnknownError(Exception):
     """An error raised on unknown scenarios - possibly some bug in code."""
+
+
+class Retry(Exception):
+    """Retry task as would Celery do except you can only specify countdown for retry."""
+
+    def __init__(self, countdown):
+        """Init retry.
+
+        :param countdown: countdown in seconds
+        """
+        self.countdown = countdown
+        Exception.__init__(self, countdown)
