@@ -11,14 +11,6 @@ class FatalTaskError(Exception):
     """An exception that is raised by task on fatal error - task will be not retried."""
 
 
-class MigrationNotNeeded(Exception):
-    """Raised when a migration is requested, but config changes do not require it."""
-
-
-class MigrationSkew(Exception):
-    """Raised if desired migration does not exist - migration file not present (message from future migrations)."""
-
-
 class UnknownFlowError(Exception):
     """Raised if there was requested or referenced flow that is not stated in the YAML configuration file."""
 

@@ -48,7 +48,7 @@ _STRATEGIES_ALL_ARG = _STRATEGIES_ONE_ARG + _STRATEGIES_TWO_ARG + _STRATEGIES_TH
 
 
 @pytest.mark.parametrize("strategy", _STRATEGIES_ALL_ARG)
-class TestStrategies(SelinonlibTestCase):
+class TestSamplingStrategies(SelinonlibTestCase):
     def test_start(self, strategy):
         status = {
             'previous_retry': None,

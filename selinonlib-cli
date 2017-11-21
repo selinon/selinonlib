@@ -17,7 +17,8 @@ from celery import __version__ as celery_version
 from selinonlib import selinonlib_version, selinonlib_version_codename
 from selinonlib import System
 from selinonlib import Config
-from selinonlib.migrator import Migrator
+from selinonlib.migrations import Migrator
+from selinonlib.migrations import TaintedFlowStrategy
 from selinonlib.helpers import git_previous_version
 from selinonlib.simulator import Simulator
 
@@ -140,6 +141,7 @@ class Command(object):
         :return: simulate command parser
         """
         parser = argparse.ArgumentParser(add_help=False)
+        default_tainted_strategy = TaintedFlowStrategy.get_default_option()
 
         cls._require_yaml_configs(parser)
 
@@ -150,12 +152,17 @@ class Command(object):
                             action='store', metavar='FLOW.yml',
                             help='path to old flow definition file', nargs='+')
 
-        parser.add_argument('--migration-dir', '-m', action='store', dest='migration_dir', required=True,
+        parser.add_argument('--no-meta', dest='no_meta', action='store_true',
+                            help='do not add metadata information to generated migration files')
+        parser.add_argument('--migration-dir', '-m', action='store', dest='migration_dir',
                             help='path to a directory containing generated migrations')
         parser.add_argument('--git', '-g', action='store_true', dest='use_git',
                             help='use Git VCS for obtaining old flow configuration')
         parser.add_argument('--no-check', dest='no_check', action='store_true',
                             help='do not check system for errors')
+        parser.add_argument('--tainted-flows', '-t', action='store', dest='tainted_flows',
+                            choices=TaintedFlowStrategy.get_option_names(), default=default_tainted_strategy,
+                            help='define strategy for tainted flows (default: %s)' % default_tainted_strategy)
 
         return parser
 
@@ -247,8 +254,14 @@ class Command(object):
                     raise ValueError("There is an error in your old configuration files: {}".format(str(e))) from e
 
             migrator = Migrator(args.migration_dir)
-            new_migration_file = migrator.create_migration_file(old_nodes_definition, old_flow_definitions,
-                                                                args.nodes_definition, args.flow_definitions)
+            new_migration_file = migrator.create_migration_file(
+                old_nodes_definition,
+                old_flow_definitions,
+                args.nodes_definition,
+                args.flow_definitions,
+                TaintedFlowStrategy.get_option_by_name(args.tainted_flows),
+                not args.no_meta
+            )
         finally:
             if args.use_git:
                 _logger.debug("Removing temporary files")

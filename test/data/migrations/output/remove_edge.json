@@ -1,0 +1,97 @@
+{
+  "migration": {
+    "flow1": {
+      "tainted_edges": [
+        0,
+        1
+      ],
+      "tainting_nodes": {},
+      "translation": {
+        "0": null,
+        "1": null,
+        "2": 1
+      }
+    },
+    "flow2": {
+      "tainted_edges": [
+        1
+      ],
+      "tainting_nodes": {},
+      "translation": {
+        "1": null
+      }
+    },
+    "flow3": {
+      "tainted_edges": [
+        0,
+        1
+      ],
+      "tainting_nodes": {},
+      "translation": {
+        "0": null,
+        "1": null,
+        "2": 1
+      }
+    },
+    "flow4": {
+      "tainted_edges": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "tainting_nodes": {
+        "1": [
+          "Task3"
+        ]
+      },
+      "translation": {
+        "0": null,
+        "1": null,
+        "2": null,
+        "3": null
+      }
+    },
+    "flow5": {
+      "tainted_edges": [
+        1,
+        2
+      ],
+      "tainting_nodes": {
+        "1": [
+          "Task1"
+        ]
+      },
+      "translation": {
+        "1": null,
+        "2": null,
+        "3": 2
+      }
+    },
+    "flow6": {
+      "tainted_edges": [
+        1,
+        2
+      ],
+      "tainting_nodes": {
+        "1": [
+          "Task1"
+        ]
+      },
+      "translation": {
+        "1": null,
+        "2": null
+      }
+    },
+    "flow7": {
+      "tainted_edges": [
+        2
+      ],
+      "tainting_nodes": {},
+      "translation": {
+        "2": null
+      }
+    }
+  },
+  "tainted_flow_strategy": "RETRY"
+}
