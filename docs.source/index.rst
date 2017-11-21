@@ -86,8 +86,9 @@ Migrations
 
 .. autosummary::
 
-   selinonlib.migrator
-   selinonlib.migrator.migrator
+   selinonlib.migrations
+   selinonlib.migrations.migrator
+   selinonlib.migrations.taintedFlowStrategy
 
 Predefined scheduling strategies
 ################################

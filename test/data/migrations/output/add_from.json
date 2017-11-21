@@ -1,0 +1,15 @@
+{
+  "_meta": null,
+  "migration": {
+    "flow1": {
+      "tainted_edges": [1],
+      "tainting_nodes": {
+        "1": ["Task1"]
+      },
+      "translation": {
+        "1": null
+      }
+    }
+  },
+  "tainted_flow_strategy": "IGNORE"
+}

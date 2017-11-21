@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
 
     selinonlib.caches
-    selinonlib.migrator
+    selinonlib.migrations
     selinonlib.predicates
     selinonlib.routines
     selinonlib.simulator
