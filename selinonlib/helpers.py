@@ -102,12 +102,12 @@ def check_conf_keys(dict_, known_conf_opts):
     return {k: v for k, v in dict_.items() if k not in known_conf_opts}
 
 
-def git_previous_version(file_path, tmp_dir=None):
-    """Get previous version of a file in Git CVS.
+def git_previous_version(file_path):
+    """Get hash of previous version of a file in Git CVS.
 
     :param file_path: a path to file to get previous version from
-    :param tmp_dir: a directory to store the content of previous file version
-    :return: a path to a temporary file with content from previous version
+    :return: git hash of previous version and it's depth from master
+    :rtype: tuple
     """
     cmd = "git log --max-count 1 --pretty=format:%H".split(' ')
     cmd.append(file_path)
@@ -117,9 +117,27 @@ def git_previous_version(file_path, tmp_dir=None):
         err_msg = "Failed to get previous version of file %r using git: %s" % (file_path, str(exc.output))
         raise RequestError(err_msg) from exc
 
-    _logger.debug("Previous version found in Git CVS of file %r is %s", file_path, git_hash)
+    cmd = "git rev-list --ancestry-path {}..master".format(git_hash).split(' ')
+    try:
+        depth = len(subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True))
+    except subprocess.CalledProcessError as exc:
+        err_msg = "Failed to get git log depth for file %r using git: %s" % (file_path, str(exc.output))
+        raise RequestError(err_msg) from exc
 
-    cmd = ["git", "show", "%s:%s" % (git_hash, file_path)]
+    _logger.debug("Previous version found in Git CVS of file %r is %s with a depth of %d",
+                  file_path, git_hash, depth)
+    return git_hash, depth
+
+
+def git_previous_version_file(git_hash, file_path, tmp_dir=None):
+    """Get previous version of a file in Git CVS.
+
+    :param git_hash: git hash for the given file
+    :param file_path: a path to file to get previous version from
+    :param tmp_dir: a directory to store the content of previous file version
+    :return: a path to a temporary file with content from previous version
+    """
+    cmd = ["git", "show", "%s:%s" % (git_hash, file_path if file_path.startswith('/') else './' + file_path)]
     try:
         file_content = subprocess.check_output(cmd, stderr=subprocess.PIPE, universal_newlines=True)
     except subprocess.CalledProcessError as exc:
@@ -127,6 +145,7 @@ def git_previous_version(file_path, tmp_dir=None):
                   % (file_path, git_hash, str(exc.output))
         raise RequestError(err_msg) from exc
 
+    _logger.debug("Using git version %r for file %r", git_hash, file_path)
     with tempfile.NamedTemporaryFile(mode="w", dir=tmp_dir, delete=False) as temp_file:
         temp_file.write(file_content)
         return temp_file.name
