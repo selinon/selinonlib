@@ -99,7 +99,7 @@ class Migrator(object):
             except ValueError as exc:
                 raise MigrationSkew("Unable to parse previous migrations, file name %r does not correspond "
                                     "to migration file - migration files should be named numerically"
-                                    % file_path) from exc
+                                    % file_path, available_migration_version=None) from exc
 
             latest_migration_number = max(migration_number, latest_migration_number)
 
@@ -401,7 +401,7 @@ class Migrator(object):
         if migration_version > latest_migration_version:
             raise MigrationSkew("Received message with a newer migration number, "
                                 "message migration version: %d, latest migration number present available: %d"
-                                % (migration_version, latest_migration_version))
+                                % (migration_version, latest_migration_version), latest_migration_version)
 
         tainted = False
         current_migration_version = migration_version
@@ -414,7 +414,7 @@ class Migrator(object):
                     migration_spec = yaml.safe_load(migration_file)
             except FileNotFoundError as exc:
                 raise MigrationSkew("Migration file %r not found, cannot perform migrations"
-                                    % current_migration_path) from exc
+                                    % current_migration_path, current_migration_version) from exc
 
             state, taints_flow = self._do_migration(migration_spec,
                                                     flow_name,
