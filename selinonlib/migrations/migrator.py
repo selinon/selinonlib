@@ -155,7 +155,7 @@ class Migrator(object):
 
         if content['migration'] == migration:
             _logger.warning("Newly created migration is same as the old configuration. "
-                            "Please make sure you don't run same migration twice!")
+                            "Please make sure you don't run the same migration twice!")
 
     def _write_migration_file(self, migration, tainted_flow_strategy, add_meta):
         """Write computed migration to migration dir."""
@@ -183,7 +183,7 @@ class Migrator(object):
         :param edges: edges from the flow YAML configuration file to be preprocessed
         """
         for idx, edge in enumerate(edges):
-            for key in edge.keys():
+            for key in list(edge.keys()):
                 if key not in ('from', 'to'):
                     edge.pop(key)
             edge['_idx'] = idx
@@ -269,13 +269,16 @@ class Migrator(object):
                                                                                       new_flow['edges'])
 
             if not migrations and not tainted_edges and not tainting_nodes:
-                raise MigrationNotNeeded("No flow configuration changes that would require new migration detected")
+                continue
 
             migrations[flow_name] = {
                 'translation': migration,
                 'tainted_edges': tainted_edges,
                 'tainting_nodes': tainting_nodes
             }
+
+        if not migrations:
+            raise MigrationNotNeeded("No flow configuration changes that would require new migration detected")
 
         return self._write_migration_file(migrations, tainted_flow_strategy, add_meta)
 

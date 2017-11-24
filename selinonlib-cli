@@ -11,6 +11,7 @@ import json
 import argparse
 import logging
 import argcomplete
+from functools import partial
 from rainbow_logging_handler import RainbowLoggingHandler
 from selinon import selinon_version
 from celery import __version__ as celery_version
@@ -20,6 +21,7 @@ from selinonlib import Config
 from selinonlib.migrations import Migrator
 from selinonlib.migrations import TaintedFlowStrategy
 from selinonlib.helpers import git_previous_version
+from selinonlib.helpers import git_previous_version_file
 from selinonlib.simulator import Simulator
 
 _logger = logging.getLogger(os.path.basename(__file__))
@@ -238,8 +240,20 @@ class Command(object):
             raise ValueError("Use --git or explicit old configuration file specification in order "
                              "to access old config files")
 
-        old_nodes_definition = args.old_nodes_definition or git_previous_version(args.nodes_definition)
-        old_flow_definitions = args.old_flow_definitions or map(git_previous_version, args.flow_definitions)
+        if args.use_git:
+            # Compute version that directly precedes the current master - there is relevant change
+            # in any of config files.
+            git_hash, depth = git_previous_version(args.nodes_definition)
+            for new_flow_definition_file in args.flow_definitions:
+                new_git_hash, new_depth = git_previous_version(new_flow_definition_file)
+                if new_depth < depth:
+                    git_hash = new_git_hash
+
+            old_nodes_definition = git_previous_version_file(git_hash, args.nodes_definition)
+            old_flow_definitions = map(partial(git_previous_version_file, git_hash), args.flow_definitions)
+        else:
+            old_nodes_definition = args.old_nodes_definition
+            old_flow_definitions = args.old_flow_definitions
 
         try:
             if not args.no_check:
