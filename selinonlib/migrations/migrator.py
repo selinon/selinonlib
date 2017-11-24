@@ -105,6 +105,11 @@ class Migrator(object):
 
         return latest_migration_number
 
+    @staticmethod
+    def _migration_file_name(migration_version):
+        """Create migration file name based on migration version."""
+        return str(migration_version) + ".json"
+
     def _get_new_migration_file_name(self):
         """Generate a new migration file name.
 
@@ -119,7 +124,7 @@ class Migrator(object):
                 raise RuntimeError("Migration directory does not exist, unable to create a new directory: %s"
                                    % str(exc))
 
-        return str(self._get_latest_migration_version() + 1) + ".json"
+        return self._migration_file_name(self._get_latest_migration_version() + 1)
 
     @staticmethod
     def _get_migration_metadata():
@@ -137,6 +142,21 @@ class Migrator(object):
             'user': user
         }
 
+    def _warn_on_same_migration(self, migration):
+        """Warn if the newly created migration is same as the old one."""
+        # This could be optimized - we can reuse the latest migration version retrieval from call from caller.
+        last_migration_version = self._get_latest_migration_version()
+        if not last_migration_version:
+            return
+
+        last_migration_path = os.path.join(self.migration_dir, self._migration_file_name(last_migration_version))
+        with open(last_migration_path, 'r') as last_migration_file:
+            content = yaml.safe_load(last_migration_file)
+
+        if content['migration'] == migration:
+            _logger.warning("Newly created migration is same as the old configuration. "
+                            "Please make sure you don't run same migration twice!")
+
     def _write_migration_file(self, migration, tainted_flow_strategy, add_meta):
         """Write computed migration to migration dir."""
         new_migration_file_name = self._get_new_migration_file_name()
@@ -145,6 +165,8 @@ class Migrator(object):
             'migration': migration,
             'tainted_flow_strategy': tainted_flow_strategy.name
         }
+
+        self._warn_on_same_migration(migration)
 
         if add_meta:
             migration_file_content['_meta'] = self._get_migration_metadata()
@@ -221,15 +243,15 @@ class Migrator(object):
             matched = False
             for new_edge in new_unmatched:
                 if old_edge['from'] == new_edge['from']:
-                    translation[old_edge['_idx']] = new_edge['_idx']
+                    translation[str(old_edge['_idx'])] = new_edge['_idx']
                     matched = True
                     break
 
             if not matched:
-                translation[old_edge['_idx']] = None
+                translation[str(old_edge['_idx'])] = None
 
         # Keep track of edges that were remapped to another edge
-        translation.update({edge['_idx']: edge.get('_new_edge_idx') for edge in old_flow_edges
+        translation.update({str(edge['_idx']): edge.get('_new_edge_idx') for edge in old_flow_edges
                             if edge['_idx'] != edge.get('_new_edge_idx')})
 
         return translation, tainted_edges, tainting_nodes
@@ -407,7 +429,8 @@ class Migrator(object):
         current_migration_version = migration_version
         while current_migration_version != latest_migration_version:
             current_migration_version += 1
-            current_migration_path = os.path.join(self.migration_dir, str(current_migration_version) + '.json')
+            current_migration_path = os.path.join(self.migration_dir,
+                                                  self._migration_file_name(current_migration_version))
 
             try:
                 with open(current_migration_path, 'r') as migration_file:
