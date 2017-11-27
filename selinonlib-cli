@@ -248,6 +248,7 @@ class Command(object):
                 new_git_hash, new_depth = git_previous_version(new_flow_definition_file)
                 if new_depth < depth:
                     git_hash = new_git_hash
+                    depth = new_depth
 
             _logger.debug("Using Git hash %r for old config files", git_hash)
             old_nodes_definition = git_previous_version_file(git_hash, args.nodes_definition)

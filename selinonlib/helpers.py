@@ -130,7 +130,7 @@ def git_previous_version(file_path):
 
     cmd = "git rev-list --ancestry-path {}..HEAD".format(git_hash).split(' ')
     try:
-        depth = len(subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True))
+        depth = len(subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True).split('\n'))
     except subprocess.CalledProcessError as exc:
         err_msg = "Failed to get git log depth for file %r using git: %s" % (file_path, str(exc.output))
         raise RequestError(err_msg) from exc
