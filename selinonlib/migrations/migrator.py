@@ -211,10 +211,10 @@ class Migrator(object):
 
             edge['_idx'] = idx
             # We don't care about node order
-            if not isinstance(edge['from'], list):
+            if not isinstance(edge['from'], (list, set)):
                 edge['from'] = [edge['from']] if edge['from'] is not None else []
 
-            if not isinstance(edge['to'], list):
+            if not isinstance(edge['to'], (list, set)):
                 edge['to'] = [edge['to']] if edge['to'] is not None else []
 
             edge['from'] = set(edge['from'])
