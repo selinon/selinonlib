@@ -1,1 +1,1 @@
-selinonlib_version = '0.1.0rc7'
+selinonlib_version = '0.1.0rc8'
