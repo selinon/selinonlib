@@ -1,22 +1,32 @@
 {
   "_meta": {
-    "datetime": "2017-11-21 08:42:38.848351",
+    "datetime": "2017-11-27 11:03:56.411684",
     "host": "localhost.localdomain",
     "selinonlib_version": "0.1.0rc6",
     "user": "fpokorny"
   },
   "migration": {
     "flow1": {
-      "tainted_edges": [
-        3
-      ],
+      "tainted_edges": {
+        "3": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [
+            "Task2"
+          ],
+          "to": [
+            "Task3"
+          ]
+        }
+      },
       "tainting_nodes": {},
       "translation": {
         "3": null
       }
     },
     "flow2": {
-      "tainted_edges": [],
+      "tainted_edges": {},
       "tainting_nodes": {},
       "translation": {}
     }

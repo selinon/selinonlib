@@ -177,7 +177,11 @@ class TestPerformMigration(SelinonlibTestCase):
         assert exc_info.value.migration_version == 3
         assert exc_info.value.latest_migration_version == 3
         assert exc_info.value.tainting_nodes is None
-        assert exc_info.value.tainted_edge == 3
+        assert exc_info.value.tainted_edge == {
+            'condition_str': {'name': 'alwaysTrue'},
+            'from': ['Task2'],
+            'to': ['Task3']
+        }
 
     @migrate_message_exception(MigrationFlowFail, 'flow1', 1,
                                state_dict(active_nodes=[{'name': 'Task3', 'id': 'id3'}],
@@ -199,4 +203,8 @@ class TestPerformMigration(SelinonlibTestCase):
         assert exc_info.value.migration_version == 3
         assert exc_info.value.latest_migration_version == 3
         assert exc_info.value.tainting_nodes is None
-        assert exc_info.value.tainted_edge == 3
+        assert exc_info.value.tainted_edge == {
+            'condition_str': {'name': 'alwaysTrue'},
+            'from': ['Task2'],
+            'to': ['Task3']
+        }

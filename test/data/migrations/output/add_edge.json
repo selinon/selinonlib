@@ -1,9 +1,17 @@
 {
   "migration": {
     "flow1": {
-      "tainted_edges": [
-        0
-      ],
+      "tainted_edges": {
+        "0": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [],
+          "to": [
+            "Task2"
+          ]
+        }
+      },
       "tainting_nodes": {
         "1": [
           "Task1"
@@ -15,7 +23,7 @@
       }
     },
     "flow2": {
-      "tainted_edges": [],
+      "tainted_edges": {},
       "tainting_nodes": {
         "1": [
           "Task3"
@@ -24,9 +32,17 @@
       "translation": {}
     },
     "flow3": {
-      "tainted_edges": [
-        0
-      ],
+      "tainted_edges": {
+        "0": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [],
+          "to": [
+            "Task2"
+          ]
+        }
+      },
       "tainting_nodes": {
         "1": [
           "Task1"
@@ -38,10 +54,28 @@
       }
     },
     "flow4": {
-      "tainted_edges": [
-        0,
-        1
-      ],
+      "tainted_edges": {
+        "0": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [],
+          "to": [
+            "Task3"
+          ]
+        },
+        "1": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [
+            "Task3"
+          ],
+          "to": [
+            "Task1"
+          ]
+        }
+      },
       "tainting_nodes": {
         "1": [
           "Task1"
@@ -59,9 +93,19 @@
       }
     },
     "flow5": {
-      "tainted_edges": [
-        1
-      ],
+      "tainted_edges": {
+        "1": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [
+            "Task1"
+          ],
+          "to": [
+            "Task3"
+          ]
+        }
+      },
       "tainting_nodes": {
         "1": [
           "Task1"
@@ -76,9 +120,19 @@
       }
     },
     "flow6": {
-      "tainted_edges": [
-        1
-      ],
+      "tainted_edges": {
+        "1": {
+          "condition_str": {
+            "name": "alwaysTrue"
+          },
+          "from": [
+            "Task1"
+          ],
+          "to": [
+            "Task3"
+          ]
+        }
+      },
       "tainting_nodes": {
         "2": [
           "Task1",
@@ -90,7 +144,7 @@
       }
     },
     "flow7": {
-      "tainted_edges": [],
+      "tainted_edges": {},
       "tainting_nodes": {
         "2": [
           "Task1",

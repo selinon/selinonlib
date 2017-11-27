@@ -87,6 +87,11 @@ class Predicate(metaclass=abc.ABCMeta):
         return AlwaysTruePredicate(flow=flow)
 
     @staticmethod
+    def construct_default_dict():
+        """Construct default predicate definition as it would be written in the configuration file."""
+        return {'name': 'alwaysTrue'}
+
+    @staticmethod
     def construct(tree, nodes_from, flow, can_inspect_results=True):  # pylint: disable=too-many-branches
         """Top-down creation of predicates - recursively called to construct predicates.
 
