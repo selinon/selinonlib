@@ -2,7 +2,12 @@
   "_meta": null,
   "migration": {
     "flow1": {
-      "tainted_edges": [1],
+      "tainted_edges": {
+        "1": {
+          "from": ["Task1"],
+          "to": ["Task2"]
+        }
+      },
       "tainting_nodes": {
         "2": ["Task1"]
       },

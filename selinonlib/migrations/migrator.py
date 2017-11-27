@@ -21,6 +21,7 @@ from selinonlib import selinonlib_version
 from selinonlib.errors import RequestError
 from selinonlib.errors import UnknownError
 from selinonlib.helpers import dict2json
+from selinonlib.predicate import Predicate
 
 from .taintedFlowStrategy import TaintedFlowStrategy
 
@@ -142,6 +143,24 @@ class Migrator(object):
             'user': user
         }
 
+    @staticmethod
+    def _is_same_migration(migration1, migration2):
+        """Check if two migrations match, migration attributes that do not have effect on migration are ignored."""
+        if migration1.keys() != migration2.keys():
+            return False
+
+        for flow_name in migration1.keys():
+            if migration1[flow_name]['tainting_nodes'] != migration2[flow_name]['tainting_nodes']:
+                return False
+
+            if set(migration1[flow_name]['tainted_edges'].keys()) != set(migration2[flow_name]['tainted_edges'].keys()):
+                return False
+
+            if migration1[flow_name]['translation'] != migration2[flow_name]['translation']:
+                return False
+
+        return True
+
     def _warn_on_same_migration(self, migration):
         """Warn if the newly created migration is same as the old one."""
         # This could be optimized - we can reuse the latest migration version retrieval from call from caller.
@@ -153,7 +172,7 @@ class Migrator(object):
         with open(last_migration_path, 'r') as last_migration_file:
             content = yaml.safe_load(last_migration_file)
 
-        if content['migration'] == migration:
+        if self._is_same_migration(content['migration'], migration):
             _logger.warning("Newly created migration is same as the old configuration. "
                             "Please make sure you don't run the same migration twice!")
 
@@ -161,12 +180,13 @@ class Migrator(object):
         """Write computed migration to migration dir."""
         new_migration_file_name = self._get_new_migration_file_name()
         new_migration_file_path = os.path.join(self.migration_dir, new_migration_file_name)
+
+        self._warn_on_same_migration(migration)
+
         migration_file_content = {
             'migration': migration,
             'tainted_flow_strategy': tainted_flow_strategy.name
         }
-
-        self._warn_on_same_migration(migration)
 
         if add_meta:
             migration_file_content['_meta'] = self._get_migration_metadata()
@@ -184,8 +204,11 @@ class Migrator(object):
         """
         for idx, edge in enumerate(edges):
             for key in list(edge.keys()):
-                if key not in ('from', 'to'):
+                # For debug purposes - keep condition entry so it is written to the migration and tracing module can
+                # report tainted edges correctly.
+                if key not in ('from', 'to', 'condition'):
                     edge.pop(key)
+
             edge['_idx'] = idx
             # We don't care about node order
             if not isinstance(edge['from'], list):
@@ -196,6 +219,9 @@ class Migrator(object):
 
             edge['from'] = set(edge['from'])
             edge['to'] = set(edge['to'])
+
+            if 'condition' not in edge:
+                edge['condition'] = Predicate.construct_default_dict()
 
     def _calculate_flow_migration(self, old_flow_edges, new_flow_edges):
         """Calculate migration for a flow.
@@ -232,7 +258,9 @@ class Migrator(object):
 
         # Edges that were in the old flow, but they are not in the new one - if they run, it
         # means that the flow was tainted.
-        tainted_edges = list(edge['_idx'] for edge in old_unmatched)
+        # Also be consistent with tracing mechanism - use condition_str instead of condition key.
+        tainted_edges = {str(edge['_idx']): {'from': edge['from'], 'to': edge['to'], 'condition_str': edge['condition']}
+                         for edge in old_unmatched}
 
         # Source nodes of newly added edges would cause that the newly added edge would be executed. If these nodes
         # already run, the flow is tainted.
@@ -376,9 +404,9 @@ class Migrator(object):
         tainted_flow_strategy = TaintedFlowStrategy.get_option_by_name(migration_spec['tainted_flow_strategy'])
         tainted = False
         for idx, waiting_edge in enumerate(waiting_edges):
-            if waiting_edge in flow_migration['tainted_edges']:
+            if str(waiting_edge) in flow_migration['tainted_edges'].keys():
                 tainted = True
-                raise_on_tainted_state(tainted_edge=waiting_edge)
+                raise_on_tainted_state(tainted_edge=flow_migration['tainted_edges'][str(waiting_edge)])
 
             if str(waiting_edge) in flow_migration['translation']:
                 state['waiting_edges'][idx] = flow_migration['translation'][str(waiting_edge)]
@@ -426,7 +454,8 @@ class Migrator(object):
         if migration_version > latest_migration_version:
             raise MigrationSkew("Received message with a newer migration number, "
                                 "message migration version: %d, latest migration number present available: %d"
-                                % (migration_version, latest_migration_version), latest_migration_version)
+                                % (migration_version, latest_migration_version),
+                                available_migration_version=latest_migration_version)
 
         tainted = False
         current_migration_version = migration_version
@@ -440,7 +469,8 @@ class Migrator(object):
                     migration_spec = yaml.safe_load(migration_file)
             except FileNotFoundError as exc:
                 raise MigrationSkew("Migration file %r not found, cannot perform migrations"
-                                    % current_migration_path, current_migration_version) from exc
+                                    % current_migration_path,
+                                    available_migration_version=current_migration_version) from exc
 
             state, taints_flow = self._do_migration(migration_spec,
                                                     flow_name,

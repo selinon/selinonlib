@@ -7,7 +7,7 @@
   },
   "migration": {
     "flow1": {
-      "tainted_edges": [],
+      "tainted_edges": {},
       "tainting_nodes": {
         "2": [
           "Task2"

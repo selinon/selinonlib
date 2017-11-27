@@ -138,8 +138,9 @@ class TestCreateMigration(SelinonlibTestCase):
             # required fields
             assert 'tainted_edges' in migration['migration'][flow_name], \
                 "Migration check failed in flow %r" % flow_name
-            assert set(reference_migration['migration'][flow_name]['tainted_edges']) \
-                   == set(migration['migration'][flow_name]['tainted_edges']), \
+            json.dumps(migration['migration'][flow_name]['tainted_edges'])
+            assert set(reference_migration['migration'][flow_name]['tainted_edges'].keys()) \
+                   == set(migration['migration'][flow_name]['tainted_edges'].keys()), \
                 "Migration check failed in flow %r" % flow_name
 
             assert 'tainting_nodes' in migration['migration'][flow_name], \

@@ -8,6 +8,7 @@
 
 from contextlib import contextmanager
 import json
+from json import JSONEncoder
 import logging
 import os
 import subprocess
@@ -16,6 +17,10 @@ import tempfile
 from .errors import RequestError
 
 _logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+
+
+class _SelinonJSONEncoder(JSONEncoder):
+    """Enhanced JSON serializer."""
 
 
 def dict2strkwargs(dict_):
@@ -77,8 +82,14 @@ def dict2json(dict_, pretty=True):
     :return: formatted dict in json
     :rtype: str
     """
+    def default(obj):
+        """Serialize some additional types that the default encoder does not support."""
+        if isinstance(obj, set):
+            return list(obj)
+        raise TypeError("Cannot serialize %r of type %r" % (obj, type(obj)))
+
     if pretty is True:
-        return json.dumps(dict_, sort_keys=True, separators=(',', ': '), indent=2)
+        return json.dumps(dict_, sort_keys=True, separators=(',', ': '), indent=2, default=default)
 
     return json.dumps(dict_)
 
