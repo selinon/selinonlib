@@ -128,7 +128,7 @@ def git_previous_version(file_path):
         err_msg = "Failed to get previous version of file %r using git: %s" % (file_path, str(exc.output))
         raise RequestError(err_msg) from exc
 
-    cmd = "git rev-list --ancestry-path {}..master".format(git_hash).split(' ')
+    cmd = "git rev-list --ancestry-path {}..HEAD".format(git_hash).split(' ')
     try:
         depth = len(subprocess.check_output(cmd, stderr=subprocess.STDOUT, universal_newlines=True))
     except subprocess.CalledProcessError as exc:
