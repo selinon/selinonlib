@@ -8,6 +8,6 @@ pymongo
 SQLAlchemy
 SQLAlchemy-Utils
 boto3
-pytest-capturelog
+pytest-catchlog
 pydocstyle
 #redis
