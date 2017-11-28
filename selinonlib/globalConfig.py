@@ -6,6 +6,8 @@
 # ######################################################################
 """User's global configuration section parsed from YAML config file."""
 
+import os
+
 from .errors import ConfigurationError
 from .helpers import check_conf_keys
 
@@ -168,9 +170,33 @@ class GlobalConfig(object):
         if 'trace' in dict_:
             cls._parse_trace(system, dict_.pop('trace'))
 
+        # Default dispatcher queue
         cls.default_dispatcher_queue = dict_.pop('default_dispatcher_queue', cls.DEFAULT_CELERY_QUEUE)
+        try:
+            cls.default_dispatcher_queue = cls.default_dispatcher_queue.format(**os.environ)
+        except KeyError as exc:
+            err_msg = "Expansion of default dispatcher queue based on environment variables failed, " \
+                      "queue: %r" % cls.default_dispatcher_queue
+            raise ConfigurationError(err_msg) from exc
+
+        # Default task queue
         cls.default_task_queue = dict_.pop('default_task_queue', cls.DEFAULT_CELERY_QUEUE)
+        try:
+            cls.default_task_queue = cls.default_task_queue.format(**os.environ)
+        except KeyError as exc:
+            err_msg = "Expansion of default task queue based on environment variables failed, " \
+                      "queue: %r" % cls.default_task_queue
+            raise ConfigurationError(err_msg) from exc
+
+        # Migration directory
         cls.migration_dir = dict_.pop('migration_dir', None)
+        if cls.migration_dir:
+            try:
+                cls.migration_dir = cls.migration_dir.format(**os.environ)
+            except KeyError as exc:
+                err_msg = "Expansion of migration directory based on environment variables failed, " \
+                          "proposed migration dir: %r" % cls.migration_dir
+                raise ConfigurationError(err_msg) from exc
 
         if dict_:
             raise ConfigurationError("Unknown configuration options supplied in global configuration section: %s"
