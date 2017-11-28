@@ -22,7 +22,7 @@ pytest:
 	@# set timeout so we do not wait in infinite loops and such
 	@# Make sure we have -p no:celery otherwise py.test is trying to do dirty stuff with loading celery.contrib
 	@echo ">>> Executing testsuite"
-	PYTHONPATH="test/:${PYTHONPATH}" python3 -m pytest -s -vvl --timeout=2 --nocapturelog -p no:celery test/
+	PYTHONPATH="test/:${PYTHONPATH}" python3 -m pytest -s -vvl --timeout=2 -p no:celery test/
 
 pylint:
 	@echo ">>> Running PyLint"
