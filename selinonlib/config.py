@@ -101,7 +101,6 @@ class Config(metaclass=_ConfigSingleton):
         'style': 'dashed'
     }
     DEFAULT_STYLE_GRAPH = {
-        'color': 'black'
     }
     DEFAULT_STYLE_FALLBACK_EDGE = {
         'arrowType': 'open',
