@@ -8,7 +8,6 @@
 
 from contextlib import contextmanager
 import json
-from json import JSONEncoder
 import logging
 import os
 import subprocess
@@ -17,10 +16,6 @@ import tempfile
 from .errors import RequestError
 
 _logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
-
-
-class _SelinonJSONEncoder(JSONEncoder):
-    """Enhanced JSON serializer."""
 
 
 def dict2strkwargs(dict_):
@@ -43,7 +38,7 @@ def expr2str(expr):
     elif isinstance(expr, str):
         return "'%s'" % expr
 
-    # some build in type such as bool/int/...
+    # some built-in type such as bool/int/...
     return "%s" % str(expr)
 
 
@@ -60,7 +55,7 @@ def keylist2str(keylist):
 
 @contextmanager
 def pushd(new_dir):
-    """Traverse directory tree in push/pop manner.
+    """Traverse a directory tree in a pushd/popd manner.
 
     :param new_dir: new directory to cd to
     :type new_dir: str
@@ -73,12 +68,15 @@ def pushd(new_dir):
         os.chdir(prev_dir)
 
 
-def dict2json(dict_, pretty=True):
+def dict2json(dict_, pretty=True, safe=True):
     """Convert dict to json (string).
 
     :param dict_: dictionary to be converted
+    :type dict_: dict
     :param pretty: if True, nice formatting will be used
     :type pretty: bool
+    :param safe: perform safe dump
+    :type safe: bool
     :return: formatted dict in json
     :rtype: str
     """
@@ -86,12 +84,18 @@ def dict2json(dict_, pretty=True):
         """Serialize some additional types that the default encoder does not support."""
         if isinstance(obj, set):
             return list(obj)
-        raise TypeError("Cannot serialize %r of type %r" % (obj, type(obj)))
+        return str(obj)
 
-    if pretty is True:
-        return json.dumps(dict_, sort_keys=True, separators=(',', ': '), indent=2, default=default)
+    kwargs = {}
+    if pretty:
+        kwargs['sort_keys'] = True
+        kwargs['separators'] = (',', ': ')
+        kwargs['indent'] = 2
 
-    return json.dumps(dict_)
+    if safe:
+        kwargs['default'] = default
+
+    return json.dumps(dict_, **kwargs)
 
 
 def get_function_arguments(func):
