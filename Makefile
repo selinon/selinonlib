@@ -26,7 +26,7 @@ pytest:
 
 pylint:
 	@echo ">>> Running PyLint"
-	pylint selinonlib
+	pylint selinonlib selinonlib-cli
 
 coala:
 	@# We need to run coala in a virtual env due to dependency issues

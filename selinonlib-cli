@@ -4,25 +4,29 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
+"""Selinonlib command line interface."""
+# pylint: disable=invalid-name
 
-import sys
-import os
-import json
 import argparse
-import logging
-import argcomplete
 from functools import partial
+import json
+import logging
+import os
+import sys
+
+import argcomplete
+from celery import __version__ as celery_version
 from rainbow_logging_handler import RainbowLoggingHandler
 from selinon import selinon_version
-from celery import __version__ as celery_version
-from selinonlib import selinonlib_version, selinonlib_version_codename
-from selinonlib import System
 from selinonlib import Config
+from selinonlib import selinonlib_version
+from selinonlib import selinonlib_version_codename
+from selinonlib import System
 from selinonlib.errors import RequestError
-from selinonlib.migrations import Migrator
-from selinonlib.migrations import TaintedFlowStrategy
 from selinonlib.helpers import git_previous_version
 from selinonlib.helpers import git_previous_version_file
+from selinonlib.migrations import Migrator
+from selinonlib.migrations import TaintedFlowStrategy
 from selinonlib.simulator import Simulator
 
 _logger = logging.getLogger(os.path.basename(__file__))
@@ -107,8 +111,8 @@ class Command(object):
 
         parser.add_argument('--node-args', '-a', action='store', dest='node_args', metavar='NODE_ARGS',
                             default=cls.DEFAULT_SIMULATE_NODE_ARGS,
-                            help='specify arguments that should be passed to a flow (default: %s)'
-                                 % cls.DEFAULT_SIMULATE_NODE_ARGS)
+                            help='specify arguments that should be passed to a flow '
+                                 '(default: %s)' % cls.DEFAULT_SIMULATE_NODE_ARGS)
         parser.add_argument('--node-args-file', action='store', dest='node_args_file', metavar='FILE',
                             help='specify arguments that should be passed to a flow by a file')
         parser.add_argument('--node-args-json', '-j', action='store_true', dest='node_args_json',
@@ -120,8 +124,8 @@ class Command(object):
                                  '(default: %s)' % cls.DEFAULT_SIMULATE_CONCURRENCY)
         parser.add_argument('--sleep-time', '-s', action='store', dest='sleep_time', type=float,
                             default=cls.DEFAULT_SIMULATE_SLEEP_TIME,
-                            help='accuracy for worker sleeping when a task is scheduled to future (default: %s)'
-                                 % cls.DEFAULT_SIMULATE_SLEEP_TIME)
+                            help='accuracy for worker sleeping when a task is scheduled to future '
+                                 '(default: %s)' % cls.DEFAULT_SIMULATE_SLEEP_TIME)
 
         parser.add_argument('--config-py', action='store', dest='config_py',
                             help='path to file where should be generated config.py placed')
@@ -229,6 +233,7 @@ class Command(object):
 
         :param args: arguments for migrate command
         """
+        # pylint: disable=too-many-branches
         if int(args.old_flow_definitions is not None) + int(args.old_nodes_definition is not None) == 1:
             raise RequestError("Please provide all flow and nodes configuration files or use --git")
 
@@ -435,6 +440,6 @@ class Command(object):
 if __name__ == '__main__':
     try:
         sys.exit(Command.main())
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-except
         _logger.exception(exc)
         sys.exit(3)
