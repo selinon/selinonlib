@@ -4,24 +4,29 @@
 # Copyright (C) 2016-2017  Fridolin Pokorny, fridolin.pokorny@gmail.com
 # This file is part of Selinon project.
 # ######################################################################
+"""Selinonlib command line interface."""
+# pylint: disable=invalid-name
 
-import sys
-import os
-import json
 import argparse
-import logging
-import argcomplete
 from functools import partial
+import json
+import logging
+import os
+import sys
+
+import argcomplete
+from celery import __version__ as celery_version
 from rainbow_logging_handler import RainbowLoggingHandler
 from selinon import selinon_version
-from celery import __version__ as celery_version
-from selinonlib import selinonlib_version, selinonlib_version_codename
-from selinonlib import System
 from selinonlib import Config
-from selinonlib.migrations import Migrator
-from selinonlib.migrations import TaintedFlowStrategy
+from selinonlib import selinonlib_version
+from selinonlib import selinonlib_version_codename
+from selinonlib import System
+from selinonlib.errors import RequestError
 from selinonlib.helpers import git_previous_version
 from selinonlib.helpers import git_previous_version_file
+from selinonlib.migrations import Migrator
+from selinonlib.migrations import TaintedFlowStrategy
 from selinonlib.simulator import Simulator
 
 _logger = logging.getLogger(os.path.basename(__file__))
@@ -106,8 +111,8 @@ class Command(object):
 
         parser.add_argument('--node-args', '-a', action='store', dest='node_args', metavar='NODE_ARGS',
                             default=cls.DEFAULT_SIMULATE_NODE_ARGS,
-                            help='specify arguments that should be passed to a flow (default: %s)'
-                                 % cls.DEFAULT_SIMULATE_NODE_ARGS)
+                            help='specify arguments that should be passed to a flow '
+                                 '(default: %s)' % cls.DEFAULT_SIMULATE_NODE_ARGS)
         parser.add_argument('--node-args-file', action='store', dest='node_args_file', metavar='FILE',
                             help='specify arguments that should be passed to a flow by a file')
         parser.add_argument('--node-args-json', '-j', action='store_true', dest='node_args_json',
@@ -119,8 +124,8 @@ class Command(object):
                                  '(default: %s)' % cls.DEFAULT_SIMULATE_CONCURRENCY)
         parser.add_argument('--sleep-time', '-s', action='store', dest='sleep_time', type=float,
                             default=cls.DEFAULT_SIMULATE_SLEEP_TIME,
-                            help='accuracy for worker sleeping when a task is scheduled to future (default: %s)'
-                                 % cls.DEFAULT_SIMULATE_SLEEP_TIME)
+                            help='accuracy for worker sleeping when a task is scheduled to future '
+                                 '(default: %s)' % cls.DEFAULT_SIMULATE_SLEEP_TIME)
 
         parser.add_argument('--config-py', action='store', dest='config_py',
                             help='path to file where should be generated config.py placed')
@@ -228,17 +233,18 @@ class Command(object):
 
         :param args: arguments for migrate command
         """
+        # pylint: disable=too-many-branches
         if int(args.old_flow_definitions is not None) + int(args.old_nodes_definition is not None) == 1:
-            raise ValueError("Please provide all flow and nodes configuration files or use --git")
+            raise RequestError("Please provide all flow and nodes configuration files or use --git")
 
         use_old_files = args.old_flow_definitions is not None
         usage_clash = int(use_old_files) + int(args.use_git)
         if usage_clash == 2:
-            raise ValueError("Option --git is disjoint with explicit configuration file specification")
+            raise RequestError("Option --git is disjoint with explicit configuration file specification")
 
         if usage_clash == 0:
-            raise ValueError("Use --git or explicit old configuration file specification in order "
-                             "to access old config files")
+            raise RequestError("Use --git or explicit old configuration file specification in order "
+                               "to access old config files")
 
         if args.use_git:
             # Compute version that directly precedes the current master - there is relevant change
@@ -262,12 +268,12 @@ class Command(object):
                 try:
                     System.from_files(args.nodes_definition, args.flow_definitions)
                 except Exception as e:
-                    raise ValueError("There is an error in your new configuration files: {}".format(str(e))) from e
+                    raise RequestError("There is an error in your new configuration files: {}".format(str(e))) from e
 
                 try:
                     System.from_files(old_nodes_definition, old_flow_definitions)
                 except Exception as e:
-                    raise ValueError("There is an error in your old configuration files: {}".format(str(e))) from e
+                    raise RequestError("There is an error in your old configuration files: {}".format(str(e))) from e
 
             migrator = Migrator(args.migration_dir)
             new_migration_file = migrator.create_migration_file(
@@ -296,7 +302,7 @@ class Command(object):
         :param args: arguments for simulate command
         """
         if args.node_args and args.node_args_file:
-            raise ValueError("Node arguments could be specified by command line argument or a file, but not from both")
+            raise RequestError("Node arguments could be specified by command line argument or a file, but not from both")
 
         node_args = args.node_args
         if args.node_args_file:
@@ -304,10 +310,13 @@ class Command(object):
                 node_args = f.read()
 
         if args.node_args_json:
-            node_args = json.loads(node_args)
+            try:
+                node_args = json.loads(node_args)
+            except Exception as e:
+                raise RequestError("Unable to parse JSON arguments: %s" % str(e)) from e
 
         if args.concurrency <= 0:
-            raise ValueError("Concurrency has to be positive number")
+            raise RequestError("Concurrency has to be positive number")
 
         if args.concurrency != 1:
             raise NotImplementedError("Concurrency is currently not implemented")
@@ -327,9 +336,9 @@ class Command(object):
             }
         else:
             if args.selective_follow_subflows:
-                raise ValueError("Option --selective-follow-subflows requires --selective-task-names set")
+                raise RequestError("Option --selective-follow-subflows requires --selective-task-names set")
             if args.selective_run_subsequent:
-                raise ValueError("Option --selective-run-subsequent requires --selective-task-names set")
+                raise RequestError("Option --selective-run-subsequent requires --selective-task-names set")
 
         simulator = Simulator(args.nodes_definition, args.flow_definitions, **opts)
         simulator.run(args.flow_name, node_args)
@@ -423,7 +432,7 @@ class Command(object):
         _logger.debug("Arguments supplied: %s", str(args))
         command = getattr(cls, args.subcommand, None)
         if command is None:
-            raise RuntimeError('Unhandled sub-command provided: %s' % str(args))
+            raise RequestError('Unhandled sub-command provided: %s' % str(args))
 
         return command(args)
 
@@ -431,6 +440,6 @@ class Command(object):
 if __name__ == '__main__':
     try:
         sys.exit(Command.main())
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-except
         _logger.exception(exc)
         sys.exit(3)
