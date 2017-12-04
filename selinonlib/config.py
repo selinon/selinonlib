@@ -8,7 +8,7 @@
 
 import yaml
 
-from selinon.errors import RequestError
+from selinonlib.errors import RequestError
 
 
 class _ConfigSingleton(type):
