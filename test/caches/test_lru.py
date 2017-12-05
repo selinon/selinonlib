@@ -8,7 +8,7 @@
 import pytest
 from selinon.errors import CacheMissError
 from selinonlib.caches import LRU
-from selinonlibTestCase import SelinonlibTestCase
+from selinonlib_test_case import SelinonlibTestCase
 
 
 class TestLRU(SelinonlibTestCase):

@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """Supportive and handling library for Selinon."""
 
-from .builtinPredicate import AndPredicate
-from .builtinPredicate import BuiltinPredicate
-from .builtinPredicate import NaryPredicate
-from .builtinPredicate import NotPredicate
-from .builtinPredicate import OrPredicate
-from .builtinPredicate import UnaryPredicate
+from .builtin_predicate import AndPredicate
+from .builtin_predicate import BuiltinPredicate
+from .builtin_predicate import NaryPredicate
+from .builtin_predicate import NotPredicate
+from .builtin_predicate import OrPredicate
+from .builtin_predicate import UnaryPredicate
 from .codename import selinonlib_version_codename
 from .config import Config
 from .edge import Edge
 from .errors import *  # pylint: disable=wildcard-import
 from .flow import Flow
-from .leafPredicate import LeafPredicate
+from .leaf_predicate import LeafPredicate
 from .node import Node
 from .predicate import Predicate
 from .storage import Storage

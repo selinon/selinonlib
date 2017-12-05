@@ -1,7 +1,7 @@
-selinonlib.leafPredicate module
+selinonlib.global_config module
 ===============================
 
-.. automodule:: selinonlib.leafPredicate
+.. automodule:: selinonlib.global_config
     :members:
     :undoc-members:
     :show-inheritance:

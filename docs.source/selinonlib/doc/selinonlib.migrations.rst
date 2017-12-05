@@ -7,7 +7,7 @@ Submodules
 .. toctree::
 
    selinonlib.migrations.migrator
-   selinonlib.migrations.taintedFlowStrategy
+   selinonlib.migrations.tainted_flow_strategy
 
 Module contents
 ---------------

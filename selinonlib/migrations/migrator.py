@@ -23,7 +23,7 @@ from selinonlib.errors import UnknownError
 from selinonlib.helpers import dict2json
 from selinonlib.predicate import Predicate
 
-from .taintedFlowStrategy import TaintedFlowStrategy
+from .tainted_flow_strategy import TaintedFlowStrategy
 
 _logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -324,7 +324,7 @@ class Migrator(object):
         :param new_flow_definitions_path: a list of paths to new flow definition files
         :type new_flow_definitions_path: list
         :param tainted_flow_strategy: flow strategy for tainted flows
-        :type tainted_flow_strategy: selinonlib.migrator.taintedFlowStrategy.TaintedFlowStrategy
+        :type tainted_flow_strategy: selinonlib.migrator.tainted_flow_strategy.TaintedFlowStrategy
         :param add_meta: add metadata information
         :type add_meta: bool
         :return: a path to newly created migration file

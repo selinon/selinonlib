@@ -12,23 +12,23 @@ Core Selinonlib
 
 .. autosummary::
 
-   selinonlib.builtinPredicate
+   selinonlib.builtin_predicate
    selinonlib.config
-   selinonlib.cacheConfig
+   selinonlib.cache_config
    selinonlib.edge
-   selinonlib.failureNode
+   selinonlib.failure_node
    selinonlib.failures
    selinonlib.flow
-   selinonlib.globalConfig
+   selinonlib.global_config
    selinonlib.helpers
-   selinonlib.leafPredicate
+   selinonlib.leaf_predicate
    selinonlib.node
    selinonlib.predicate
-   selinonlib.selectiveRunFunction
+   selinonlib.selective_run_function
    selinonlib.storage
    selinonlib.strategy
    selinonlib.system
-   selinonlib.taskClass
+   selinonlib.task_class
    selinonlib.task
 
 Task result and task state caches
@@ -63,11 +63,11 @@ CLI simulator implementation
 .. autosummary::
 
    selinonlib.simulator
-   selinonlib.simulator.celeryMocks
+   selinonlib.simulator.celery_mocks
    selinonlib.simulator.progress
-   selinonlib.simulator.queuePool
+   selinonlib.simulator.queue_pool
    selinonlib.simulator.simulator
-   selinonlib.simulator.timeQueue
+   selinonlib.simulator.time_queue
 
 Storage and database adapters
 #############################
@@ -75,11 +75,11 @@ Storage and database adapters
 .. autosummary::
 
    selinonlib.storages
-   selinonlib.storages.inMemoryStorage
+   selinonlib.storages.in_memory_storage
    selinonlib.storages.mongo
    selinonlib.storages.redis
    selinonlib.storages.s3
-   selinonlib.storages.sqlStorage
+   selinonlib.storages.sql_storage
 
 Migrations
 ##########
@@ -88,7 +88,7 @@ Migrations
 
    selinonlib.migrations
    selinonlib.migrations.migrator
-   selinonlib.migrations.taintedFlowStrategy
+   selinonlib.migrations.tainted_flow_strategy
 
 Predefined scheduling strategies
 ################################

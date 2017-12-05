@@ -11,7 +11,7 @@ import importlib
 import logging
 
 from .errors import ConfigurationError
-from .globalConfig import GlobalConfig
+from .global_config import GlobalConfig
 from .helpers import dict2strkwargs
 from .helpers import get_function_arguments
 from .predicate import Predicate

@@ -18,14 +18,14 @@ import graphviz
 from .config import Config
 from .errors import ConfigurationError
 from .flow import Flow
-from .globalConfig import GlobalConfig
+from .global_config import GlobalConfig
 from .helpers import check_conf_keys
 from .helpers import dict2strkwargs
 from .helpers import expr2str
-from .selectiveRunFunction import SelectiveRunFunction
+from .selective_run_function import SelectiveRunFunction
 from .storage import Storage
 from .task import Task
-from .taskClass import TaskClass
+from .task_class import TaskClass
 from .version import selinonlib_version
 
 # pylint: disable=too-many-locals,too-many-nested-blocks,too-many-boolean-expressions,too-many-lines

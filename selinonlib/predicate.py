@@ -82,7 +82,7 @@ class Predicate(metaclass=abc.ABCMeta):
         :type flow: Flow
         :rtype: Predicate
         """
-        from .builtinPredicate import AlwaysTruePredicate
+        from .builtin_predicate import AlwaysTruePredicate
 
         return AlwaysTruePredicate(flow=flow)
 
@@ -104,8 +104,8 @@ class Predicate(metaclass=abc.ABCMeta):
         :type can_inspect_results: bool
         :rtype: Predicate
         """
-        from .leafPredicate import LeafPredicate
-        from .builtinPredicate import OrPredicate, AndPredicate, NotPredicate
+        from .leaf_predicate import LeafPredicate
+        from .builtin_predicate import OrPredicate, AndPredicate, NotPredicate
 
         if not tree:
             raise ConfigurationError("Bad condition '%s'" % tree)

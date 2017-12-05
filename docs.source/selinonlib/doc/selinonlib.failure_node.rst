@@ -1,7 +1,7 @@
-selinonlib.globalConfig module
+selinonlib.failure_node module
 ==============================
 
-.. automodule:: selinonlib.globalConfig
+.. automodule:: selinonlib.failure_node
     :members:
     :undoc-members:
     :show-inheritance:
