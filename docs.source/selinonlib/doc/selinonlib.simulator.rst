@@ -6,11 +6,11 @@ Submodules
 
 .. toctree::
 
-   selinonlib.simulator.celeryMocks
+   selinonlib.simulator.celery_mocks
    selinonlib.simulator.progress
-   selinonlib.simulator.queuePool
+   selinonlib.simulator.queue_pool
    selinonlib.simulator.simulator
-   selinonlib.simulator.timeQueue
+   selinonlib.simulator.time_queue
 
 Module contents
 ---------------

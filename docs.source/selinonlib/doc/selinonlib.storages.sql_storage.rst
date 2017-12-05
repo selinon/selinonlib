@@ -1,7 +1,7 @@
-selinonlib.selectiveRunFunction module
+selinonlib.storages.sql_storage module
 ======================================
 
-.. automodule:: selinonlib.selectiveRunFunction
+.. automodule:: selinonlib.storages.sql_storage
     :members:
     :undoc-members:
     :show-inheritance:

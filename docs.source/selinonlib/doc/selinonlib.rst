@@ -19,26 +19,26 @@ Submodules
 
 .. toctree::
 
-   selinonlib.builtinPredicate
-   selinonlib.cacheConfig
+   selinonlib.builtin_predicate
+   selinonlib.cache_config
    selinonlib.codename
    selinonlib.config
    selinonlib.edge
    selinonlib.errors
-   selinonlib.failureNode
+   selinonlib.failure_node
    selinonlib.failures
    selinonlib.flow
-   selinonlib.globalConfig
+   selinonlib.global_config
    selinonlib.helpers
-   selinonlib.leafPredicate
+   selinonlib.leaf_predicate
    selinonlib.node
    selinonlib.predicate
-   selinonlib.selectiveRunFunction
+   selinonlib.selective_run_function
    selinonlib.storage
    selinonlib.strategy
    selinonlib.system
    selinonlib.task
-   selinonlib.taskClass
+   selinonlib.task_class
    selinonlib.version
 
 Module contents
