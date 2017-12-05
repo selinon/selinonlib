@@ -37,7 +37,7 @@ from flexmock import flexmock
 from selinon import Config
 from selinon import run_flow
 from selinon import run_flow_selective
-from selinon.systemState import SystemState
+from selinon.system_state import SystemState
 from selinonlib import UnknownError
 from selinonlib.global_config import GlobalConfig
 
