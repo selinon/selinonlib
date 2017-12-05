@@ -12,7 +12,7 @@ from selinonlib.migrations import Migrator
 from selinon.errors import MigrationFlowFail
 from selinon.errors import MigrationFlowRetry
 from selinon.errors import MigrationSkew
-from selinonlibTestCase import SelinonlibTestCase
+from selinonlib_test_case import SelinonlibTestCase
 
 
 def state_dict(**state_kwargs):

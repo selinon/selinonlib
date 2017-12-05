@@ -9,7 +9,7 @@
 from itertools import chain
 
 from .errors import ConfigurationError
-from .failureNode import FailureNode
+from .failure_node import FailureNode
 from .helpers import check_conf_keys
 
 

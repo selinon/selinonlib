@@ -6,7 +6,7 @@
 # ######################################################################
 """Pool of all queues in the system."""
 
-from .timeQueue import TimeQueue
+from .time_queue import TimeQueue
 
 
 class QueuePool(object):

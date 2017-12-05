@@ -12,7 +12,7 @@ import os
 import re
 
 from .errors import ConfigurationError
-from .globalConfig import GlobalConfig
+from .global_config import GlobalConfig
 
 
 class Node(metaclass=abc.ABCMeta):

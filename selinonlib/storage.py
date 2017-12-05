@@ -6,7 +6,7 @@
 # ######################################################################
 """Storage configuration and abstraction from YAML config file."""
 
-from .cacheConfig import CacheConfig
+from .cache_config import CacheConfig
 from .errors import ConfigurationError
 from .helpers import check_conf_keys
 

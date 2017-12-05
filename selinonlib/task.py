@@ -10,7 +10,7 @@ import logging
 
 from .errors import ConfigurationError
 from .node import Node
-from .selectiveRunFunction import SelectiveRunFunction
+from .selective_run_function import SelectiveRunFunction
 
 
 class Task(Node):

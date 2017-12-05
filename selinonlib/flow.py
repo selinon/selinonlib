@@ -8,7 +8,7 @@
 
 import logging
 
-from .cacheConfig import CacheConfig
+from .cache_config import CacheConfig
 from .edge import Edge
 from .errors import ConfigurationError
 from .failures import Failures

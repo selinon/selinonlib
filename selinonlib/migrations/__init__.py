@@ -2,4 +2,4 @@
 """Migrations of configuration files."""
 
 from .migrator import Migrator
-from .taintedFlowStrategy import TaintedFlowStrategy
+from .tainted_flow_strategy import TaintedFlowStrategy

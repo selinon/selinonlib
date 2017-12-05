@@ -12,9 +12,9 @@ Selinon locally was designed for development purposes and behaviour in general c
 
 The key idea behind simulator is to simulate exchange of messages which is done by your Celery broker and Kombu under
 the hood of Celery. Thus there are lazily created queues that are referenced by their names (see
-selinonlib.simulator.timeQueue for implementation details). These queues hold messages prior to time on which they were
+selinonlib.simulator.time_queue for implementation details). These queues hold messages prior to time on which they were
 scheduled. Under the hood there is used a heap queue to optimize inserting to O(log(N)) in the worst case where N is
-number messages currently in the queue. These queues are coupled into QueuePool (selinonlib.simulate.queuePool) which
+number messages currently in the queue. These queues are coupled into QueuePool (selinonlib.simulate.queue_pool) which
 encapsulates all queues, keeps their references, instantiates it lazily and provides concurrency safety.
 
 In order to avoid starving, QueuePool keeps track of the queue ("a last used queue") which prevents from
@@ -39,14 +39,14 @@ from selinon import run_flow
 from selinon import run_flow_selective
 from selinon.systemState import SystemState
 from selinonlib import UnknownError
-from selinonlib.globalConfig import GlobalConfig
+from selinonlib.global_config import GlobalConfig
 
-from .celeryMocks import simulate_apply_async
-from .celeryMocks import simulate_retry
-from .celeryMocks import SimulateAsyncResult
-from .celeryMocks import SimulateRetry
+from .celery_mocks import simulate_apply_async
+from .celery_mocks import simulate_retry
+from .celery_mocks import SimulateAsyncResult
+from .celery_mocks import SimulateRetry
 from .progress import Progress
-from .queuePool import QueuePool
+from .queue_pool import QueuePool
 
 
 class Simulator(object):

@@ -16,7 +16,7 @@ from selinonlib.strategies import (
     random,
     constant
 )
-from selinonlibTestCase import SelinonlibTestCase
+from selinonlib_test_case import SelinonlibTestCase
 
 # Values used in tests for strategies functions
 _TEST_START_RETRY = 2

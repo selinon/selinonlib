@@ -8,7 +8,7 @@
 import pytest
 from selinon.errors import CacheMissError
 from selinonlib.caches import (FIFO, LIFO, LRU, MRU, RR)
-from selinonlibTestCase import SelinonlibTestCase
+from selinonlib_test_case import SelinonlibTestCase
 
 # Available caches that should be tested
 _CACHE_TYPES = [

@@ -21,7 +21,7 @@ from selinon.errors import MigrationNotNeeded
 from selinonlib.migrations import Migrator
 from selinonlib.migrations import TaintedFlowStrategy
 
-from selinonlibTestCase import SelinonlibTestCase
+from selinonlib_test_case import SelinonlibTestCase
 
 
 def migration_creation_test(tainted_flow_strategy=None):
