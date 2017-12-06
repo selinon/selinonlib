@@ -23,6 +23,11 @@ def get_version():
 if sys.version_info[0] != 3:
     sys.exit("Python3 is required in order to install selinonlib")
 
+
+with open('README.rst', 'r') as f:
+    long_description = f.read()
+
+
 setup(
     name=NAME,
     version=get_version(),
@@ -35,6 +40,7 @@ setup(
     maintainer_email='fpokorny@redhat.com',
     description='a simple tool to visualize, check and generate Python code from a YAML configuration file for Selinon'
                 ' dispatcher for Celery',
+    long_description=long_description,
     url='https://github.com/selinon/selinonlib',
     license='BSD',
     keywords='node task graph edge celery selinon yaml condition',
