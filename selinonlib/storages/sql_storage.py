@@ -13,12 +13,9 @@ try:
     from sqlalchemy.dialects.postgresql import JSONB
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import sessionmaker
-except ImportError:
-    raise ImportError("Please install SQLAlchemy using `pip3 install SQLAlchemy` in order to use SQLStorage")
-try:
     from sqlalchemy_utils import create_database, database_exists
-except ImportError:
-    raise ImportError("Please install SQLAlchemy-Utils using `pip3 install SQLAlchemy-Utils in order to use SQLStorage")
+except ImportError as exc:
+    raise ImportError("Please install dependencies using `pip3 install selinonlib[postgresql]`") from exc
 
 _Base = declarative_base()  # pylint: disable=invalid-name
 

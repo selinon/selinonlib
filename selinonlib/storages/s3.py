@@ -9,8 +9,8 @@
 try:
     import boto3
     import botocore
-except ImportError:
-    raise ImportError("Please install boto3 using `pip3 install boto3` in order to use S3 storage")
+except ImportError as exc:
+    raise ImportError("Please install boto3 using `pip3 install selinonlib[s3]` in order to use S3 storage") from exc
 from selinon import DataStorage
 
 
