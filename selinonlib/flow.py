@@ -52,6 +52,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         self.cache_config = opts.pop('cache_config', CacheConfig.get_default(self.name))
         self.max_retry = opts.pop('max_retry', self._DEFAULT_MAX_RETRY)
         self.retry_countdown = opts.pop('retry_countdown', self._DEFAULT_RETRY_COUNTDOWN)
+        self.eager_failures = opts.pop('eager_failures', [])
 
         # disjoint config options
         assert self.propagate_finished is not True and self.propagate_compound_finished is not True  # nosec
@@ -95,7 +96,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         known_conf_keys = ('name', 'failures', 'nowait', 'cache', 'sampling', 'throttling', 'node_args_from_first',
                            'propagate_node_args', 'propagate_finished', 'propagate_parent', 'propagate_parent_failures',
                            'edges', 'propagate_compound_finished', 'queue', 'max_retry', 'retry_countdown',
-                           'propagate_failures', 'propagate_compound_failures')
+                           'propagate_failures', 'propagate_compound_failures', 'eager_failures')
 
         unknown_conf = check_conf_keys(flow_def, known_conf_keys)
         if unknown_conf:
@@ -129,6 +130,14 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
             for node_name in flow_def['nowait']:
                 node = system.node_by_name(node_name)
                 self.add_nowait_node(node)
+
+        if 'eager_failures' in flow_def and flow_def['eager_failures']:
+            if not isinstance(flow_def['eager_failures'], list):
+                flow_def['eager_failures'] = [flow_def['eager_failures']]
+
+            for node_name in flow_def['eager_failures']:
+                node = system.node_by_name(node_name)
+                self.add_eager_failure(node)
 
         if 'cache' in flow_def:
             if not isinstance(flow_def['cache'], dict):
@@ -166,6 +175,13 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         :param node: add a node that should be marked with nowait flag
         """
         self.nowait_nodes.append(node)
+
+    def add_eager_failure(self, node):
+        """Add a node to eager failure nodes listing.
+
+        :param node: a node that should be marked as eager failure node
+        """
+        self.eager_failures.append(node)
 
     def all_nodes_from(self):
         """Compute all nodes that are stated in 'from' in edges section for this flow.

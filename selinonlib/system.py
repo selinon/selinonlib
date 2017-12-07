@@ -565,6 +565,21 @@ class System(object):
 
         output.write('\n}\n\n')
 
+    def _dump_eager_failures(self, output):
+        """Dump eager failures to a stream.
+
+        :param output: a stream to write to
+        """
+        output.write('eager_failures = {\n')
+        printed = False
+        for flow in self.flows:
+            if printed:
+                output.write(',\n')
+            output.write("    '%s': %s" % (flow.name, [node.name for node in flow.eager_failures]))
+            printed = True
+
+        output.write('\n}\n\n')
+
     @staticmethod
     def _dump_settings(output):
         """Dump generic settings that do not belong anywhere.
@@ -651,6 +666,7 @@ class System(object):
         self._dump_selective_run_functions(stream)
         stream.write('#'*80+'\n\n')
         self._dump_nowait_nodes(stream)
+        self._dump_eager_failures(stream)
         stream.write('#'*80+'\n\n')
         self._dump_init(stream)
         stream.write('#'*80+'\n\n')
@@ -999,6 +1015,20 @@ class System(object):
                     if nowait_node not in flow.all_destination_nodes():
                         raise ConfigurationError("Node '%s' marked as 'nowait' but this node is never started in "
                                                  "flow '%s'" % (nowait_node.name, flow.name))
+
+                for node in flow.eager_failures if isinstance(flow.eager_failures, list) else []:
+                    if node not in flow.all_used_nodes():
+                        raise ConfigurationError("Node %r marked as eager failure node in flow %r, but "
+                                                 "this node is not present in the flow" % (node.name, flow.name))
+                    if node in flow.nowait_nodes:
+                        raise ConfigurationError("Node %r marked as eager failure node in flow %r, but "
+                                                 "this node is also present in nowait nodes, thus it's result "
+                                                 "cannot be be inspected" % (node.name, flow.name))
+
+                    if node in flow.failures.all_waiting_nodes():
+                        raise ConfigurationError("Node %r marked as eager failure node in flow %r, but "
+                                                 "this node has defined a fallback, thus it cannot stop "
+                                                 "flow execution eagerly" % (node.name, flow.name))
 
                 self._check_propagate(flow)
 
