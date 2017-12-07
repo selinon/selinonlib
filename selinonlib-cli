@@ -15,7 +15,6 @@ import os
 import sys
 
 import argcomplete
-from celery import __version__ as celery_version
 from rainbow_logging_handler import RainbowLoggingHandler
 from selinon import selinon_version
 from selinonlib import Config
@@ -381,6 +380,11 @@ class Command(object):
 
         :param args: arguments for version command
         """
+        try:
+            from celery import __version__ as celery_version
+        except ImportError:
+            celery_version = 'Not Installed'
+
         if args.codename:
             print(selinonlib_version_codename)
         else:

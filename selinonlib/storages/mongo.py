@@ -8,8 +8,9 @@
 
 try:
     from pymongo import MongoClient
-except ImportError:
-    raise ImportError("Please install pymongo using `pip3 install pymongo` in order to use MongoStorage")
+except ImportError as exc:
+    raise ImportError("Please install dependencies using `pip3 install selinonlib[mongodb]` "
+                      "in order to use MongoStorage") from exc
 from selinon import DataStorage
 
 
