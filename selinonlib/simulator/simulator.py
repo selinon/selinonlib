@@ -27,6 +27,7 @@ In order to understand how Simulator works, you need to understand how Celery wo
 documentation if you are a Celery-newbie.
 """
 
+import copy
 from datetime import datetime
 from datetime import timedelta
 import logging
@@ -115,7 +116,8 @@ class Simulator(object):
                 kwargs = celery_kwargs.get('kwargs')
                 # remove additional metadata placed by Selinon when doing tracing
                 kwargs.pop('meta', None)
-                result = task.run(**kwargs)
+                # Perform deep copy so any modification on task arguments does not affect arguments in queues.
+                result = task.run(copy.deepcopy(**kwargs))
 
                 # Dispatcher needs info about flow (JSON), but SelinonTaskEnvelope always returns None - we
                 # need to keep track of success)
