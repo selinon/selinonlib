@@ -1056,46 +1056,41 @@ class System(object):
                                  "never run in any flow", node.name, node.class_name, node.import_path)
 
     @classmethod
-    def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
-        """Construct System from files.
+    def _setup_nodes(cls, system, nodes_definition, nodes_definition_file_name):
+        """Configure nodes available in the system based on supplied configuration.
 
-        :param nodes_definition_file: path to nodes definition file
-        :param flow_definition_files: path to files that describe flows
-        :param no_check: True if system shouldn't be checked for consistency (recommended to check)
-        :return: System instance
-        :rtype: System
+        :param system: system instance to be used
+        :type system: selinonlib.system.System
+        :param nodes_definition: a list of dictionaries holding flow configuration
+        :type nodes_definition: dict
+        :param nodes_definition_file_name: a name of nodes definition file (used in messages for better debugging)
+        :type nodes_definition_file_name: str
         """
-        # pylint: disable=too-many-branches,too-many-statements
+        def append_file_name_if_any(error_message):
+            """Append file name to an error message."""
+            if nodes_definition_file_name:
+                error_message += ", in file %r" % nodes_definition_file_name
+            return error_message
 
         # known top-level YAML keys for YAML config files (note flows.yml could be merged to nodes.yml)
         known_yaml_keys = ('tasks', 'flows', 'storages', 'global', 'flow-definitions')
 
-        system = System()
-
-        with open(nodes_definition_file, 'r') as nodes_file:
-            cls._logger.debug("Parsing '%s'", nodes_definition_file)
-            try:
-                content = yaml.load(nodes_file, Loader=yaml.SafeLoader)
-            except Exception as exc:
-                error_msg = "Bad YAML file, unable to load tasks from %r: %s" % (nodes_definition_file, str(exc))
-                raise ConfigurationError(error_msg) from exc
-
-        unknown_conf = check_conf_keys(content, known_conf_opts=known_yaml_keys)
+        unknown_conf = check_conf_keys(nodes_definition, known_conf_opts=known_yaml_keys)
         if unknown_conf:
-            cls._logger.warning("Unknown configuration keys in file '%s', will be skipped: %s",
-                                nodes_definition_file, list(unknown_conf.keys()))
+            cls._logger.warning("Unknown configuration keys in the nodes definitions, "
+                                "will be skipped: %s", list(unknown_conf.keys()))
 
-        for storage_dict in content.get('storages', []):
+        for storage_dict in nodes_definition.get('storages', []):
             storage = Storage.from_dict(storage_dict)
             system.add_storage(storage)
 
-        if 'global' in content:
-            GlobalConfig.from_dict(system, content['global'])
+        if 'global' in nodes_definition:
+            GlobalConfig.from_dict(system, nodes_definition['global'])
 
-        if 'tasks' not in content or content['tasks'] is None:
-            raise ConfigurationError("No tasks defined in the system")
+        if 'tasks' not in nodes_definition or nodes_definition['tasks'] is None:
+            raise ConfigurationError(append_file_name_if_any("No tasks defined in the system"))
 
-        for task_dict in content['tasks']:
+        for task_dict in nodes_definition['tasks']:
             task = Task.from_dict(task_dict, system)
             task_class = system.class_of_task(task)
             if not task_class:
@@ -1105,12 +1100,77 @@ class System(object):
             task.task_class = task_class
             system.add_task(task)
 
-        if 'flows' not in content or content['flows'] is None:
-            raise ValueError("No flow listing defined in the system")
+        if 'flows' not in nodes_definition or nodes_definition['flows'] is None:
+            raise ConfigurationError(append_file_name_if_any("No flow listing defined in the system"
+                                                             "in nodes definition"))
 
-        for flow_name in content['flows']:
+        for flow_name in nodes_definition['flows']:
             flow = Flow(flow_name)
             system.add_flow(flow)
+
+    @classmethod
+    def _setup_flows(cls, system, flow_definitions, flow_definition_file_name=None):
+        """Configure Flow instances based on supplied configuration.
+
+        :param system: system instance to be used
+        :type system: selinonlib.system.System
+        :param flow_definitions: a list of dictionaries holding flow configuration
+        :type flow_definitions: list
+        :param flow_definition_file_name: a name of flow definition file (used in messages for better debugging)
+        :type flow_definition_file_name: str
+        """
+        def append_file_name_if_any(error_message):
+            """Append file name to an error message."""
+            if flow_definition_file_name:
+                error_message += ", in file %r" % flow_definition_file_name
+            return error_message
+
+        if not isinstance(flow_definitions, list):
+            flow_definitions = [flow_definitions]
+
+        for content in flow_definitions:
+            flow_definitions = content.get('flow-definitions')
+            if flow_definitions is None:
+                error_msg = append_file_name_if_any("No flow-definitions provided in flow specification")
+                raise ConfigurationError(error_msg)
+
+            for flow_def in content['flow-definitions']:
+                if 'name' not in flow_def:
+                    error_msg = append_file_name_if_any("No flow name provided in the flow definition")
+                    raise ConfigurationError(error_msg)
+
+                flow = system.flow_by_name(flow_def['name'])
+                try:
+                    flow.parse_definition(flow_def, system)
+                except:
+                    error_msg = append_file_name_if_any("Failed to parse flow definition for flow %r"
+                                                        % flow_def['name'])
+                    cls._logger.error(error_msg)
+                    raise
+
+    @classmethod
+    def from_files(cls, nodes_definition_file, flow_definition_files, no_check=False):
+        """Construct System from files.
+
+        :param nodes_definition_file: path to nodes definition file
+        :type nodes_definition_file: str
+        :param flow_definition_files: path to files that describe flows
+        :type flow_definition_files: str
+        :param no_check: True if system shouldn't be checked for consistency (recommended to check)
+        :return: System instance
+        :rtype: System
+        """
+        system = System()
+
+        with open(nodes_definition_file, 'r') as nodes_file:
+            cls._logger.debug("Parsing '%s'", nodes_definition_file)
+            try:
+                nodes_definition = yaml.load(nodes_file, Loader=yaml.SafeLoader)
+            except Exception as exc:
+                error_msg = "Bad YAML file, unable to load %r: %s" % (nodes_definition_file, str(exc))
+                raise ConfigurationError(error_msg) from exc
+
+            cls._setup_nodes(system, nodes_definition, nodes_definition_file)
 
         if not isinstance(flow_definition_files, list):
             flow_definition_files = [flow_definition_files]
@@ -1124,24 +1184,32 @@ class System(object):
                     error_msg = "Bad YAML file, unable to load flow from %r: %s" % (flow_file, str(exc))
                     raise ConfigurationError(error_msg) from exc
 
-            unknown_conf = check_conf_keys(content, known_conf_opts=known_yaml_keys)
-            if unknown_conf:
-                cls._logger.warning("Unknown configuration keys in file '%s', will be skipped: %s",
-                                    flow_file, list(unknown_conf.keys()))
+                cls._setup_flows(system, content, flow_file)
 
-            flow_definitions = content.get('flow-definitions')
-            if flow_definitions is None:
-                raise ConfigurationError("No flow definitions provided in file '%s'" % flow_file)
-            for flow_def in content['flow-definitions']:
-                if 'name' not in flow_def:
-                    raise ConfigurationError("No flow name provided in the flow definition in file '%s'", flow_file)
-                flow = system.flow_by_name(flow_def['name'])
-                try:
-                    flow.parse_definition(flow_def, system)
-                except:
-                    cls._logger.error("Failed to parse flow definition from file '%s' for flow '%s'",
-                                      flow_file, flow_def['name'])
-                    raise
+        system._post_parse_check()  # pylint: disable=protected-access
+        if not no_check:
+            system._check()  # pylint: disable=protected-access
+
+        return system
+
+    @classmethod
+    def from_dict(cls, nodes_definition, flow_definitions, no_check=False):
+        """Construct System from dictionaries.
+
+        :param nodes_definition: parsed nodes definition
+        :type nodes_definition: dict
+        :param flow_definitions: a list of parsed flow definitions
+        :type nodes_definition: list
+        :param no_check: True if system shouldn't be checked for consistency (recommended to check)
+        :return: System instance
+        :rtype: System
+        """
+        system = System()
+
+        cls._setup_nodes(system, nodes_definition, nodes_definition_file_name=None)
+
+        for flow_def in flow_definitions:
+            cls._setup_flows(system, flow_def, flow_definition_file_name=None)
 
         system._post_parse_check()  # pylint: disable=protected-access
         if not no_check:
