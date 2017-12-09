@@ -116,7 +116,7 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         if self.edges:
             raise ConfigurationError("Multiple definitions of flow '%s'" % self.name)
 
-        if 'edges' not in flow_def.keys() or not flow_def['edges'] or not isinstance(flow_def, list):
+        if 'edges' not in flow_def.keys() or not flow_def['edges'] or not isinstance(flow_def['edges'], list):
             raise ConfigurationError("No flow edges provided in flow %r" % self.name)
 
         for edge_def in flow_def['edges']:
