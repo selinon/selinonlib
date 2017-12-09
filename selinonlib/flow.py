@@ -109,11 +109,15 @@ class Flow(Node):  # pylint: disable=too-many-instance-attributes
         :param flow_def: dictionary containing flow definition
         :param system: system in which flow is defined
         """
+        # pylint: disable=too-many-branches
         assert flow_def['name'] == self.name  # nosec
         self._check_conf_keys(flow_def)
 
         if self.edges:
             raise ConfigurationError("Multiple definitions of flow '%s'" % self.name)
+
+        if 'edges' not in flow_def.keys() or not flow_def['edges'] or not isinstance(flow_def, list):
+            raise ConfigurationError("No flow edges provided in flow %r" % self.name)
 
         for edge_def in flow_def['edges']:
             edge = Edge.from_dict(edge_def, system, self)
