@@ -28,6 +28,9 @@ with open('README.rst', 'r') as f:
     long_description = f.read()
 
 
+raise NotImplementedError("This package no longer exists, it was merged with selinon")
+
+
 setup(
     name=NAME,
     version=get_version(),
@@ -44,12 +47,6 @@ setup(
     url='https://github.com/selinon/selinonlib',
     license='BSD',
     keywords='node task graph edge celery selinon yaml condition',
-    extras_require={
-        'mongodb': ['pymongo'],
-        'postgresql': ['SQLAlchemy' 'SQLAlchemy-Utils'],
-        'redis': ['redis'],
-        's3': ['boto3']
-    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",

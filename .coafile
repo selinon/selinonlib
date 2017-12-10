@@ -1,4 +1,0 @@
-[Default]
-bears = PEP8Bear,BanditBear,PyImportSortBear
-files = selinonlib/*.py,selinonlib/*/*.py,selinonlib-cli
-max_line_length = 121

@@ -1,7 +1,0 @@
-argcomplete
-graphviz
-codegen
-pyyaml
-selinon
-flexmock
-rainbow_logging_handler
